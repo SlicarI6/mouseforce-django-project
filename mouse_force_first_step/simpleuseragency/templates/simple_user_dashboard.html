@@ -1,0 +1,963 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Customer Dashboard{% endblock %}
+
+{% block extra_head %}
+<link rel="stylesheet" href="{% static 'css/simpleuser_style_agency.css' %}">
+<link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+{% endblock %}
+
+{% block header %}
+<nav class="bg-transparent px-4 py-2">
+  <div class="flex items-center justify-between">
+
+    <!-- Logo + Welcome -->
+    <div class="flex items-center gap-4">
+      <img src="{% static 'images/mouseforce.png' %}" alt="Mouseforce"
+           class="h-10 w-auto" style="border-bottom-left-radius: 100px; border-bottom-right-radius: 100px;">
+      <span class="text-xl font-semibold text-black">Welcome, {{ user.username }}</span>
+    </div>
+
+    <!-- Meniu + Clopoțel + Avatar -->
+    <div class="flex items-center space-x-6">
+  <div class="hidden sm:flex space-x-4 text-sm font-medium">
+    <a href="#" class="text-black hover:underline">Security</a>
+
+    {% if user.is_superuser %}
+        <a href="{% url 'chat_user_list' %}" class="text-black hover:underline">👥 Admin Chat Panel</a>
+    {% else %}
+        <a href="{% url 'simple_user_chat_redirect' %}" class="text-black hover:underline">💬 ChatMe</a>
+    {% endif %}
+
+    {% if has_subscription %}
+        <a href="{% url 'unsubscribe' %}" class="text-black hover:underline"
+           onclick="event.preventDefault(); document.getElementById('unsubscribe-form').submit();">Unsubscribe</a>
+        <form id="unsubscribe-form" method="POST" action="{% url 'unsubscribe' %}" style="display: none;">
+            {% csrf_token %}
+        </form>
+    {% else %}
+        <div style="display: inline-block;">
+            <a href="#" class="text-black hover:underline" id="subscribeLink">Subscribe</a>
+
+            <div id="verifyCodeSection" style="display: none; margin-top: 5px;">
+                <input type="text" id="verificationCode" placeholder="check your gmail" maxlength="6"
+                       style="padding: 3px; border: 1px solid #ccc; border-radius: 5px; font-size: 12px;">
+                <button id="verifyBtn" style="padding: 3px 8px; margin-left: 5px; font-size: 12px; background-color: #007bff; color: white; border: none; border-radius: 5px; cursor: pointer;">
+                    Verify
+                </button>
+                <p id="subscriptionMessage" style="font-size: 12px; color: red; margin-top: 2px;"></p>
+            </div>
+        </div>
+    {% endif %}
+</div>
+
+  <button id="hamburger-btn" class="sm:hidden text-black focus:outline-none">
+  <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+    <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16"/>
+  </svg>
+</button>
+      <!-- Clopoțel -->
+      <button class="text-black relative" onclick="toggleNotifications()" id="bellBtn">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round"
+                d="M14.857 17.082a23.848 23.848 0 005.454-1.31A8.967 8.967 0 0118 9.75V9A6 6 0 006 9v.75a8.967 8.967 0 01-2.312 6.022 23.855 23.855 0 005.455 1.31m5.714 0a3 3 0 11-5.714 0" />
+        </svg>
+        <span id="notificationBadge"
+              class="absolute -top-1 -right-1 bg-red-600 text-white text-xs px-1.5 py-0.5 rounded-full hidden">1</span>
+      </button>
+
+      <!-- Dropdown notificări -->
+      <div id="notificationDropdown"
+          class="absolute right-4 mt-2 w-72 bg-white shadow-xl rounded-xl p-3 z-50 hidden">
+        <h3 class="font-semibold text-sm mb-2">Notifications</h3>
+        <div id="notificationList" class="space-y-2">
+          <!-- notificările vor fi adăugate aici -->
+        </div>
+      </div>
+
+      <!-- Avatar + Pop-up -->
+<div class="relative">
+<button id="avatarBtn" class="focus:outline-none">
+  <div class="w-10 h-10 sm:w-12 sm:h-10 flex-shrink-0">
+    <img class="w-full h-full rounded-full object-cover"
+         src="{% if user.profile_picture %}{{ user.profile_picture }}{% else %}{% static 'images/default_avatar.png' %}{% endif %}"
+         alt="Avatar">
+  </div>
+</button>
+
+
+
+
+
+  <div id="profileCard" class="hidden absolute right-0 mt-2 w-80 bg-white rounded-xl shadow-lg p-6 z-50 text-center">
+    <div class="relative w-20 h-20 mx-auto">
+      {% if user.profile_picture %}
+        <img class="w-20 h-20 rounded-full object-cover border" src="{{ user.profile_picture }}" alt="Avatar">
+      {% else %}
+        <img class="w-20 h-20 rounded-full object-cover border" src="{% static 'images/default_avatar.png' %}" alt="Avatar">
+      {% endif %}
+
+      <!-- Nou: upload cu iconiță -->
+      <form method="POST" action="{% url 'update_profile_picture' %}" enctype="multipart/form-data">
+        {% csrf_token %}
+        <label for="fileInput" class="absolute bottom-0 right-0 bg-white rounded-full p-1 shadow-md cursor-pointer">
+          <img src="{% static 'images/pen_avatar.png' %}" alt="Edit" class="w-5 h-5">
+        </label>
+        <input id="fileInput" type="file" name="profile_picture" class="hidden" onchange="this.form.submit();">
+      </form>
+    </div>
+
+    <p class="text-sm text-gray-500 mt-2">{{ user.email }}</p>
+    <h2 class="text-lg font-semibold mt-1">Hi, {{ user.first_name|capfirst }}!</h2>
+
+    <button class="mt-2 px-4 py-1 border border-gray-300 rounded-full text-blue-600 text-sm hover:bg-gray-100">
+      Manage your Account
+    </button>
+
+    <form method="POST" action="{% url 'logout' %}" class="mt-4">
+      {% csrf_token %}
+      <button type="submit"
+        class="w-full flex items-center justify-center gap-2 px-4 py-2 bg-gray-100 hover:bg-gray-200 text-black font-medium rounded-lg transition">
+        <img src="{% static 'images/logout_avatar.png' %}" alt="Logout Icon" class="w-6 h-6">
+        Logout
+      </button>
+    </form>
+  </div>
+</div>
+
+    </div>
+  </div>
+</nav>
+
+
+
+<!-- Meniul lateral pentru mobil -->
+<div id="mobile-menu-overlay" class="mobile-menu-overlay"></div>
+<div id="mobile-menu" class="mobile-menu">
+  <button id="close-menu-btn" class="close-menu-btn" aria-label="Close menu">&times;</button>
+  <div class="mobile-menu-content">
+    
+    <a href="{% url 'simple_user_dashboard' %}" class="menu-link-simple">Security</a>
+    <a href="{% url 'simple_user_chat_redirect' %}" class="menu-link-simple">💬 ChatMe</a>
+    <a href="{% url 'contact' %}" class="menu-link-simple">Contact</a>
+
+    {% if has_subscription %}
+    <a href="{% url 'unsubscribe' %}" class="menu-link-simple"
+       onclick="event.preventDefault(); document.getElementById('unsubscribe-form').submit();">Unsubscribe</a>
+    <form id="unsubscribe-form" method="POST" action="{% url 'unsubscribe' %}" style="display: none;">
+        {% csrf_token %}
+    </form>
+    {% else %}
+        <a href="#" id="subscribeLinkMobile" class="menu-link-simple">Subscribe</a>
+
+    <div id="verifyCodeSectionMobile" style="display: none; margin-top: 10px; padding: 0 24px;">
+        <input type="text" id="verificationCodeMobile" placeholder="Check your gmail" maxlength="6"
+               style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 5px; font-size: 14px; color: #333; background-color: #f0f0f0;">
+        <button id="verifyBtnMobile" style="width: 100%; margin-top: 10px; padding: 10px; font-size: 14px; background-color: #CAFF73; color: black; border: none; border-radius: 5px; cursor: pointer; font-weight: bold;">
+            Verify
+        </button>
+        <p id="subscriptionMessageMobile" style="font-size: 12px; color: #ff4d4d; margin-top: 8px; text-align: center;"></p>
+    </div>
+    {% endif %}
+
+    <form method="POST" action="{% url 'logout' %}">
+      {% csrf_token %}
+      <button type="submit" class="menu-link-simple" style="background:none;border:none;color:white;text-align:left;">Logout</button>
+    </form>
+
+  </div>
+</div>
+
+{% endblock %}
+
+
+
+
+{% block content %}
+
+
+
+<!-- SECTION ca Shopify final gata -->
+<section class="py-28 bg-black text-white">
+  <div class="max-w-[1200px] mx-auto px-6 grid grid-cols-1 md:grid-cols-12 gap-8 items-center">
+    
+    <!-- Col text -->
+    <div class="md:col-span-10 text-left max-w-7xl">
+      
+      <!-- Shopify’s Summer ’25 Edition is here -->
+      <a href="#" class="inline-block border-2 rounded-full text-base py-3 px-6 bg-[#B517C0] border-[#B517C0] text-white hover:text-white hover:bg-transparent hover:border-white mb-8 transition font-normal">
+        Soon Summer ’27 Edition is here
+      </a>
+      
+      <!-- Shopify for enterprise -->
+      <p class="text-sm font-bold uppercase leading-none mb-2 text-green-400 tracking-wide">
+        MOUSEFORCE AI AUTOMATION
+      </p>
+      
+      <!-- Heading mare cu animatie -->
+      <h1 class="text-6xl md:text-8xl font-light mb-6 leading-tight tracking-tight">
+        The world's most <span id="changingWord" style="color: #CAFF73;" class="transition-opacity duration-500 opacity-100">innovative</span> automation platform
+      </h1>
+      
+      <!-- Subtitlu -->
+      <p class="text-lg text-gray-400 mb-8 max-w-2xl">
+        Save time and work smarter with automation built around your needs.
+      </p>
+      
+    </div>
+    
+    <!-- Col buton dreapta -->
+    <div class="md:col-span-2 md:justify-self-end self-center">
+      <a href="#"
+         class="inline-block px-6 py-3 bg-[#CAFF73] text-black font-semibold rounded-full hover:bg-green-400 transition text-lg">
+        Get in touch →
+      </a>
+    </div>
+    
+  </div>
+</section>
+
+<section class="flex justify-center items-center min-h-screen" style="width: 100vw; margin-left: calc(50% - 50vw); background-color: #000000;">
+  <div class="max-w-7xl w-full flex flex-col md:flex-row overflow-visible" style="column-gap: clamp(32px, 3.75vw, 44px);">
+    
+    <!-- Text Content -->
+    <div class="p-8 flex-1 flex flex-col justify-start text-left">
+      <div class="relative">
+        <p class="absolute left-0 whitespace-nowrap text-sm font-semibold" style="bottom: calc(100% + 12px); color: #f5f5f5; font-size: 1.05rem;">
+          Save Time with <span style="color: #40d9d0;">AI Tools</span>
+        </p>
+        <h2 class="text-3xl font-bold text-white" style="width: clamp(420px, 38vw, 560px); max-width: none; font-size: 2.25rem;">Automate repetitive work and move up to 90% faster with practical AI trusted by our clients.</h2>
+        <p class="absolute left-0 text-base text-left" style="top: calc(100% + 24px); width: clamp(420px, 38vw, 560px); max-width: none; color: #d9dfdf; line-height: 1.65; font-size: 1.2rem;">
+          MouseForce builds practical automation and AI solutions around the way you work. From repetitive tasks and data processing to smarter workflows and custom integrations, we help reduce manual work, save time and improve efficiency. Pricing is tailored to each customer and project.
+          <span class="flex flex-wrap md:flex-nowrap items-center gap-x-4 gap-y-3 text-xs font-semibold" style="margin-top: 28px; color: #f2f5f5; font-size: 0.9rem;">
+            <span class="whitespace-nowrap"><span style="color: #40d9d0; font-size: 0.75rem;">✓</span> Automate repetitive tasks</span>
+            <span class="whitespace-nowrap"><span style="color: #40d9d0; font-size: 0.75rem;">✓</span> Reduce manual work</span>
+            <span class="whitespace-nowrap"><span style="color: #40d9d0; font-size: 0.75rem;">✓</span> Solutions tailored to your project</span>
+          </span>
+        </p>
+      </div>
+    </div>
+    
+    <!-- Image -->
+    <div class="flex-1 flex items-center justify-end self-center" style="flex-grow: 3; transform: translate(80px, -32px);">
+      <img src="{% static 'images/automation_simple_user_photo.png' %}" alt="Agentforce" class="object-contain h-auto" style="width: 115%; max-width: 115%;">
+    </div>
+    
+  </div>
+</section>
+
+
+
+
+<section class="py-10 bg-gray-100">
+  <div class="max-w-7xl mx-auto px-4">
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+      
+      <!-- Card 1 -->
+      <div class="bg-white rounded-lg shadow p-8 flex flex-col max-w-[400px] min-h-[480px] transform transition duration-300 hover:-translate-y-2 hover:shadow-2xl mx-auto">
+        <img src="{% static 'images/welding_time_resized.png' %}" alt="Serviceblazer image" class="w-[100px] h-[100px] mx-auto mb-4">
+        <h3 class="text-lg font-bold mb-2 text-center">
+          Building Smarter Automation
+        </h3>
+        <p class="text-gray-600 mb-4 text-left leading-relaxed tracking-normal">
+          Our work is focused on building practical automation and scripting solutions designed around each customer’s individual needs. We aim to reduce repetitive work, improve efficiency and help productivity reach its maximum potential. Every project is approached individually, with the goal of creating a reliable solution that works for the customer and helps them achieve what they need.
+        </p>
+      </div>
+      
+      <!-- Card 2 -->
+      <div class="bg-white rounded-lg shadow p-8 flex flex-col max-w-[400px] min-h-[480px] transform transition duration-300 hover:-translate-y-2 hover:shadow-2xl mx-auto">
+        <img src="{% static 'images/delivery_move_resized.png' %}" alt="AI CRM image" class="w-[100px] h-[100px] mx-auto mb-4">
+        <h3 class="text-lg font-bold mb-2 text-center">
+          Take the move – you're covered
+        </h3>
+        <p class="text-gray-600 mb-4 text-left leading-relaxed tracking-normal">
+          We focus on delivering every project quickly, efficiently and with a high level of reliability. Each customer and project is different, so we approach every case individually and take the time to understand exactly what is needed. We take every project seriously from the beginning and work carefully to make sure the final result meets your expectations. Our goal is to build and deliver practical solutions as quickly as possible without compromising quality. We keep communication clear throughout the process and focus on reducing unnecessary delays. Every solution is built around your specific requirements rather than using a one-size-fits-all approach. We work with attention to detail and always aim to provide a reliable result you can depend on. From the first discussion to final delivery, our focus is simple: create the right solution and deliver it efficiently for you.
+        </p>
+      </div>
+      
+      <!-- Card 3 -->
+      <div class="bg-white rounded-lg shadow p-8 flex flex-col max-w-[400px] min-h-[480px] transform transition duration-300 hover:-translate-y-2 hover:shadow-2xl mx-auto">
+        <img src="{% static 'images/containers_port_resized.png' %}" alt="Field Service Guide image" class="w-[100px] h-[100px] mx-auto mb-4">
+        <h3 class="text-lg font-bold mb-2 text-center">
+          Smart Mouseforce Solutions – Anytime, Anywhere in the UK
+        </h3>
+        <p class="text-gray-600 mb-4 text-left leading-relaxed tracking-normal">
+          We have extensive experience in automation, scripting, AI systems and database solutions. We can also securely store your project and important project data in our database for between one and two years, if requested. This means you can return to your project later knowing that a saved copy is still available with us, even if something happens to your laptop or PC. Each customer can receive dedicated storage space for their projects and related files at no additional cost. Think of it as your own secure digital container, keeping everything organised and ready when you need it again. If you need to continue, update or recover your project, we can retrieve the stored version and make it available to you. Our goal is to make project storage simple, convenient and reliable while giving you extra peace of mind.
+        </p>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<section class="w-full py-12" style="background-color: #19CFCF;">
+  <div class="max-w-7xl mx-auto px-4 flex flex-col md:flex-row items-center gap-10">
+    <div class="flex-1 text-left">
+      <h2 class="text-3xl font-bold text-gray-900" style="font-size: 2.15625rem;">Ready to grow?</h2>
+      <p class="mt-4 text-base leading-relaxed text-gray-700" style="font-size: 1.15rem;">
+        Tell us what you want to automate and we’ll help turn your idea into a practical solution. You can rely on our experience, attention to detail and commitment to quality — from the first conversation to final delivery.
+      </p>
+      <div class="mt-6 border-l-2 border-gray-900 pl-4">
+        <h3 class="text-lg font-bold text-gray-900" style="font-size: 1.29375rem;">Have an idea?</h3>
+        <p class="mt-2 text-base text-gray-700" style="font-size: 1.15rem;">
+          <a href="{% url 'simple_user_chat_redirect' %}" class="font-semibold text-gray-900 underline">Open ChatMe</a> and tell us what you’d like to build.
+        </p>
+      </div>
+      <p class="mt-6 text-base leading-relaxed text-gray-700" style="font-size: 1.15rem;">
+        Describe what you need, how you would like it to work and what you want to achieve. We’ll review your idea and provide you with clear pricing, estimated delivery time and all the details you need before moving forward. Every project is considered individually, so the solution and pricing are tailored specifically to your needs.
+      </p>
+    </div>
+    <div class="flex-shrink-0 w-full" style="max-width: 520px;">
+      <img src="{% static 'images/myself_img.png' %}" alt="MouseForce automation specialist" class="block w-full h-auto object-contain mx-auto rounded-xl" style="max-width: 442px;">
+    </div>
+  </div>
+</section>
+
+
+
+
+
+
+
+<!-- ✅ BARA DE FEEDBACK JOS (MINIMALĂ) -->
+<div class="feedback-bar">
+    <div class="bar-content">
+      <img src="{% static 'images/feedback.png' %}" class="feedback-icon" alt="Feedback">
+      <input type="text" id="quickMessage" placeholder="Let's see your feedback" maxlength="500">
+      <button class="arrow-button" id="sendButton" disabled onclick="submitQuickFeedback()">
+        <svg id="arrowIcon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" viewBox="0 0 24 24">
+          <path d="M2 21L23 12L2 3V10L17 12L2 14V21Z" />
+        </svg>
+      </button>
+    </div>
+    <!-- Acest buton trebuie să fie în afara divului .bar-content -->
+    <button class="expand-button" onclick="expandFeedback()">
+        <img src="{% static 'images/plus.png' %}" alt="Plus" class="plus-icon">
+    </button>
+  </div>
+
+{% include 'chat_widget_simple_agency.html' %}
+
+
+<!-- html pentru bara cea mare  -->
+<div id="feedbackOverlay" onclick="collapseFeedback()"></div>
+  <div id="expandedFeedback" class="chat-style-container">
+    <div class="chat-header">
+      <h3>Give Feedback</h3>
+      <button onclick="collapseFeedback()">✖</button>
+    </div>
+    <svg style="display: none;">
+      <defs>
+        <linearGradient id="halfGrad">
+          <stop offset="50%" stop-color="gold"/>
+          <stop offset="50%" stop-color="gray"/>
+        </linearGradient>
+      </defs>
+    </svg>
+    
+    <div class="chat-body">
+      <div class="form-row">
+      <label>⭐ Rating</label>
+      <div class="star-rating" id="starRating">
+        <svg class="star" data-value="1" xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 16 16">
+          <defs>
+            <linearGradient id="halfGrad">
+              <stop offset="50%" stop-color="gold"/>
+              <stop offset="50%" stop-color="gray"/>
+            </linearGradient>
+          </defs>
+          <path fill="gray" d="M2.866 14.85c-.078.444.36.791.746.593l4.39-2.256 4.389 2.256c.386.198.824-.149.746-.592l-.83-4.73 3.522-3.356c.33-.314.16-.888-.282-.95l-4.898-.696L8.465.792a.513.513 0 0 0-.927 0L5.354 5.12l-4.898.696c-.441.062-.612.636-.283.95l3.523 3.356-.83 4.73zm4.905-2.767-3.686 1.894.694-3.957a.56.56 0 0 0-.163-.505L1.71 6.745l4.052-.576a.53.53 0 0 0 .393-.288L8 2.223l1.847 3.658a.53.53 0 0 0 .393.288l4.052.575-2.906 2.77a.56.56 0 0 0-.163.506l.694 3.957-3.686-1.894a.5.5 0 0 0-.461 0z"/>
+        </svg>
+        <svg class="star" data-value="2" xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 16 16">
+          <path fill="gray" d="M2.866 14.85c-.078.444.36.791.746.593l4.39-2.256 4.389 2.256c.386.198.824-.149.746-.592l-.83-4.73 3.522-3.356c.33-.314.16-.888-.282-.95l-4.898-.696L8.465.792a.513.513 0 0 0-.927 0L5.354 5.12l-4.898.696c-.441.062-.612.636-.283.95l3.523 3.356-.83 4.73zm4.905-2.767-3.686 1.894.694-3.957a.56.56 0 0 0-.163-.505L1.71 6.745l4.052-.576a.53.53 0 0 0 .393-.288L8 2.223l1.847 3.658a.53.53 0 0 0 .393.288l4.052.575-2.906 2.77a.56.56 0 0 0-.163.506l.694 3.957-3.686-1.894a.5.5 0 0 0-.461 0z"/>
+        </svg>
+        <svg class="star" data-value="3" xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 16 16">
+          <path fill="gray" d="M2.866 14.85c-.078.444.36.791.746.593l4.39-2.256 4.389 2.256c.386.198.824-.149.746-.592l-.83-4.73 3.522-3.356c.33-.314.16-.888-.282-.95l-4.898-.696L8.465.792a.513.513 0 0 0-.927 0L5.354 5.12l-4.898.696c-.441.062-.612.636-.283.95l3.523 3.356-.83 4.73zm4.905-2.767-3.686 1.894.694-3.957a.56.56 0 0 0-.163-.505L1.71 6.745l4.052-.576a.53.53 0 0 0 .393-.288L8 2.223l1.847 3.658a.53.53 0 0 0 .393.288l4.052.575-2.906 2.77a.56.56 0 0 0-.163.506l.694 3.957-3.686-1.894a.5.5 0 0 0-.461 0z"/>
+        </svg>
+        <svg class="star" data-value="4" xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 16 16">
+          <path fill="gray" d="M2.866 14.85c-.078.444.36.791.746.593l4.39-2.256 4.389 2.256c.386.198.824-.149.746-.592l-.83-4.73 3.522-3.356c.33-.314.16-.888-.282-.95l-4.898-.696L8.465.792a.513.513 0 0 0-.927 0L5.354 5.12l-4.898.696c-.441.062-.612.636-.283.95l3.523 3.356-.83 4.73zm4.905-2.767-3.686 1.894.694-3.957a.56.56 0 0 0-.163-.505L1.71 6.745l4.052-.576a.53.53 0 0 0 .393-.288L8 2.223l1.847 3.658a.53.53 0 0 0 .393.288l4.052.575-2.906 2.77a.56.56 0 0 0-.163.506l.694 3.957-3.686-1.894a.5.5 0 0 0-.461 0z"/>
+        </svg>
+        <svg class="star" data-value="5" xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 16 16">
+          <path fill="gray" d="M2.866 14.85c-.078.444.36.791.746.593l4.39-2.256 4.389 2.256c.386.198.824-.149.746-.592l-.83-4.73 3.522-3.356c.33-.314.16-.888-.282-.95l-4.898-.696L8.465.792a.513.513 0 0 0-.927 0L5.354 5.12l-4.898.696c-.441.062-.612.636-.283.95l3.523 3.356-.83 4.73zm4.905-2.767-3.686 1.894.694-3.957a.56.56 0 0 0-.163-.505L1.71 6.745l4.052-.576a.53.53 0 0 0 .393-.288L8 2.223l1.847 3.658a.53.53 0 0 0 .393.288l4.052.575-2.906 2.77a.56.56 0 0 0-.163.506l.694 3.957-3.686-1.894a.5.5 0 0 0-.461 0z"/>
+        </svg>
+      </div>
+      <input type="hidden" id="ratingValue" name="rating">
+    </div>
+
+    <div class="form-row">
+      <label>🌍 Country</label>
+      <input type="text" name="country" id="countryInput" placeholder="Enter your country">
+    </div>
+
+    <div class="form-row">
+      <label>📝 Today's day</label>
+      <input type="date" id="dateInput" name="date" readonly>
+    </div>
+
+    <div class="form-row">
+      <label>🎙️ Audio</label>
+      <div class="move-button-record">
+        <button type="button" id="startRecord">Start</button>
+        <button type="button" id="stopRecord">Stop</button>
+      </div>
+      <p id="recordingStatus"></p>
+      <audio id="audioPlayer" controls style="display:none;"></audio>
+      <input type="file" id="audioInput" name="audio" accept="audio/*" style="display:none;" />
+    </div>
+    </div>
+<div class="chat-footer modern-footer">
+  <span class="emoji-label">📝</span>
+  <input type="text" id="feedbackInput" maxlength="500" placeholder="Let's see your feedback " />
+  <input type="hidden" id="ratingValue" value="">
+  <button type="submit" class="send-button" onclick="submitFeedback()">
+    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 16 16">
+      <path d="M15.854 7.646a.5.5 0 0 0 0-.707l-4-4a.5.5 0 1 0-.708.708L14.293 7.5H1.5a.5.5 0 0 0 0 1h12.793l-3.147 3.146a.5.5 0 0 0 .708.708l4-4z"/>
+    </svg>
+  </button>
+</div>
+    
+  </div>
+
+  
+{% endblock %}
+
+
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const hamburgerBtn = document.getElementById('hamburger-btn');
+    const closeMenuBtn = document.getElementById('close-menu-btn');
+    const mobileMenu = document.getElementById('mobile-menu');
+    const overlay = document.getElementById('mobile-menu-overlay');
+    const body = document.body;
+
+    function openMenu() {
+        if (mobileMenu && overlay) {
+            mobileMenu.classList.add('is-open');
+            overlay.classList.add('is-open');
+            body.classList.add('menu-open');
+        }
+    }
+
+    function closeMenu() {
+        if (mobileMenu && overlay) {
+            mobileMenu.classList.remove('is-open');
+            overlay.classList.remove('is-open');
+            body.classList.remove('menu-open');
+        }
+    }
+
+    if (hamburgerBtn) hamburgerBtn.addEventListener('click', openMenu);
+    if (closeMenuBtn) closeMenuBtn.addEventListener('click', closeMenu);
+    if (overlay) overlay.addEventListener('click', closeMenu);
+});
+</script>
+
+
+
+<!-- Script pentru animatie text -->
+<script>
+const words = [
+  "innovative",
+  "scaled",
+  "powerful",
+  "trusted",
+  "reliable",
+  "flexible",
+  "efficient",
+  "fast",
+  "growing",
+  "smart"
+];
+
+let i = 0;
+const wordElement = document.getElementById("changingWord");
+
+setInterval(() => {
+  // fade out
+  wordElement.classList.add("opacity-0");
+
+  setTimeout(() => {
+    // schimbă cuvântul
+    wordElement.innerText = words[i];
+    i = (i + 1) % words.length;
+
+    // fade in
+    wordElement.classList.remove("opacity-0");
+  }, 500); // fade out durata
+}, 2000); // schimbare la 2 secunde
+</script>
+
+
+
+
+<!-- pentru notification bar sa disapara .. cand faci click outside of notification container  -->
+<script>
+  document.addEventListener("click", function (e) {
+    const dropdown = document.getElementById("notificationDropdown");
+    const bellBtn = document.getElementById("bellBtn");
+
+    if (!dropdown.contains(e.target) && !bellBtn.contains(e.target)) {
+        dropdown.classList.add("hidden");
+    }
+});
+</script>
+
+
+
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+
+    // Funcție reutilizabilă pentru a configura logica de abonare
+    function setupSubscriptionForm(linkId, sectionId, codeInputId, verifyBtnId, messageId, linkDisplay = 'inline-block') {
+        const subscribeLink = document.getElementById(linkId);
+        const verifySection = document.getElementById(sectionId);
+        const verificationCodeInput = document.getElementById(codeInputId);
+        const verifyBtn = document.getElementById(verifyBtnId);
+        const messageBox = document.getElementById(messageId);
+
+        if (!subscribeLink || !verifySection || !verificationCodeInput || !verifyBtn) {
+            return; // Nu executa dacă elementele esențiale nu există
+        }
+
+        // Stare inițială
+        verifySection.style.display = 'none';
+        subscribeLink.style.display = linkDisplay;
+
+        // Listener pentru click pe "Subscribe"
+        subscribeLink.addEventListener('click', function (e) {
+            e.preventDefault();
+            fetch('/simple/subscribe/send-code/', {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': '{{ csrf_token }}',
+                }
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.success) {
+                    subscribeLink.style.display = 'none';
+                    verifySection.style.display = 'block';
+                    if (messageBox) messageBox.textContent = '';
+                } else {
+                    if (messageBox) messageBox.textContent = data.message || 'Error sending code.';
+                }
+            });
+        });
+
+        // Listener pentru click pe "Verify"
+        verifyBtn.addEventListener('click', function () {
+            const code = verificationCodeInput.value;
+            fetch('/simple/subscribe/verify-code/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                    'X-CSRFToken': '{{ csrf_token }}',
+                },
+                body: 'code=' + encodeURIComponent(code)
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.success) {
+                    location.reload();
+                } else {
+                    if (messageBox) messageBox.textContent = 'Wrong code. Please try again.';
+                }
+            });
+        });
+    }
+
+    // Inițializează formularul pentru Desktop
+    setupSubscriptionForm(
+        'subscribeLink',
+        'verifyCodeSection',
+        'verificationCode',
+        'verifyBtn',
+        'subscriptionMessage'
+    );
+
+    // Inițializează formularul pentru Mobil
+    setupSubscriptionForm(
+        'subscribeLinkMobile',
+        'verifyCodeSectionMobile',
+        'verificationCodeMobile',
+        'verifyBtnMobile',
+        'subscriptionMessageMobile',
+        'block' // Pentru mobil, link-ul este de tip block
+    );
+});
+</script>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    const avatarBtn = document.getElementById('avatarBtn');
+    const profileCard = document.getElementById('profileCard');
+
+    avatarBtn.addEventListener('click', function (e) {
+      e.stopPropagation();
+      profileCard.classList.toggle('hidden');
+    });
+
+    document.addEventListener('click', function (e) {
+      if (!profileCard.contains(e.target) && e.target !== avatarBtn) {
+        profileCard.classList.add('hidden');
+      }
+    });
+  });
+</script>
+
+<script>
+  const today = new Date().toISOString().split('T')[0];
+  document.getElementById('dateInput').value = today;
+</script>
+
+
+
+
+<!-- asta e pentru notificare ca sa mearga -->
+<script>
+  let notifCount = 0;
+  let hasMessageNotification = false;
+
+  const username = "{{ request.user.username }}";
+  const protocol = window.location.protocol === "https:" ? "wss://" : "ws://";
+
+  const notifSocket = new WebSocket(
+    protocol + window.location.host + "/ws/notifications/" + username + "/"
+  );
+
+notifSocket.onmessage = function (e) {
+  const data = JSON.parse(e.data);
+
+  if (!hasMessageNotification) {
+    notifCount = 1;
+    hasMessageNotification = true;
+
+    const badge = document.getElementById("notificationBadge");
+    badge.innerText = notifCount;
+    badge.classList.remove("hidden");
+
+    const list = document.getElementById("notificationList");
+    const newItem = document.createElement("div");
+    newItem.className = "bg-gray-100 rounded-lg px-3 py-2 text-sm cursor-pointer hover:bg-gray-200";
+    newItem.innerText = data.message || "📨 Ai un mesaj nou în ChatMe!";
+    list.prepend(newItem);
+  }
+};
+
+
+  function getCookie(name) {
+  let cookieValue = null;
+  if (document.cookie && document.cookie !== "") {
+    const cookies = document.cookie.split(";");
+    for (let i = 0; i < cookies.length; i++) {
+      const cookie = cookies[i].trim();
+      // Verifică dacă cookie-ul începe cu numele dorit
+      if (cookie.substring(0, name.length + 1) === (name + "=")) {
+        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+        break;
+      }
+    }
+  }
+  return cookieValue;
+}
+
+
+
+function toggleNotifications() {
+  const dropdown = document.getElementById("notificationDropdown");
+  dropdown.classList.toggle("hidden");
+
+  const badge = document.getElementById("notificationBadge");
+  const list = document.getElementById("notificationList");
+
+  if (!dropdown.classList.contains("hidden")) {
+    // Marchează ca citite
+    fetch("{% url 'mark_notifications_as_read' %}", {
+      method: "POST",
+      headers: {
+        "X-CSRFToken": getCookie("csrftoken"),
+        "Content-Type": "application/json"
+      }
+    });
+
+    // Reset badge
+    notifCount = 0;
+    badge.innerText = "";
+    badge.classList.add("hidden");
+    hasMessageNotification = false;
+
+    // Reîncarcă doar 5 notificări
+    fetch("{% url 'load_notifications' %}")
+      .then(response => response.json())
+      .then(data => {
+        list.innerHTML = "";
+        data.notifications.slice(0, 5).forEach(n => {
+          const div = document.createElement("div");
+          div.className = "bg-gray-100 rounded-lg px-3 py-2 text-sm cursor-pointer hover:bg-gray-200";
+          div.innerHTML = `
+            <div class="flex items-start justify-between">
+              <div class="flex items-center space-x-2">
+                <span class="text-xl">📨</span>
+                <span class="font-medium text-sm text-black">${n.message}</span>
+              </div>
+              <span class="text-xs text-gray-400">${n.created_at}</span>
+            </div>
+          `;
+          list.appendChild(div);
+        });
+      });
+  }
+}
+
+
+</script>
+
+
+
+
+
+
+
+
+
+<script>
+function expandFeedback() {
+  document.getElementById('expandedFeedback').style.display = 'flex';
+  document.getElementById('feedbackOverlay').style.display = 'block';
+  document.querySelector('.feedback-bar').style.display = 'none';
+  document.body.style.overflow = 'hidden'; // 🚫 blocăm scroll-ul
+}
+
+function collapseFeedback() {
+  document.getElementById('expandedFeedback').style.display = 'none';
+  document.getElementById('feedbackOverlay').style.display = 'none';
+  document.querySelector('.feedback-bar').style.display = 'flex';
+  document.body.style.overflow = 'auto'; // ✅ readucem scroll-ul
+}
+
+
+
+let mediaRecorder;
+let audioChunks = [];
+
+document.getElementById('startRecord').onclick = async () => {
+  const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+  mediaRecorder = new MediaRecorder(stream);
+  mediaRecorder.start();
+  document.getElementById('recordingStatus').textContent = '🎙️ Înregistrare...';
+
+  audioChunks = [];
+  mediaRecorder.ondataavailable = e => audioChunks.push(e.data);
+
+  mediaRecorder.onstop = () => {
+    const blob = new Blob(audioChunks, { type: 'audio/webm' });
+    const audioURL = URL.createObjectURL(blob);
+    document.getElementById('audioPlayer').src = audioURL;
+    document.getElementById('audioPlayer').style.display = 'block';
+
+    const file = new File([blob], 'voice_feedback.webm', { type: 'audio/webm' });
+    const dataTransfer = new DataTransfer();
+    dataTransfer.items.add(file);
+    document.getElementById('audioInput').files = dataTransfer.files;
+    document.getElementById('recordingStatus').textContent = '✅ Înregistrare completă';
+  };
+};
+
+document.getElementById('stopRecord').onclick = () => {
+  mediaRecorder.stop();
+};
+</script>
+
+
+
+<!-- JS pentru  bara să stea fix deasupra footerului -->
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+  const feedbackBar = document.querySelector(".feedback-bar");
+  const footer = document.getElementById("footer");
+
+  const observer = new IntersectionObserver(
+    function (entries) {
+      const entry = entries[0];
+      if (entry.isIntersecting) {
+        // Footerul e în vizibilitate – treci la absolute
+        const overlap = entry.boundingClientRect.height;
+        feedbackBar.style.position = 'absolute';
+        feedbackBar.style.bottom = `${overlap}px`;
+      } else {
+        // Footerul NU e vizibil – stă fix jos
+        feedbackBar.style.position = 'fixed';
+        feedbackBar.style.bottom = '0';
+      }
+    },
+    {
+      root: null,
+      threshold: 0.01 // detectează chiar și o atingere minimă
+    }
+  );
+
+  observer.observe(footer);
+});
+
+  </script>
+  
+
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    const input = document.getElementById("quickMessage");
+    const sendBtn = document.getElementById("sendButton");
+
+    console.log("Buton găsit?", sendBtn); // Verificare la început
+
+    input.addEventListener("input", () => {
+      console.log("Valoare introdusă:", input.value); // Verificare la fiecare scriere
+
+      const text = input.value.toLowerCase();
+      const hasLetter = /[a-zăâîșț]/.test(text);
+
+      if (hasLetter) {
+        sendBtn.classList.add("enabled");
+        sendBtn.disabled = false;
+      } else {
+        sendBtn.classList.remove("enabled");
+        sendBtn.disabled = true;
+      }
+    });
+  });
+
+
+
+
+
+
+</script>
+
+<!-- Bara mica - pentru feedback sa fie trimis la backend -->
+<script>
+function submitQuickFeedback() {
+  const msg = document.getElementById('quickMessage').value.trim();
+
+  if (!msg) {
+    alert('Scrie un mesaj înainte de a trimite.');
+    return;
+  }
+
+  fetch('/customer/save-feedback/', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/x-www-form-urlencoded',
+      'X-CSRFToken': getCookie('csrftoken')
+    },
+    body: new URLSearchParams({ message: msg })
+  })
+  .then(response => response.json())
+  .then(data => {
+    if (data.status === 'ok') {
+      alert('Feedback sent successfully!');
+      document.getElementById('quickMessage').value = '';
+    } else {
+      alert('You sent 2 attemps. Wait please');
+    }
+  });
+}
+</script>
+
+
+<!-- pentru bara cea mare backend fetch -->
+<script>
+  function submitFeedback() {
+  const message = document.getElementById('feedbackInput').value.trim();
+  const rating = document.getElementById('ratingValue').value || null;
+  const country = document.getElementById('countryInput')?.value || '';
+  const audioInput = document.getElementById('audioInput');
+  const audioFile = audioInput?.files?.[0];
+
+  if (!message) {
+    alert('Scrie un mesaj înainte de a trimite.');
+    return;
+  }
+
+  const formData = new FormData();
+  formData.append('message', message);
+  if (rating) formData.append('rating', rating);
+  if (country) formData.append('country', country);
+  if (audioFile) formData.append('audio', audioFile);
+
+  fetch('/customer/save-feedback/', {
+    method: 'POST',
+    headers: {
+      'X-CSRFToken': getCookie('csrftoken')
+    },
+    body: formData
+  })
+  .then(response => response.json())
+  .then(data => {
+    if (data.status === 'ok') {
+      alert('Feedback sent successfully!');
+      document.getElementById('feedbackInput').value = '';
+    } else if (data.status === 'limit') {
+      alert('You send 3 times wait 24 hours. Thanks');
+    } else {
+      alert('Error sender, please try again');
+    }
+  });
+}
+
+function getCookie(name) {
+  let cookieValue = null;
+  if (document.cookie && document.cookie !== '') {
+    const cookies = document.cookie.split(';');
+    for (let cookie of cookies) {
+      cookie = cookie.trim();
+      if (cookie.startsWith(name + '=')) {
+        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+        break;
+      }
+    }
+  }
+  return cookieValue;
+}
+
+  </script>
+  
+
+  <!-- script pentru stele sa fie de culoare -->
+<script>
+  const stars = document.querySelectorAll('.star');
+  const ratingInput = document.getElementById('ratingValue');
+  let currentRating = 0;
+
+  stars.forEach((star, index) => {
+    star.addEventListener('mouseover', () => {
+      highlightStars(index + 1);
+    });
+
+    star.addEventListener('click', () => {
+      currentRating = index + 1;
+      ratingInput.value = currentRating;
+    });
+
+    star.addEventListener('mouseleave', () => {
+      highlightStars(currentRating);
+    });
+  });
+
+  function highlightStars(rating) {
+    stars.forEach((star, index) => {
+      const svg = star.querySelector('path');
+      svg.setAttribute('fill', index < rating ? 'gold' : 'gray');
+    });
+  }
+</script>
+
+
+
+
+
+
+
+{% endblock %}

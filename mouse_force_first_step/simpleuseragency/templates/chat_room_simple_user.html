@@ -1,0 +1,566 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Chat Room</title>
+
+  <!-- Bootstrap & Font Awesome -->
+  <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.1.1/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.css" rel="stylesheet">
+
+ <style>
+html, body {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  overflow: hidden; /* 🚫 oprește scrollul paginii */
+}
+
+
+  body {
+      margin: 0;
+      padding: 0;
+      font-family: Arial, sans-serif;
+      background-color: #f1f1f1;
+      background-image: url("{% static 'images/concrete_wall_background.png' %}");
+      background-repeat: repeat;
+      background-size: 150px auto;
+    }
+
+    .container {
+      max-width: 1170px;
+      margin: auto;
+      margin-top: 80px;
+    }
+
+    img { max-width: 100%; }
+
+    .inbox_people {
+      background: #f8f8f8;
+      float: left;
+      width: 40%;
+      border-right: 1px solid #c4c4c4;
+    }
+
+    .inbox_msg {
+      border: 1px solid #c4c4c4;
+      clear: both;
+      overflow: hidden;
+    }
+
+    .recent_heading {
+      float: left;
+      width: 40%;
+    }
+
+    .srch_bar {
+      width: 60%;
+      text-align: right;
+      display: inline-block;
+    }
+
+    .headind_srch {
+      padding: 10px 29px 10px 20px;
+      border-bottom: 1px solid #c4c4c4;
+    }
+
+    .recent_heading h4 {
+      color: #05728f;
+      font-size: 21px;
+      margin: auto;
+    }
+
+    .srch_bar input {
+      border: 1px solid #cdcdcd;
+      border-width: 0 0 1px 0;
+      width: 80%;
+      background: none;
+    }
+
+    .chat_list {
+      border-bottom: 1px solid #c4c4c4;
+      padding: 18px 16px 10px;
+    }
+
+    .inbox_chat {
+      height: 550px;
+      overflow-y: scroll;
+    }
+
+    .active_chat { background: #ebebeb; }
+
+    .chat_people {
+      display: flex;
+      align-items: center;
+    }
+
+    .chat_img {
+      width: 15%;
+    }
+
+    .chat_img img {
+      border-radius: 50%;
+    }
+
+    .chat_ib {
+      width: 85%;
+      padding-left: 15px;
+    }
+
+    .chat_ib_top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .chat_ib_top h5 {
+      margin: 0;
+      font-size: 15px;
+      color: #464646;
+    }
+
+    .chat_ib_top span {
+      font-size: 13px;
+      color: #888;
+    }
+
+    .chat_ib p {
+      margin: 5px 0 0;
+      font-size: 14px;
+      color: #989898;
+    }
+
+    .dashboard-link {
+      padding: 10px 20px;
+    }
+
+    .dashboard-link a {
+      display: inline-block;
+      background-color: #05728f;
+      color: white;
+      padding: 6px 12px;
+      border-radius: 6px;
+      font-size: 14px;
+      text-decoration: none;
+      transition: background-color 0.2s ease;
+    }
+
+    .dashboard-link a:hover {
+      background-color: #045f73;
+    }
+
+    .incoming_msg_img {
+      width: 6%;
+      display: inline-block;
+    }
+
+    .received_msg {
+      display: inline-block;
+      padding-left: 10px;
+      vertical-align: top;
+      width: 92%;
+    }
+
+    .received_withd_msg p {
+      background: #ebebeb;
+      border-radius: 3px;
+      color: #646464;
+      font-size: 14px;
+      padding: 5px 10px;
+      width: 100%;
+    }
+
+    .time_date {
+      color: #747474;
+      font-size: 12px;
+      margin-top: 5px;
+      display: block;
+    }
+
+    .mesgs {
+      float: left;
+      padding: 30px 15px 0 25px;
+      width: 60%;
+      background-color: white;
+    }
+
+    .msg_history {
+      height: 516px;
+      overflow-y: auto;
+    }
+
+    .outgoing_msg {
+      overflow: hidden;
+      margin: 26px 0;
+    }
+
+    .sent_msg {
+      float: right;
+      width: 46%;
+    }
+
+    .sent_msg p {
+      background: #05728f;
+      border-radius: 3px;
+      color: #fff;
+      font-size: 14px;
+      padding: 5px 10px;
+      width: 100%;
+    }
+
+    .input_msg_write input {
+      background: transparent;
+      border: none;
+      color: #4c4c4c;
+      font-size: 15px;
+      min-height: 48px;
+      width: 100%;
+    }
+
+    .type_msg {
+      border-top: 1px solid #c4c4c4;
+      position: relative;
+    }
+
+    .msg_send_btn {
+      background: #05728f;
+      border: none;
+      border-radius: 50%;
+      color: #fff;
+      cursor: pointer;
+      font-size: 17px;
+      height: 33px;
+      width: 33px;
+      position: absolute;
+      right: 0;
+      top: 11px;
+    }
+
+    .messaging {
+      padding: 0 0 50px;
+        height: 100vh; /* ocupă toată înălțimea ecranului */
+        display: flex;
+        flex-direction: column;
+    }
+
+    .fa-paperclip {
+      font-size: 20px;
+      color: #05728f;
+      padding: 6px;
+      border-radius: 6px;
+      transition: background-color 0.2s ease;
+    }
+
+    .fa-paperclip:hover {
+      background-color: #e0e0e0;
+    }
+
+    @media (max-width: 768px) {
+  .inbox_msg {
+    flex-direction: column;
+    display: flex;
+  }
+
+  .inbox_people, .mesgs {
+    width: 100% !important;
+    float: none !important;
+  }
+
+  .inbox_chat {
+    height: auto;
+    max-height: 200px; /* ajustează după preferință */
+    overflow-y: auto;
+  }
+
+  .msg_history {
+    height: 55vh;
+    flex: 1;
+  overflow-y: auto; 
+  }
+
+  .chat_ib_top h5 {
+    font-size: 16px;
+  }
+
+  .chat_ib p {
+    font-size: 13px;
+  }
+
+  .chat_list {
+    padding: 12px;
+  }
+
+  .write_msg {
+    font-size: 14px;
+  }
+
+  .msg_send_btn {
+    height: 28px;
+    width: 28px;
+    font-size: 14px;
+  }
+  .received_withd_msg p {
+  background: transparent !important;
+  border: none;
+}
+  .container {
+    margin-top: 20px;
+  }
+}
+
+  </style>
+</head>
+<div class="container">
+    <h3 class="text-center">Connecting</h3>
+    <div class="messaging">
+      <div class="inbox_msg">
+        <div class="inbox_people">
+          <div class="headind_srch">
+            <div class="recent_heading"><h4>Recent</h4></div>
+            <div class="srch_bar">
+              <input type="text" class="search-bar" placeholder="Search">
+            </div>
+          </div>
+
+          <div class="inbox_chat">
+            <div class="chat_list active_chat">
+              <div class="chat_people">
+                <div class="chat_img">
+                  <img src="https://ptetutorials.com/images/user-profile.png" alt="user">
+                </div>
+                <div class="chat_ib">
+                  <div class="chat_ib_top">
+                    <h5>Support</h5>
+                    <span class="chat_date">Now</span>
+                  </div>
+                  <p>Say hi!</p>
+                </div>
+              </div>
+            </div>
+
+            <!-- ✅ Buton sub containerul Support -->
+            <div class="dashboard-link">
+              <a href="{% url 'simple_user_dashboard' %}">← Dashboard</a>
+            </div>
+          </div>
+        </div>
+
+        <div class="mesgs">
+          <div class="msg_history" id="chat-log">
+            {% for msg in messages %}
+              <div class="{% if msg.sender == user %}outgoing_msg{% else %}incoming_msg{% endif %}">
+                <div class="{% if msg.sender == user %}sent_msg{% else %}received_msg{% endif %}">
+                  <p>{{ msg.content|safe }}</p>
+                  <span class="time_date">{{ msg.timestamp|date:"H:i" }}</span>
+                </div>
+              </div>
+            {% endfor %}
+          </div>
+
+          <div class="type_msg">
+            <div class="input_msg_write d-flex align-items-center gap-2">
+              <label for="image-upload" style="cursor: pointer; margin-right: 10px;">
+                <i class="fa fa-paperclip fa-lg" aria-hidden="true"></i>
+              </label>
+              <input type="file" id="image-upload" accept="image/*" style="display: none;">
+              <input type="text" id="chat-message-input" class="write_msg" placeholder="Type a message" />
+              <button class="msg_send_btn" id="chat-message-submit" type="button">
+                <i class="fa fa-paper-plane-o" aria-hidden="true"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+<body>
+
+
+<script>
+const currentUsername = "{{ request.user.username }}";
+const roomName = "{{ room_name }}";
+const chatSocket = new WebSocket(
+  (window.location.protocol === 'https:' ? 'wss://' : 'ws://') + window.location.host + '/ws/chat/' + roomName + '/'
+);
+
+// 🔄 Primesc mesaj
+chatSocket.onmessage = function (e) {
+  const data = JSON.parse(e.data);
+  const chatLog = document.getElementById('chat-log');
+
+  if (data.sender === currentUsername) return;
+
+  chatLog.innerHTML += `
+    <div class="incoming_msg">
+      <div class="incoming_msg_img">
+        <img src="https://ptetutorials.com/images/user-profile.png" alt="user">
+      </div>
+      <div class="received_msg">
+        <div class="received_withd_msg">
+          ${data.message}
+          <span class="time_date">Now</span>
+        </div>
+      </div>
+    </div>`;
+  chatLog.scrollTop = chatLog.scrollHeight;
+};
+
+chatSocket.onclose = function () {
+  console.error('Chat socket closed');
+};
+
+// 🔄 Trimit text
+document.getElementById('chat-message-submit').onclick = function () {
+  const input = document.getElementById('chat-message-input');
+  const message = input.value;
+  if (message.trim()) {
+    chatSocket.send(JSON.stringify({ message: message, sender: currentUsername }));
+    const chatLog = document.getElementById('chat-log');
+    chatLog.innerHTML += `
+      <div class="outgoing_msg">
+        <div class="sent_msg">
+          <p>${message}</p>
+          <span class="time_date">Now</span>
+        </div>
+      </div>`;
+    chatLog.scrollTop = chatLog.scrollHeight;
+  }
+  input.value = '';
+};
+
+document.getElementById('chat-message-input').addEventListener('keypress', function (e) {
+  if (e.key === 'Enter') {
+    e.preventDefault();
+    document.getElementById('chat-message-submit').click();
+  }
+});
+</script>
+
+<!-- 🔁 Upload imagine (📎 cu preview Uploading...) -->
+<script>
+const cloudName = 'dfdzo7ccs';
+const uploadPreset = 'chat_uploads';
+
+document.getElementById('image-upload').addEventListener('change', function(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+
+  const chatLog = document.getElementById('chat-log');
+  const tempId = 'temp-upload-msg-' + Date.now();
+  chatLog.innerHTML += `
+    <div id="${tempId}" class="outgoing_msg">
+      <div class="sent_msg">
+        <p><em>Uploading image...</em></p>
+        <span class="time_date">Now</span>
+      </div>
+    </div>`;
+  chatLog.scrollTop = chatLog.scrollHeight;
+
+  const formData = new FormData();
+  formData.append('file', file);
+  formData.append('upload_preset', uploadPreset);
+
+  fetch(`https://api.cloudinary.com/v1_1/${cloudName}/upload`, {
+    method: 'POST',
+    body: formData
+  })
+  .then(res => res.json())
+  .then(data => {
+    const imageUrl = data.secure_url;
+
+    chatSocket.send(JSON.stringify({
+      message: `<img src="${imageUrl}" style="max-width:200px;">`,
+      sender: currentUsername
+    }));
+
+    const tempDiv = document.getElementById(tempId);
+    if (tempDiv) {
+      tempDiv.innerHTML = `
+        <div class="sent_msg">
+          <img src="${imageUrl}" style="max-width:200px;">
+          <span class="time_date">Now</span>
+        </div>`;
+    }
+
+    chatLog.scrollTop = chatLog.scrollHeight;
+  });
+});
+</script>
+
+<!-- 🔁 Drag & Drop imagine -->
+<script>
+const dropZone = document.querySelector('.type_msg');
+
+dropZone.addEventListener('dragover', function (e) {
+  e.preventDefault();
+  dropZone.style.background = '#e8f0fe';
+});
+
+dropZone.addEventListener('dragleave', function (e) {
+  e.preventDefault();
+  dropZone.style.background = 'transparent';
+});
+
+dropZone.addEventListener('drop', function (e) {
+  e.preventDefault();
+  dropZone.style.background = 'transparent';
+
+  const file = e.dataTransfer.files[0];
+  if (!file || !file.type.startsWith('image/')) return;
+
+  const chatLog = document.getElementById('chat-log');
+  const tempId = 'temp-drop-msg';
+  chatLog.innerHTML += `
+    <div id="${tempId}" class="outgoing_msg">
+      <div class="sent_msg">
+        <p><em>Uploading image...</em></p>
+        <span class="time_date">Now</span>
+      </div>
+    </div>`;
+  chatLog.scrollTop = chatLog.scrollHeight;
+
+  const formData = new FormData();
+  formData.append('file', file);
+  formData.append('upload_preset', uploadPreset);
+
+  fetch(`https://api.cloudinary.com/v1_1/${cloudName}/upload`, {
+    method: 'POST',
+    body: formData
+  })
+  .then(res => res.json())
+  .then(data => {
+    const imageUrl = data.secure_url;
+
+    chatSocket.send(JSON.stringify({
+      message: `<img src="${imageUrl}" style="max-width:200px;">`,
+      sender: currentUsername
+    }));
+
+    const tempDiv = document.getElementById(tempId);
+    if (tempDiv) {
+      tempDiv.innerHTML = `
+        <div class="sent_msg">
+          <img src="${imageUrl}" style="max-width:200px;">
+          <span class="time_date">Now</span>
+        </div>`;
+    }
+
+    chatLog.scrollTop = chatLog.scrollHeight;
+  });
+});
+</script>
+
+<!-- sa arata ultima conversatie cand intru din nou in chat -->
+ <script>
+  window.addEventListener('load', function () {
+    const chatLog = document.getElementById('chat-log');
+    if (chatLog) {
+      chatLog.scrollTop = chatLog.scrollHeight;
+    }
+  });
+</script>
+</body>
+</html>

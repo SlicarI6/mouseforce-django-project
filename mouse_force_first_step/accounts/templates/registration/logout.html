@@ -1,0 +1,17 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Sign Up</title>
+</head>
+<body>
+    <h2>Înregistrează-te</h2>
+    <form method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit">LogOut</button>
+    </form>
+    <p>Ai deja un cont? <a href="{% url 'login' %}">LogOut sure ?</a></p>
+</body>
+</html>

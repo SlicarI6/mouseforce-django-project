@@ -1,0 +1,19 @@
+{% extends 'base.html' %}
+{% block content %}
+<p>Setting up your session... Please wait.</p>
+
+{% if request.session.selected_role == 'customer' %}
+    <script>
+        setTimeout(function () {
+            window.location.href = "{% url 'customer_dashboard' %}";
+        }, 1000);
+    </script>
+{% else %}
+    <script>
+        setTimeout(function () {
+            window.location.href = "{% url 'homepage' %}";
+        }, 1000);
+    </script>
+{% endif %}
+
+{% endblock %}

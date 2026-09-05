@@ -1,0 +1,24 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Select Role</title>
+    <link rel="stylesheet" href="{% static 'css/select_role_style.css' %}">
+</head>
+<body>
+    <h2>Select your account type</h2>
+    <form method="post" action="{% url 'select_role' %}">
+        {% csrf_token %}
+        <label>
+            <input type="radio" name="role" value="customer" required>
+            Customer Account
+        </label><br>
+        <label>
+            <input type="radio" name="role" value="simple" required>
+            Simple User
+        </label><br><br>
+        <button type="submit">Login</button>
+    </form>
+</body>
+</html>

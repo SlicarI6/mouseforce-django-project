@@ -1,0 +1,1288 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}About — Mouseforce{% endblock %}
+
+{% block extra_head %}
+<style>
+/* ===================== ABOUT PAGE (scoped) ===================== */
+:root{
+  --about-bg-1:#0b1220;
+  --about-bg-2:#0f1b33;
+  --about-card:#111a2b;
+  --about-card-2:#0e1626;
+  --about-text:#e9eef8;
+  --about-muted:#a8b3c7;
+  --about-accent:#2aa8e0;
+  --about-accent-2:#d89f39;
+  --about-border:rgba(255,255,255,.08);
+}
+
+/* Hide globals from base.html for this page */
+header{ background: transparent !important; padding:0 !important; box-shadow:none !important; }
+#footer, .custom-footer, .sub-header, .desktop-nav, .mobile-header{ display:none !important; }
+#cookieOverlay, #cookieConsent, .info-overlay, .info-dropdown{ display:none !important; }
+
+/* Page background & typography */
+html, body{
+  background:
+    radial-gradient(60% 80% at 10% 0%, rgba(42,168,224,0.08) 0%, rgba(42,168,224,0) 60%) ,
+    radial-gradient(60% 80% at 90% 0%, rgba(216,159,57,0.10) 0%, rgba(216,159,57,0) 60%),
+    linear-gradient(180deg, var(--about-bg-1) 0%, var(--about-bg-2) 100%);
+  color: var(--about-text);
+  scroll-behavior: smooth;
+}
+
+/* ===== Minimal header (logo only) ===== */
+.about-brand{ display:flex; align-items:center; padding: 16px 20px; }
+.about-logo{
+  height: 56px; width:auto;
+  border-radius: 12px;
+  border-bottom-left-radius: 100px; border-bottom-right-radius: 100px;
+  display:block; transition: transform .15s ease;
+}
+.about-logo-link:hover .about-logo{ transform: translateY(-1px) scale(1.02); }
+
+/* ===== Layout helpers ===== */
+.about-container{ max-width: 1200px; margin: 0 auto; padding: 0 24px; }
+
+/* ===== Hero ===== */
+.about-hero{ padding: 72px 0 84px; background: #081738; }
+.about-hero .about-container{ max-width: 1380px; }
+.about-hero-grid{
+  display:grid; grid-template-columns: minmax(0, 1.25fr) minmax(420px, 1fr);
+  align-items:center; gap: clamp(44px, 5vw, 72px);
+}
+.about-hero-text{ max-width: 760px; }
+.about-hero-text h1{
+  margin: 0 0 24px; color: #fff; font-size: clamp(42px, 5vw, 68px);
+  font-weight: 800; line-height: 1.05; letter-spacing: -.035em;
+}
+.about-hero-accent{ color: #40d9d0; }
+.about-hero-text p{
+  margin: 0; color: #d5deec; font-size: clamp(17px, 1.6vw, 20px); line-height: 1.7;
+}
+.about-hero-text > p:not(.about-hero-support){
+  padding-left: 18px;
+  border-left: 3px solid rgba(64, 217, 208, .72);
+  font-size: clamp(18px, 1.7vw, 21px);
+  font-weight: 500;
+  line-height: 1.75;
+}
+.about-hero-text .about-hero-support{
+  margin-top: 22px; color: #fff; font-size: 17px; font-weight: 700; letter-spacing: .015em;
+}
+.about-hero-media{ margin: 0; }
+.about-hero-image{
+  display: block; width: 100%; height: auto; border-radius: 18px;
+  box-shadow: 0 24px 60px rgba(0, 0, 0, .3);
+}
+
+/* ===== Partnerships ===== */
+.about-partnerships{
+  padding: clamp(76px, 9vw, 124px) 0;
+  background: #fff;
+  color: #14213d;
+}
+.about-partnerships__inner{ max-width: 1320px; }
+.about-partnerships__heading{
+  max-width: 900px;
+  margin: 0 auto;
+  color: #081738;
+  font-size: clamp(34px, 4.2vw, 56px);
+  font-weight: 800;
+  line-height: 1.12;
+  letter-spacing: -.03em;
+  text-align: center;
+}
+.about-partnerships__accent{ color: #159f9a; }
+.about-partnerships__accent--sunset{ color: #F28C28; }
+.about-partnerships__visual{
+  display: block;
+  width: clamp(130px, 14vw, 200px);
+  height: auto;
+  margin: clamp(30px, 4vw, 44px) auto clamp(48px, 6vw, 76px);
+}
+.about-partnerships__content{
+  display: grid;
+  grid-template-columns: minmax(0, 1.05fr) minmax(0, .95fr);
+  gap: clamp(48px, 7vw, 96px);
+  align-items: start;
+}
+.about-partnerships__lead{
+  margin: 0;
+  color: #172642;
+  font-size: clamp(21px, 2.2vw, 28px);
+  font-weight: 600;
+  line-height: 1.55;
+}
+.about-partnerships__details{
+  display: grid;
+  gap: 26px;
+}
+.about-partnerships__details p{
+  margin: 0;
+  color: #43506a;
+  font-size: 18px;
+  line-height: 1.75;
+}
+.about-partnerships__details strong{
+  color: #087f7b;
+  font-weight: 700;
+}
+.about-partnerships__closing{
+  max-width: 1080px;
+  margin: clamp(58px, 7vw, 92px) auto 0;
+  padding-top: clamp(32px, 4vw, 48px);
+  border-top: 2px solid rgba(21, 159, 154, .28);
+  color: #081738;
+  font-size: clamp(22px, 2.5vw, 32px);
+  font-weight: 750;
+  line-height: 1.5;
+  text-align: center;
+}
+/* ===== Rewards showcase ===== */
+.about-rewards-showcase{
+  padding: clamp(64px, 8vw, 104px) 0;
+  background: #CBE9E6;
+}
+.about-rewards-showcase .about-container{ max-width: 1656px; }
+.about-rewards-showcase__grid{
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: clamp(18px, 2.5vw, 34px);
+}
+.about-rewards-showcase__image{
+  display: block;
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  object-fit: contain;
+  padding: clamp(8px, 1vw, 14px);
+  background: #fff;
+  border-radius: 16px;
+  box-shadow: 0 12px 32px rgba(8, 23, 56, .1);
+}
+
+/* ===== Points feature ===== */
+.about-points-feature{
+  padding: clamp(80px, 10vw, 140px) 0;
+  overflow: hidden;
+  background: #fff;
+}
+.about-points-feature > .about-container{
+  width: 100%;
+  max-width: 1920px;
+  padding-left: 0;
+  padding-right: clamp(28px, 4vw, 80px);
+}
+.about-points-feature__grid{
+  display: grid;
+  grid-template-columns: minmax(0, 1.38fr) minmax(360px, 1fr);
+  align-items: center;
+  gap: clamp(42px, 5vw, 88px);
+}
+.about-points-feature__visual{
+  position: relative;
+  min-width: 0;
+  padding: 34px 44px 52px 0;
+  transform: translate3d(0, var(--points-visual-shift, 0), 0);
+  transition: transform .12s linear;
+  will-change: transform;
+}
+.about-points-feature__drone-frame{
+  width: 100%;
+  height: clamp(380px, 32vw, 540px);
+  overflow: hidden;
+}
+.about-points-feature__drone{
+  display: block;
+  width: 100%;
+  max-width: none;
+  height: 100%;
+  object-fit: cover;
+  object-position: 48% 62%;
+  transform: translate3d(-2%, 0, 0) scale(1.18);
+  transform-origin: 48% 62%;
+  transition: transform .12s linear;
+  will-change: transform;
+}
+.about-points-feature__card{
+  position: absolute;
+  right: 3%;
+  bottom: 18px;
+  width: min(280px, 52%);
+  padding: 22px 24px;
+  background: #fff;
+  border: 1px solid rgba(8, 23, 56, .08);
+  border-radius: 16px;
+  box-shadow: 0 20px 48px rgba(8, 23, 56, .16);
+  transform: none;
+  transition: transform .12s linear;
+  will-change: transform;
+}
+.about-points-feature__price{
+  margin: 0;
+  color: #159f9a;
+  font-size: clamp(25px, 2.6vw, 34px);
+  font-weight: 800;
+  line-height: 1.15;
+}
+.about-points-feature__label{
+  margin: 5px 0 18px;
+  color: #536078;
+  font-size: 14px;
+  font-weight: 600;
+}
+.about-points-feature__examples{
+  display: grid;
+  gap: 10px;
+  margin: 0;
+  padding: 16px 0 0;
+  border-top: 1px solid #e7ebf1;
+  list-style: none;
+}
+.about-points-feature__examples li{
+  display: flex;
+  gap: 9px;
+  align-items: center;
+  color: #344159;
+  font-size: 13px;
+  line-height: 1.35;
+}
+.about-points-feature__check{
+  color: #21a366;
+  font-size: 16px;
+  font-weight: 800;
+}
+.about-points-feature__copy h2{
+  max-width: 650px;
+  margin: 0 0 28px;
+  color: #081738;
+  font-size: clamp(38px, 4.7vw, 64px);
+  font-weight: 800;
+  line-height: 1.08;
+  letter-spacing: -.035em;
+}
+.about-points-feature__copy{
+  position: relative;
+  animation: about-save-copy-float 4s ease-in-out infinite;
+}
+.about-points-feature__copy p{
+  max-width: 620px;
+  margin: 0;
+  color: #43506a;
+  font-size: clamp(18px, 1.8vw, 22px);
+  line-height: 1.75;
+}
+.about-points-feature__accent{
+  color: #F28C28;
+  font-weight: 700;
+}
+@media (max-width: 900px){
+  .about-points-feature > .about-container{
+    padding-left: 24px;
+    padding-right: 24px;
+  }
+  .about-points-feature__grid{
+    grid-template-columns: 1fr;
+    gap: 58px;
+  }
+  .about-points-feature__visual{
+    width: 100%;
+    max-width: 720px;
+    margin: 0 auto;
+  }
+  .about-points-feature__drone-frame{ height: auto; }
+  .about-points-feature__drone{
+    height: auto;
+    object-fit: contain;
+    transform: none;
+  }
+  .about-points-feature__copy{
+    max-width: 720px;
+    margin: 0 auto;
+    text-align: center;
+  }
+}
+@media (min-width: 901px){
+  .about-points-feature__copy{ top: -12px; }
+}
+@media (max-width: 560px){
+  .about-points-feature > .about-container{
+    padding-left: 16px;
+    padding-right: 16px;
+  }
+  .about-points-feature__visual{ padding: 14px 18px 64px 0; }
+  .about-points-feature__card{
+    width: min(245px, 72%);
+    padding: 18px;
+  }
+  .about-points-feature__copy h2{ font-size: 36px; }
+}
+@media (prefers-reduced-motion: reduce){
+  .about-points-feature__copy{
+    animation: none;
+    transform: none;
+  }
+  .about-points-feature__visual{
+    transform: none !important;
+    transition: none;
+    will-change: auto;
+  }
+  .about-points-feature__drone,
+  .about-points-feature__card{
+    transform: none !important;
+    transition: none;
+    will-change: auto;
+  }
+}
+@media (min-width: 901px) and (prefers-reduced-motion: reduce){
+  .about-points-feature__drone{
+    transform: translate3d(-2%, 0, 0) scale(1.18) !important;
+  }
+}
+
+/* ===== Save feature ===== */
+.about-save-feature{
+  padding: clamp(80px, 10vw, 140px) 0;
+  overflow: hidden;
+  background: #fff;
+}
+.about-save-feature > .about-container{
+  width: 100%;
+  max-width: 1920px;
+  padding-left: clamp(28px, 4vw, 80px);
+  padding-right: 0;
+}
+.about-save-feature__grid{
+  display: grid;
+  grid-template-columns: minmax(360px, 1fr) minmax(0, 1.38fr);
+  align-items: center;
+  gap: clamp(42px, 5vw, 88px);
+}
+.about-save-feature__copy{
+  position: relative;
+  top: -12px;
+  width: 100%;
+  max-width: 650px;
+  justify-self: end;
+  animation: about-save-copy-float 4s ease-in-out infinite;
+}
+@keyframes about-save-copy-float{
+  0%, 100%{ transform: translateY(0); }
+  50%{ transform: translateY(-8px); }
+}
+.about-save-feature__copy h2{
+  margin: 0 0 28px;
+  color: #081738;
+  font-size: clamp(38px, 4.7vw, 64px);
+  font-weight: 800;
+  line-height: 1.08;
+  letter-spacing: -.035em;
+}
+.about-save-feature__copy p{
+  margin: 0;
+  color: #43506a;
+  font-size: clamp(18px, 1.8vw, 22px);
+  line-height: 1.75;
+}
+.about-save-feature__accent{
+  color: #F28C28;
+  font-weight: 700;
+}
+.about-save-feature__visual{
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+}
+.about-save-feature__image{
+  display: block;
+  width: 100%;
+  max-width: 1050px;
+  height: auto;
+  object-fit: contain;
+}
+@media (max-width: 900px){
+  .about-save-feature > .about-container{
+    padding-left: 24px;
+    padding-right: 24px;
+  }
+  .about-save-feature__grid{
+    grid-template-columns: 1fr;
+    gap: 52px;
+  }
+  .about-save-feature__copy{
+    max-width: 720px;
+    margin: 0 auto;
+    justify-self: center;
+    text-align: center;
+  }
+  .about-save-feature__visual{
+    width: 100%;
+    max-width: 900px;
+    margin: 0 auto;
+  }
+}
+@media (max-width: 560px){
+  .about-save-feature > .about-container{
+    padding-left: 16px;
+    padding-right: 16px;
+  }
+  .about-save-feature__copy h2{ font-size: 36px; }
+}
+@media (prefers-reduced-motion: reduce){
+  .about-save-feature__copy{
+    animation: none;
+    transform: none;
+  }
+}
+
+/* ===== Basket feature ===== */
+.about-basket-feature{
+  width: 100vw;
+  margin-left: calc(50% - 50vw);
+  overflow: hidden;
+  background: #fff;
+}
+.about-basket-feature__image{
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+/* ===== Automation statement ===== */
+.about-automation-statement{
+  padding: clamp(80px, 10vw, 140px) 24px;
+  background: #fff;
+  color: #003366;
+  text-align: center;
+}
+.about-automation-statement__inner{
+  max-width: 1050px;
+  margin: 0 auto;
+}
+.about-automation-statement h2{
+  margin: 0 0 26px;
+  color: #003366;
+  font-size: clamp(34px, 4.2vw, 58px);
+  font-weight: 800;
+  line-height: 1.15;
+  letter-spacing: -.025em;
+}
+.about-automation-statement p{
+  max-width: 880px;
+  margin: 0 auto;
+  color: #003366;
+  font-size: clamp(18px, 1.8vw, 22px);
+  line-height: 1.75;
+}
+
+/* ===== Automation detail ===== */
+.about-automation-detail{
+  padding: clamp(80px, 10vw, 140px) 0;
+  background: #fff;
+}
+.about-automation-detail__inner{
+  width: 100%;
+  max-width: 1500px;
+  margin: 0 auto;
+  padding: 0 clamp(24px, 4vw, 64px);
+}
+.about-automation-detail__grid{
+  display: grid;
+  grid-template-columns: minmax(0, .85fr) minmax(0, 1.15fr);
+  align-items: center;
+  gap: clamp(48px, 6vw, 92px);
+}
+.about-automation-detail__copy h2{
+  margin: 0 0 28px;
+  color: #003366;
+  font-size: clamp(38px, 4.5vw, 62px);
+  font-weight: 800;
+  line-height: 1.1;
+  letter-spacing: -.035em;
+}
+.about-automation-detail__accent{
+  color: #159f9a;
+}
+.about-automation-detail__copy p{
+  margin: 0;
+  color: #43506a;
+  font-size: clamp(17px, 1.6vw, 20px);
+  line-height: 1.75;
+}
+.about-automation-detail__copy p + p{
+  margin-top: 22px;
+}
+.about-automation-detail__image{
+  display: block;
+  width: 100%;
+  height: auto;
+  border-radius: 18px;
+  box-shadow: 0 20px 48px rgba(0, 51, 102, .14);
+}
+@media (min-width: 901px){
+  .about-automation-detail__inner{
+    max-width: 1600px;
+  }
+  .about-automation-detail__grid{
+    gap: clamp(148px, calc(6vw + 100px), 192px);
+  }
+}
+@media (max-width: 900px){
+  .about-automation-detail__grid{
+    grid-template-columns: 1fr;
+    gap: 46px;
+  }
+  .about-automation-detail__copy{
+    max-width: 760px;
+  }
+}
+
+/* ===== How we work ===== */
+.about-work-together{
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  padding: clamp(88px, 10vw, 148px) 0;
+  background:
+    radial-gradient(circle at -5% 18%, transparent 0 210px, rgba(64, 217, 208, .045) 211px 213px, transparent 214px),
+    radial-gradient(circle at 106% 54%, transparent 0 280px, rgba(85, 153, 210, .055) 281px 284px, transparent 285px),
+    radial-gradient(circle at 68% 112%, transparent 0 230px, rgba(64, 217, 208, .035) 231px 233px, transparent 234px),
+    radial-gradient(circle at 16% 42%, rgba(43, 190, 185, .045), transparent 30%),
+    radial-gradient(circle at 84% 20%, rgba(50, 123, 190, .075), transparent 34%),
+    linear-gradient(118deg, transparent 0 46%, rgba(17, 61, 108, .11) 46.2% 63%, transparent 63.2%),
+    linear-gradient(145deg, #071738 0%, #081B4A 100%);
+}
+.about-work-together::before,
+.about-work-together::after{
+  position: absolute;
+  z-index: -1;
+  content: "";
+  pointer-events: none;
+}
+.about-work-together::before{
+  top: -32%;
+  right: -12%;
+  width: min(760px, 60vw);
+  aspect-ratio: 1;
+  border: 1px solid rgba(80, 191, 187, .08);
+  border-radius: 42% 58% 68% 32% / 45% 35% 65% 55%;
+  background: radial-gradient(circle at 35% 40%, rgba(31, 91, 132, .24), rgba(8, 27, 74, 0) 68%);
+  transform: rotate(18deg);
+}
+.about-work-together::after{
+  bottom: -38%;
+  left: -14%;
+  width: min(820px, 68vw);
+  aspect-ratio: 1.35;
+  border-radius: 50%;
+  background: linear-gradient(135deg, rgba(19, 76, 119, .2), rgba(7, 23, 56, 0) 68%);
+  transform: rotate(-12deg);
+}
+.about-work-together__inner{
+  width: 100%;
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 0 24px;
+}
+.about-work-together__header{
+  max-width: 900px;
+  margin: 0 auto clamp(48px, 6vw, 76px);
+  text-align: center;
+}
+.about-work-together__header h2{
+  margin: 0 0 22px;
+  color: #fff;
+  font-size: clamp(38px, 5vw, 66px);
+  font-weight: 800;
+  line-height: 1.1;
+  letter-spacing: -.035em;
+}
+.about-work-together__accent{ color: #40d9d0; }
+.about-work-together__header p{
+  margin: 0;
+  color: #cbd6e8;
+  font-size: clamp(17px, 1.7vw, 21px);
+  line-height: 1.7;
+}
+.about-work-together__grid{
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: clamp(20px, 2.2vw, 30px);
+}
+.about-work-card{
+  min-height: 100%;
+  padding: clamp(24px, 2.5vw, 34px);
+  background: linear-gradient(155deg, rgba(18, 48, 93, .96), rgba(10, 35, 79, .96));
+  border: 1px solid rgba(181, 212, 230, .14);
+  border-radius: 14px;
+  box-shadow: 0 18px 42px rgba(0, 7, 28, .2);
+  transition: transform .25s ease, border-color .25s ease, box-shadow .25s ease;
+}
+.about-work-card:hover{
+  border-color: rgba(64, 217, 208, .62);
+  box-shadow: 0 20px 48px rgba(0, 7, 28, .3), 0 0 24px rgba(64, 217, 208, .1);
+  transform: translateY(-5px);
+}
+.about-work-card__icon{
+  display: inline-flex;
+  width: 38px;
+  height: 38px;
+  margin-bottom: 20px;
+  align-items: center;
+  justify-content: center;
+  color: #40d9d0;
+  background: rgba(64, 217, 208, .09);
+  border: 1px solid rgba(64, 217, 208, .25);
+  border-radius: 10px;
+  font-size: 18px;
+  font-weight: 800;
+  line-height: 1;
+}
+.about-work-card h3{
+  margin: 0 0 13px;
+  color: #fff;
+  font-size: 21px;
+  font-weight: 750;
+  line-height: 1.3;
+}
+.about-work-card p{
+  margin: 0;
+  color: #c6d1e1;
+  font-size: 15px;
+  line-height: 1.72;
+}
+.about-work-together__closing{
+  margin: clamp(52px, 6vw, 76px) auto 0;
+  color: #40d9d0;
+  font-size: clamp(20px, 2.3vw, 29px);
+  font-weight: 750;
+  line-height: 1.45;
+  text-align: center;
+}
+@media (max-width: 1100px){
+  .about-work-together__grid{ grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (max-width: 680px){
+  .about-work-together__inner{ padding: 0 16px; }
+  .about-work-together__grid{ grid-template-columns: 1fr; }
+}
+@media (prefers-reduced-motion: reduce){
+  .about-work-card{ transition: none; }
+  .about-work-card:hover{ transform: none; }
+}
+
+/* ===== Work-together CTA ===== */
+.about-work-cta{
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  padding: clamp(72px, 9vw, 118px) 0;
+  background:
+    radial-gradient(circle at 7% 18%, rgba(64, 217, 208, .09), transparent 25%),
+    radial-gradient(circle at 92% 82%, rgba(86, 153, 210, .1), transparent 29%),
+    #fff;
+}
+.about-work-cta::before,
+.about-work-cta::after{
+  position: absolute;
+  z-index: -1;
+  content: "";
+  pointer-events: none;
+}
+.about-work-cta::before{
+  top: -155px;
+  left: -110px;
+  width: 390px;
+  height: 390px;
+  border: 44px solid rgba(64, 217, 208, .055);
+  border-radius: 50%;
+}
+.about-work-cta::after{
+  right: -130px;
+  bottom: -200px;
+  width: 540px;
+  height: 370px;
+  border-radius: 52% 48% 0 0;
+  background: linear-gradient(135deg, rgba(99, 190, 209, .07), rgba(126, 163, 211, .025));
+  transform: rotate(-12deg);
+}
+.about-work-cta__inner{
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: clamp(48px, 8vw, 120px);
+  width: 100%;
+  max-width: 1380px;
+  margin: 0 auto;
+  padding: 0 24px;
+}
+.about-work-cta__copy{ max-width: 900px; }
+.about-work-cta h2{
+  margin: 0 0 24px;
+  color: #081738;
+  font-size: clamp(36px, 4.5vw, 62px);
+  font-weight: 800;
+  line-height: 1.1;
+  letter-spacing: -.035em;
+}
+.about-work-cta__copy p{
+  margin: 0;
+  color: #33435e;
+  font-size: clamp(17px, 1.6vw, 20px);
+  line-height: 1.75;
+}
+.about-work-cta__copy p + p{
+  margin-top: 15px;
+  color: #081738;
+  font-weight: 700;
+}
+.about-work-cta__accent{
+  color: #159f9a;
+  font-weight: 700;
+}
+.about-work-cta__button{
+  display: inline-flex;
+  min-width: 160px;
+  padding: 16px 28px;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  background: #F28C28;
+  border: 1px solid #F28C28;
+  border-radius: 10px;
+  box-shadow: 0 12px 28px rgba(242, 140, 40, .25);
+  font-size: 17px;
+  font-weight: 800;
+  line-height: 1.2;
+  text-decoration: none;
+  transition: transform .2s ease, background-color .2s ease, box-shadow .2s ease;
+}
+.about-work-cta__button:hover{
+  color: #fff;
+  background: #dc7718;
+  border-color: #dc7718;
+  box-shadow: 0 15px 34px rgba(242, 140, 40, .32);
+  transform: translateY(-2px);
+}
+@media (max-width: 800px){
+  .about-work-cta__inner{
+    grid-template-columns: 1fr;
+    gap: 34px;
+    text-align: center;
+  }
+  .about-work-cta__button{ justify-self: center; }
+}
+@media (prefers-reduced-motion: reduce){
+  .about-work-cta__button{ transition: none; }
+  .about-work-cta__button:hover{ transform: none; }
+}
+
+/* Buttons */
+.about-cta{ display:flex; gap: 12px; margin-top: 16px; flex-wrap: wrap; }
+.about-btn{
+  display:inline-flex; align-items:center; justify-content:center; padding: 10px 16px;
+  border-radius: 8px; text-decoration:none; font-weight: 700; letter-spacing:.2px;
+  border: 1px solid var(--about-border); transition: transform .12s ease, background .2s ease, border-color .2s ease;
+}
+.about-btn:hover{ transform: translateY(-1px); }
+.about-btn-primary{ background: linear-gradient(135deg, var(--about-accent) 0%, #5bc6f0 100%); color: #0b111b; border-color: transparent; }
+.about-btn-ghost{ background: rgba(255,255,255,.04); color: var(--about-text); }
+
+/* ===== Features ===== */
+.about-features{ padding: 26px 0 6px; }
+.about-features h2{ font-size: clamp(22px, 2.5vw, 30px); margin-bottom: 16px; }
+.about-grid{ display:grid; grid-template-columns: repeat(3, 1fr); gap: 18px; }
+.about-card{
+  background: linear-gradient(180deg, var(--about-card) 0%, #0f1a2c 100%);
+  border: 1px solid var(--about-border); border-radius: 12px; padding: 18px;
+  box-shadow: 0 10px 20px rgba(0,0,0,.2);
+}
+.about-card h3{ margin: 0 0 8px; font-size: 18px; }
+.about-card p{ color: var(--about-muted); margin: 0 0 12px; font-size: 14px; }
+.about-mini-list ul{ margin:0; padding-left: 18px; color: var(--about-text); }
+.about-mini-list li{ margin: 6px 0; font-size: 14px; }
+.about-mini-code{ background: #0b1424; border: 1px dashed var(--about-border); border-radius: 10px; overflow: hidden; }
+.about-mini-code pre{ margin:0; padding: 12px 14px; font-size: 13px; line-height: 1.45; color: #d2def4; }
+
+/* ===== Process ===== */
+.about-process{ padding: 10px 0 6px; }
+.about-process h2{ margin-bottom: 10px; }
+.about-steps{ list-style: none; padding: 0; margin: 0; display:grid; grid-template-columns: repeat(4, 1fr); gap: 14px; }
+.about-steps li{
+  background: linear-gradient(180deg, var(--about-card) 0%, #0f1a2c 100%);
+  border: 1px solid var(--about-border); border-radius: 12px; padding: 14px 14px 14px 44px;
+  position: relative; color: var(--about-text); min-height: 64px;
+}
+.about-steps li span{
+  position:absolute; left: 12px; top: 12px; width: 26px; height: 26px; border-radius: 50%;
+  display:inline-flex; align-items:center; justify-content:center;
+  background: linear-gradient(135deg, var(--about-accent-2), #ffc451); color:#1a2436; font-weight:900; font-size:14px;
+}
+
+/* ===== CTA band ===== */
+.about-cta-band{ padding: 24px 0 36px; }
+.about-cta-band__inner{
+  background:
+    radial-gradient(80% 120% at 20% 0%, rgba(42,168,224,.12), rgba(42,168,224,0)) ,
+    radial-gradient(80% 120% at 100% 0%, rgba(216,159,57,.18), rgba(216,159,57,0)) ,
+    linear-gradient(180deg, #0f1a2c, #0b1322);
+  border: 1px solid var(--about-border); border-radius: 14px; padding: 18px;
+  display:flex; align-items:center; justify-content:space-between; gap: 14px;
+}
+.about-cta-band__inner h3{ margin: 0 0 6px; }
+.about-cta-band__inner p{ margin: 0; color: var(--about-muted); }
+.about-cta-band__inner h3{
+  color: #988f4e;   /* very light */
+}
+/* =========================
+   RESPONSIVE / MEDIA QUERIES
+   ========================= */
+
+/* ---------- Responsive: fine-tuned breakpoints ---------- */
+
+/* <= 1280px: puțin mai mult „air” */
+@media (max-width: 1280px){
+  .about-container{ padding-left: 24px; padding-right: 24px; }
+  .about-hero-grid{ gap: 28px; }
+}
+
+/* <= 1024px: hero devine 1 coloană, textul limitat pentru lizibilitate */
+@media (max-width: 1024px){
+  .about-hero-grid{ grid-template-columns: 1fr; }
+  .about-hero-text{ max-width: 680px; margin: 0 auto; }
+  .about-hero-media{ width: 100%; max-width: 680px; margin: 0 auto; }
+  .about-hero h1{ font-size: 30px; line-height: 1.25; }
+}
+
+/* <= 900px: două coloane pentru cardurile mari + pași */
+@media (max-width: 900px){
+  .about-grid{ grid-template-columns: 1fr 1fr; gap: 16px; }
+  .about-steps{ grid-template-columns: 1fr 1fr; gap: 12px; }
+  .about-rewards-showcase__grid{ grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .about-step { padding: 14px; }
+}
+
+/* <= 768px: titluri un pic mai mici, badge & logo ajustate */
+@media (max-width: 768px){
+  .about-hero h1{ font-size: 28px; }
+  .about-logo{ height: 46px; }
+  .about-partnerships__content{ grid-template-columns: 1fr; gap: 28px; }
+  .about-partnerships__lead{ font-size: 21px; }
+  .about-partnerships__details p{ font-size: 17px; }
+  .about-cta-band__inner{ flex-direction: column; align-items: flex-start; gap: 12px; }
+}
+
+/* <= 560px: totul pe 1 coloană, butoane full width, code-wrap sigur */
+@media (max-width: 560px){
+  .about-container{ padding-left: 16px; padding-right: 16px; }
+  .about-grid{ grid-template-columns: 1fr; gap: 14px; }
+  .about-steps{ grid-template-columns: 1fr; gap: 10px; }
+  .about-btn{ width: 100%; text-align: center; }
+  .about-mini-code code{
+    font-size: 12px;
+    white-space: pre-wrap;       /* împiedică overflow */
+    word-break: break-word;
+  }
+  .about-hero h1{ font-size: 26px; }
+}
+
+/* <= 420px: spacing compact & card/step mai „tight” */
+@media (max-width: 420px){
+  .about-hero{ padding-top: 64px; padding-bottom: 28px; }
+  .about-card{ padding: 14px; }
+  .about-step{ padding: 12px; }
+  .about-cta-band{ padding: 14px; }
+}
+
+/* <= 360px: fallback pentru ecrane foarte înguste */
+@media (max-width: 360px){
+  .about-hero h1{ font-size: 24px; }
+  .about-btn{ padding: 10px 12px; }
+  .about-mini-code code{ font-size: 11px; }
+}
+
+
+
+
+
+
+/* ===== Tablets largi (iPad / iPad Pro) ===== */
+/* 1180px e un prag sigur pentru toate iPad-urile în portret + unele în landscape */
+@media (max-width: 1180px){
+  /* container puțin mai lat și aerisit */
+  .about-container{
+    max-width: 1000px;   /* era 92vw; păstrăm, dar oferim un plafon plăcut */
+    padding-left: 24px;
+    padding-right: 24px;
+  }
+
+  /* cardurile principale pe 2 coloane ca să nu fie înguste */
+  .about-grid{
+    grid-template-columns: 1fr 1fr;
+    gap: 18px;
+  }
+
+  /* pașii procesului pe 2 coloane */
+  .about-steps{
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+  }
+
+  /* un pic de accent pe tipografie pentru tablet */
+  .about-hero h1{ font-size: 32px; line-height: 1.25; }
+  .about-hero-text p{ font-size: 16px; }
+  .about-card, .about-step{ padding: 18px; }
+}
+
+/* Dacă vrei 2 coloane inclusiv la 1024–1100px în landscape,
+   păstrează și asta (opțional) */
+@media (max-width: 1100px){
+  .about-grid{ grid-template-columns: 1fr 1fr; }
+  .about-steps{ grid-template-columns: 1fr 1fr; }
+}
+
+</style>
+{% endblock %}
+
+{% block header %}
+  <!-- Logo only (click -> homepage) -->
+  <div class="about-brand">
+    <a href="{% url 'homepage' %}" class="about-logo-link" aria-label="Back to homepage">
+      <img src="{% static 'images/mouseforce.png' %}" alt="Mouseforce" class="about-logo">
+    </a>
+  </div>
+{% endblock %}
+
+{% block after_header %}{% endblock %}
+
+{% block content %}
+
+<section class="about-hero">
+  <div class="about-container">
+    <div class="about-hero-grid">
+      <div class="about-hero-text">
+        <h1><span class="about-hero-accent">Smart Rewards</span> for Everyday Value</h1>
+        <p>
+          Our goal is to give customers a smarter way to collect points and use them when it matters
+          &mdash; for discounts, vouchers, attractive offers and real savings.
+        </p>
+        <p class="about-hero-support">Collect more. Choose what works for you. Save more.</p>
+      </div>
+
+      <figure class="about-hero-media">
+        <img
+          src="{% static 'images/deal_image.jpg' %}"
+          alt="Rewards, discounts and special offers"
+          class="about-hero-image"
+        >
+      </figure>
+    </div>
+  </div>
+</section>
+
+<section class="about-partnerships">
+  <div class="about-container about-partnerships__inner">
+    <h2 class="about-partnerships__heading">
+      Better Deals, Built Through <span class="about-partnerships__accent">Partnership</span>
+    </h2>
+
+    <img
+      src="{% static 'images/partneship.webp' %}"
+      alt="Partnership"
+      class="about-partnerships__visual"
+    >
+
+    <div class="about-partnerships__content">
+      <p class="about-partnerships__lead">
+        At MouseForce, we're always looking for partnerships that can bring genuine value to our customers.
+        We work to discover attractive deals, special promotions and opportunities that make everyday
+        purchases more rewarding.
+      </p>
+
+      <div class="about-partnerships__details">
+        <p>
+          We aim to work with businesses and brands that want to introduce their products and services to
+          new customers. These partnerships can help us bring together <strong>competitive offers, exclusive
+          opportunities and promotions</strong> that may not always be widely available elsewhere.
+        </p>
+        <p>
+          And we don't want to stop there. Where possible, MouseForce can add extra value of its own &mdash;
+          from <strong>additional discounts and reward points</strong> to special promotions for our community.
+        </p>
+      </div>
+    </div>
+
+    <p class="about-partnerships__closing">
+      As MouseForce grows, our goal is simple: build stronger partnerships, discover better opportunities
+      and provide the <span class="about-partnerships__accent--sunset">best deals</span> ever.
+    </p>
+
+  </div>
+</section>
+
+<section class="about-rewards-showcase" aria-label="Rewards and deals showcase">
+  <div class="about-container">
+    <div class="about-rewards-showcase__grid">
+      <img
+        src="{% static 'images/unlock_game.png' %}"
+        alt="Unlock game reward"
+        class="about-rewards-showcase__image"
+      >
+      <img
+        src="{% static 'images/book_voucher.png' %}"
+        alt="Book voucher reward"
+        class="about-rewards-showcase__image"
+      >
+      <img
+        src="{% static 'images/headphones_voucher .png' %}"
+        alt="Headphones voucher reward"
+        class="about-rewards-showcase__image"
+      >
+      <img
+        src="{% static 'images/glasses_voucher.png' %}"
+        alt="Glasses voucher reward"
+        class="about-rewards-showcase__image"
+      >
+    </div>
+  </div>
+</section>
+
+<section class="about-points-feature" data-points-feature>
+  <div class="about-container">
+    <div class="about-points-feature__grid">
+      <div class="about-points-feature__visual">
+        <div class="about-points-feature__drone-frame">
+          <img
+            src="{% static 'images/drona_img.png' %}"
+            alt="Drone available through MouseForce rewards"
+            class="about-points-feature__drone"
+            data-points-drone
+          >
+        </div>
+
+        <div class="about-points-feature__card" data-points-card>
+          <p class="about-points-feature__price">£17.00 GBP</p>
+          <p class="about-points-feature__label">Use your points</p>
+          <ul class="about-points-feature__examples" aria-label="Example reward benefits">
+            <li><span class="about-points-feature__check" aria-hidden="true">✓</span>Points ready to redeem</li>
+            <li><span class="about-points-feature__check" aria-hidden="true">✓</span>Exclusive member offer</li>
+            <li><span class="about-points-feature__check" aria-hidden="true">✓</span>Extra value unlocked</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="about-points-feature__copy">
+        <h2>1. Save points as many as you can.</h2>
+        <p>
+          MouseForce works quietly in the background to bring you
+          <span class="about-points-feature__accent">great prices</span>, special offers and
+          <span class="about-points-feature__accent">valuable deals</span>.
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="about-save-feature">
+  <div class="about-container">
+    <div class="about-save-feature__grid">
+      <div class="about-save-feature__copy">
+        <h2>2. Save effortlessly</h2>
+        <p>
+          Ready to save? Just log in, start collecting points and discover available coupons you can use
+          towards <span class="about-save-feature__accent">great discounts and rewards</span>.
+        </p>
+      </div>
+
+      <div class="about-save-feature__visual">
+        <img
+          src="{% static 'images/laptop_voucher.png' %}"
+          alt="Laptop voucher available through MouseForce rewards"
+          class="about-save-feature__image"
+        >
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="about-basket-feature" aria-label="Rewards product showcase">
+  <img
+    src="{% static 'images/bascket_image.png' %}"
+    alt="Toothpaste, camera and speaker rewards"
+    class="about-basket-feature__image"
+  >
+</section>
+
+<section class="about-automation-statement">
+  <div class="about-automation-statement__inner">
+    <h2>Save time. Automate the repetitive. Work effortlessly.</h2>
+    <p>
+      MouseForce also provides scripting and automation solutions that help simplify everyday tasks,
+      reduce manual work, and save valuable time.
+    </p>
+  </div>
+</section>
+
+<section class="about-automation-detail">
+  <div class="about-automation-detail__inner">
+    <div class="about-automation-detail__grid">
+      <div class="about-automation-detail__copy">
+        <h2><span class="about-automation-detail__accent">Automation</span> That Gives You Time Back</h2>
+        <p>
+          Modern work shouldn’t be slowed down by repetitive tasks. Automation and smart scripting can
+          handle routine processes faster, reduce manual work and help you focus on what really matters.
+        </p>
+        <p>
+          Today, automation is more than convenience — it’s a smarter way to save time, improve productivity
+          and get more done with less effort.
+        </p>
+      </div>
+
+      <div class="about-automation-detail__visual">
+        <img
+          src="{% static 'images/a_s_s_image.png' %}"
+          alt="Automation, scripting and save time"
+          class="about-automation-detail__image"
+        >
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="about-work-together">
+  <div class="about-work-together__inner">
+    <header class="about-work-together__header">
+      <h2>How we work <span class="about-work-together__accent">together</span></h2>
+      <p>
+        Our approach is built around quality, reliability and creating solutions that genuinely help our customers.
+      </p>
+    </header>
+
+    <div class="about-work-together__grid">
+      <article class="about-work-card">
+        <span class="about-work-card__icon" aria-hidden="true">◆</span>
+        <h3>Quality Over Quantity</h3>
+        <p>
+          We focus on delivering high-quality automation and scripts, not simply completing more tasks. Every
+          solution is built with care, precision and attention to detail.
+        </p>
+      </article>
+
+      <article class="about-work-card">
+        <span class="about-work-card__icon" aria-hidden="true">⚡</span>
+        <h3>Fast &amp; Efficient Solutions</h3>
+        <p>
+          We value your time. Our goal is to deliver clean, optimized and reliable automation as efficiently as
+          possible without compromising quality.
+        </p>
+      </article>
+
+      <article class="about-work-card">
+        <span class="about-work-card__icon" aria-hidden="true">✓</span>
+        <h3>Clean &amp; Reliable Work</h3>
+        <p>
+          Every script and automation solution is developed with stability, maintainability and reliable
+          performance in mind.
+        </p>
+      </article>
+
+      <article class="about-work-card">
+        <span class="about-work-card__icon" aria-hidden="true">◎</span>
+        <h3>Customer Comes First</h3>
+        <p>
+          We listen carefully to what you need and work towards the most suitable solution for your goals rather
+          than using a one-size-fits-all approach.
+        </p>
+      </article>
+
+      <article class="about-work-card">
+        <span class="about-work-card__icon" aria-hidden="true">+</span>
+        <h3>Support You Can Rely On</h3>
+        <p>
+          Our work does not simply end at delivery. We aim to provide the support needed to help customers
+          understand and use their solution effectively.
+        </p>
+      </article>
+
+      <article class="about-work-card">
+        <span class="about-work-card__icon" aria-hidden="true">↗</span>
+        <h3>Continuous Improvement</h3>
+        <p>
+          We keep learning, improving and exploring better ways to automate repetitive processes, save time and
+          create more effective solutions.
+        </p>
+      </article>
+    </div>
+
+    <p class="about-work-together__closing">
+      Better automation. Less repetitive work. More time for what matters.
+    </p>
+  </div>
+</section>
+
+<section class="about-work-cta">
+  <div class="about-work-cta__inner">
+    <div class="about-work-cta__copy">
+      <h2>Ready to get more from MouseForce?</h2>
+      <p>
+        Whether you want to collect points, discover valuable
+        <span class="about-work-cta__accent">rewards and deals</span>, or use
+        <span class="about-work-cta__accent">scripting and automation</span> to save time, MouseForce gives
+        you both options in one place.
+      </p>
+      <p>Log in, choose what you need, and get started.</p>
+    </div>
+
+    <a class="about-work-cta__button" href="{% url 'select_role' %}">Login</a>
+  </div>
+</section>
+
+<script>
+  (() => {
+    const section = document.querySelector('[data-points-feature]');
+    const visual = section?.querySelector('.about-points-feature__visual');
+    const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+
+    if (!section || !visual || reduceMotion.matches) return;
+
+    let framePending = false;
+
+    const updateMovement = () => {
+      const bounds = section.getBoundingClientRect();
+      const viewportCenter = window.innerHeight / 2;
+      const sectionCenter = bounds.top + bounds.height / 2;
+      const progress = Math.max(-1, Math.min(1, (viewportCenter - sectionCenter) / window.innerHeight));
+
+      visual.style.setProperty('--points-visual-shift', `${progress * 22}px`);
+      framePending = false;
+    };
+
+    const requestMovement = () => {
+      if (framePending) return;
+      framePending = true;
+      window.requestAnimationFrame(updateMovement);
+    };
+
+    updateMovement();
+    window.addEventListener('scroll', requestMovement, { passive: true });
+    window.addEventListener('resize', requestMovement);
+  })();
+</script>
+
+<section class="about-cta-band">
+  <div class="about-container about-cta-band__inner">
+    <div>
+      <h3>Got an idea or need a script now?</h3>
+      <p>Tell us your goal and we’ll suggest the most effective path.</p>
+    </div>
+    <a class="about-btn about-btn-primary" href="{% url 'contact' %}">Let’s talk</a>
+  </div>
+</section>
+
+{% endblock %}
+
+{# Override footer block to keep it hidden #}
+{% block footer %}{% endblock %}

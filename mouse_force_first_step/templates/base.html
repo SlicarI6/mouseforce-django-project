@@ -1,0 +1,687 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8">
+    <title>{% block title %}My Site{% endblock %}</title>
+    <link rel="stylesheet" type="text/css" href="{% static 'css/main_page_style.css' %}">
+      <!-- ✅ Bloc pentru stiluri suplimentare -->
+    {% block extra_head %}{% endblock %}
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-70HK7C1J3M"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'G-70HK7C1J3M');
+    </script>
+
+    <!-- 🛡️ Fix Back Button Cookie Flash -->
+    <script>
+        if (performance.navigation.type === 2) {
+            window.addEventListener('pageshow', function () {
+                const banner = document.getElementById('cookieConsent');
+                const overlay = document.getElementById('cookieOverlay');
+                if (localStorage.getItem('cookieConsent')) {
+                    if (banner) banner.style.display = 'none';
+                    if (overlay) overlay.style.display = 'none';
+                }
+            });
+        }
+    </script>
+
+</head>
+
+<body>
+    <header>
+        {% block header %}{% endblock %}
+    </header>
+    
+    {% block after_header %}{% endblock %}
+
+    <main>
+        {% block content %}{% endblock %}
+    </main>
+
+{% block footer %}
+<footer id="footer" class="custom-footer">
+    <div class="container">
+        <div class="row gy-4">
+            <div class="col-md-3">
+                <h5>Company</h5>
+                <ul class="list-unstyled">
+                    <li><a href="#">About Us</a></li>
+                    <li><a href="#">Privacy Policy</a></li>
+                    <li><a href="#">Terms</a></li>
+                </ul>
+            </div>
+
+            <div class="col-md-3">
+                <h5>Knowledge</h5>
+                <ul class="list-unstyled">
+                    <li><a href="#">Startup Guide</a></li>
+                    <li><a href="#">Marketing Resources</a></li>
+                </ul>
+            </div>
+
+            <div class="col-md-3">
+                <h5>Support Us</h5>
+                <ul class="list-unstyled">
+                    <a href="{% url 'contact' %}" target="_blank">Contact</a>
+                    <li><a href="#">Help Center</a></li>
+                </ul>
+            </div>
+
+            <div class="col-md-3 text-center earth-label">
+                <p class="mouseforce-label">Mouseforce</p>
+                <img src="{% static 'images/planet-earth.png' %}" alt="Planet Earth" class="earth-icon">
+            </div>
+        </div>
+    </div>
+</footer>
+{% endblock %}
+
+
+        {% if not user.is_authenticated %}
+        <!-- Overlay gri pe toată pagina (mai puțin footerul) -->
+        <div id="cookieOverlay"></div>
+
+        <!-- Bannerul jos cu butoane -->
+        <div id="cookieConsent">
+            <p style="margin: 0;">
+                We use cookies to ensure you get the best experience on our website.
+                <a href="{% url 'privacy_policy' %}" style="color: #FFCC00;">Privacy Policy</a>
+            </p>
+            <button id="acceptCookies">Accept</button>
+            <button id="rejectCookies">Reject</button>
+        </div>
+    {% endif %}
+    
+
+    <script>
+        function getCSRFToken() {
+            let csrfToken = null;
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                if (cookie.startsWith('csrftoken=')) {
+                    csrfToken = cookie.substring('csrftoken='.length);
+                    break;
+                }
+            }
+            return csrfToken;
+        }
+
+        function hideCookieElements() {
+            setTimeout(() => {
+                const cookieConsent = document.getElementById('cookieConsent');
+                const overlay = document.getElementById('cookieOverlay');
+                if (cookieConsent) cookieConsent.style.display = 'none';
+                if (overlay) overlay.style.display = 'none';
+            }, 150);
+        }
+
+        window.onload = function () {
+            const cookieConsent = document.getElementById('cookieConsent');
+            const acceptCookiesButton = document.getElementById('acceptCookies');
+            const rejectCookiesButton = document.getElementById('rejectCookies');
+
+            if (localStorage.getItem('cookieConsent') === 'accepted' || localStorage.getItem('cookieConsent') === 'rejected') {
+                hideCookieElements();
+            } else {
+                if (cookieConsent) cookieConsent.style.display = 'block';
+            }
+
+            if (acceptCookiesButton) {
+                acceptCookiesButton.addEventListener('click', function () {
+                    const csrfToken = getCSRFToken();
+                    fetch("/accept_cookies/", {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            credentials: 'same-origin',
+                            'X-CSRFToken': csrfToken
+                        },
+                        body: JSON.stringify({ accepted: true })
+                    });
+                    localStorage.setItem('cookieConsent', 'accepted');
+                    hideCookieElements();
+                    gtag('config', 'G-70HK7C1J3M');
+                });
+            }
+
+            if (rejectCookiesButton) {
+                rejectCookiesButton.addEventListener('click', function () {
+                    const csrfToken = getCSRFToken();
+                    fetch("/accept_cookies/", {
+                        method: 'POST',
+                        credentials: 'same-origin',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRFToken': csrfToken
+                        },
+                        body: JSON.stringify({ accepted: false })
+                    });
+                    localStorage.setItem('cookieConsent', 'rejected');
+                    hideCookieElements();
+                    window['ga-disable-G-70HK7C1J3M'] = true;
+                });
+            }
+        };
+    </script>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const overlay = document.getElementById('cookieOverlay');
+        const consentBox = document.getElementById('cookieConsent');
+        const acceptBtn = document.getElementById('acceptCookies');
+        const rejectBtn = document.getElementById('rejectCookies');
+
+        // Verificăm dacă consimțământul a fost dat deja
+        const cookieConsent = localStorage.getItem("cookieConsent");
+
+        if (!cookieConsent) {
+            if (overlay) overlay.style.display = "block";
+            if (consentBox) consentBox.style.display = "block";
+        } else {
+            if (overlay) overlay.remove();
+            if (consentBox) consentBox.remove();
+        }
+
+        function getCSRFToken() {
+            const cookies = document.cookie.split(';');
+            for (let cookie of cookies) {
+                const trimmed = cookie.trim();
+                if (trimmed.startsWith('csrftoken=')) {
+                    return trimmed.substring('csrftoken='.length);
+                }
+            }
+            return null;
+        }
+
+        function hideCookieElements() {
+            if (overlay) overlay.style.display = "none";
+            if (consentBox) consentBox.style.display = "none";
+        }
+
+        if (acceptBtn) {
+            acceptBtn.addEventListener("click", function () {
+                localStorage.setItem("cookieConsent", "accepted");
+
+                fetch("/accept_cookies/", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "X-CSRFToken": getCSRFToken()
+                    },
+                    body: JSON.stringify({ accepted: true })
+                });
+
+                hideCookieElements();
+            });
+        }
+
+        if (rejectBtn) {
+            rejectBtn.addEventListener("click", function () {
+                localStorage.setItem("cookieConsent", "rejected");
+
+                fetch("/accept_cookies/", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "X-CSRFToken": getCSRFToken()
+                    },
+                    body: JSON.stringify({ accepted: false })
+                });
+
+                hideCookieElements();
+            });
+        }
+    });
+</script>
+<!-- 🧱 Mega Market Content ascuns pentru clonare -->
+<!-- 🧱 Mega Market Content ascuns pentru clonare -->
+<div id="megaMarketContent" style="display: none;">
+    <div class="mega-project-subheadings">
+      <div class="mega-sidebar">
+        <ul>
+          <li data-section="ai">AI Marketplace</li>
+          <li data-section="storage">Cloud Storage</li>
+          <li data-section="marketing">Marketing Tools</li>
+          <li data-section="shop">Online Shops</li>
+        </ul>
+      </div>
+      <div class="mega-details">
+        <div id="ai" class="mega-section">
+          <div class="AI-Market">
+            <div class="ai-content-container"> <!-- container comun pentru stânga + dreapta -->
+  
+              <!-- STÂNGA -->
+              <div class="ai-left">
+                <div class="ai-section">
+                  <h5>AI</h5>
+                  <div class="ai-item">
+                    <img src="/static/images/ai-model.png" alt="AI Icon">
+                    <div>
+                      <strong>AI Model Hub</strong>
+                      <p>Use selected LLMs and text-to-image models.</p>
+                    </div>
+                  </div>
+                </div>
+  
+                <div class="ai-section">
+                  <h5>Management</h5>
+                  <div class="ai-grid">
+                    <div class="ai-item">
+                      <img src="/static/images/management.png" alt="Backup Icon">
+                      <div>
+                        <strong>Management Service</strong>
+                        <p>Managers.</p>
+                      </div>
+                    </div>
+                    <div class="ai-item">
+                      <img src="/static/images/admin-panel.png" alt="Admin Icon">
+                      <div>
+                        <strong>Admin</strong>
+                        <p>You are part Admin</p>
+                      </div>
+                    </div>
+                    <div class="ai-item">
+                      <img src="/static/images/finger-snap.png" alt="Snap Icon">
+                      <div>
+                        <strong>It's ready</strong>
+                        <p>Manage it right away</p>
+                      </div>
+                    </div>
+                    <div class="ai-item">
+                      <img src="/static/images/convenient.png" alt="Comfy Icon">
+                      <div>
+                        <strong>Comfortable usage</strong>
+                        <p>You can use in a few steps.</p>
+                      </div>
+                    </div>
+                    <div class="ai-item">
+                      <img src="/static/images/social-network.png" alt="Network Icon">
+                      <div>
+                        <strong>Network</strong>
+                        <p>Social Environment.</p>
+                      </div>
+                    </div>
+                    <div class="ai-item">
+                      <img src="/static/images/padlock.png" alt="Secure Icon">
+                      <div>
+                        <strong>Secure</strong>
+                        <p>Everything we need.</p>
+                      </div>
+                    </div>
+                    <div class="ai-item">
+                      <img src="/static/images/motivation.png" alt="Move Icon">
+                      <div>
+                        <strong>Move together</strong>
+                        <p>We have the same goal.</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+  
+              <!-- DREAPTA -->
+              <div class="ai-right">
+                <img src="/static/images/wall.png" alt="Right Image">
+              </div>
+            </div> <!-- final ai-content-container -->
+          </div>
+  
+          <!-- alte taburi -->
+          <div id="storage" class="mega-section" style="display:none;">
+            <h4>Cloud Storage</h4>
+            <p>Secure, scalable object storage solutions.</p>
+          </div>
+          <div id="marketing" class="mega-section" style="display:none;">
+            <h4>Marketing Tools</h4>
+            <p>Email campaigns, SEO tools and social media integrations.</p>
+          </div>
+          <div id="shop" class="mega-section" style="display:none;">
+            <h4>Online Shops</h4>
+            <p>Sell products online with integrated shop tools.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  
+
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const overlay = document.getElementById('infoOverlay');
+        const dropdown = document.getElementById('infoDropdown');
+        const content = document.getElementById('dropdownContent');
+    
+        const links = document.querySelectorAll('.sub-header a');
+        if (!links.length || !dropdown || !overlay || !content) return;
+    
+        links.forEach(link => {
+            link.addEventListener('click', function (e) {
+                e.preventDefault();
+                const text = this.textContent.trim();
+    
+                if (text === "Services") {
+                    content.innerHTML = `
+                        <h4>ROOT SERVER</h4>
+                        <div class="service-row">
+                            <div class="service-box" style="width: 30%;">
+                                <img src="/static/images/running.png" alt="VPS Icon">
+                                <div>
+                                    <strong>Need someone fast? We’ve got you.</strong>
+                                    <p>Fully virtualised private servers.</p>
+                                    <ul>
+                                        <li>Immediate availability</li>
+                                        <li>Quick response</li>
+                                        <li>Skilled workers available on short notice.</li>
+                                        <li>Urgent staff support, anytime.</li>
+                                    </ul>
+                                </div>
+                            </div>
+                            <div class="service-box" style="width: 30%;">
+                                <img src="/static/images/laptop.png" alt="Dedicated Icon">
+                                <div>
+                                    <strong>Dedicated Servers</strong>
+                                    <p>Get enterprise hardware with unlimited traffic.</p>
+                                    <ul>
+                                        <li>SAAS Servers</li>
+                                        <li>IT Support<span style="background-color: fuchsia; color: white; padding: 2px 5px; border-radius: 4px;">New</span></li>
+                                        <li>Numeracy Project Support</li>
+                                        <li>Storage Servers</li>
+                                        <li>Dream Project ? done!</li>
+                                        <li>Modern & Inovative</li>
+                                    </ul>
+                                </div>
+                            </div>
+                            <div class="service-box" style="width: 30%;">
+                                <img src="/static/images/choices.png" alt="Cloud Icon">
+                                <div>
+                                    <strong>Simple Choose</strong>
+                                    <p>We are focused on simplicity and easy going</p>
+                                </div>
+                            </div>
+                        </div>
+                        <h4>SERVER TOOLS</h4>
+                        <div class="service-row">
+                            <div class="service-box" style="width: 45%;">
+                                <img src="/static/images/customer.png" alt="Backup Icon">
+                                <div>
+                                    <strong>Customer Service Management</strong>
+                                    <p>Leading service teams grow with Mouseforce & Customer Service AI</p>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                } else if (text === "Website") {
+                    content.innerHTML = `
+                        <h4>LAUNCH YOUR WEBSITE</h4>
+                        <div class="website-subheader-row">
+                            <div class="website-subheader-box">
+                                <img src="/static/images/website-builder.png" alt="Website Builder">
+                                <div>
+                                    <strong>Website Builder</strong>
+                                    <p>We create your own website easily.</p>
+                                </div>
+                            </div>
+                            <div class="website-subheader-box">
+                                <img src="/static/images/web-design.png" alt="Design Service">
+                                <div>
+                                    <strong>Website Design Service</strong>
+                                    <p>Get your website built by experts.</p>
+                                </div>
+                            </div>
+                            <div class="website-subheader-box">
+                                <img src="/static/images/data-migration.png" alt="Migration">
+                                <div>
+                                    <strong>Migration Service</strong>
+                                    <p>Trust your move-migration to the experts.</p>
+                                </div>
+                            </div>
+                        </div>
+                        <h4>ONLINE MARKETING</h4>
+                        <div class="website-subheader-row">
+                            <div class="website-subheader-box">
+                                <img src="/static/images/planning.png" alt="SEO Tool">
+                                <div>
+                                    <strong>Search Engine Optimisation Tool</strong>
+                                    <p>Improve your ranking on search engines with Mouseforce</p>
+                                </div>
+                            </div>
+                            <div class="website-subheader-box">
+                                <img src="/static/images/email.png" alt="Email">
+                                <div>
+                                    <strong>Email Marketing</strong>
+                                    <p>We send you ready emails campaigns.</p>
+                                </div>
+                            </div>
+                            <div class="website-subheader-box">
+                                <img src="/static/images/medical.png" alt="Google Ads">
+                                <div>
+                                    <strong>Google Ads Management Service</strong>
+                                    <p>We connect your website with Google!</p>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                } else if (text === "Mega-Market") {
+                    const megaMarket = document.getElementById("megaMarketContent");
+                    if (megaMarket) {
+                        const clone = megaMarket.cloneNode(true);
+                        clone.style.display = "block";
+                        content.innerHTML = "";
+                        content.appendChild(clone);
+    
+                        const sidebarItems = content.querySelectorAll('.mega-project-subheadings ul li');
+                        const detailSections = content.querySelectorAll('.mega-project-subheadings .mega-section');
+    
+                        sidebarItems.forEach(li => {
+                            li.addEventListener('click', () => {
+                                detailSections.forEach(section => section.style.display = 'none');
+                                const target = content.querySelector(`#${li.getAttribute('data-section')}`);
+                                if (target) target.style.display = 'block';
+                            });
+                        });
+                    }
+                } else if (text === "Free") {
+                    content.innerHTML = `
+                        <div class="free-container">
+                        <div class="free-left">
+                        <h4>FREE START TOOLS</h4>
+
+                        <!-- Primul rând -->
+                        <div class="free-grid">
+                            <div class="free-item">
+                            <img src="/static/images/free.png" alt="Free Icon">
+                            <div>
+                                <strong>Starter Pack</strong>
+                                <p>Free plans</p>
+                            </div>
+                            </div>
+                            <div class="free-item">
+                            <img src="/static/images/open.png" alt="Open Icon">
+                            <div>
+                                <strong>Open to anything</strong>
+                                <p>No card needed. Explore freely anytime.</p>
+                            </div>
+                            </div>
+                        </div>
+
+                        <!-- Linia dintre rânduri -->
+                        <div class="free-divider"></div>
+
+                        <!-- Al doilea rând -->
+                        <div class="free-grid">
+                            <div class="free-item">
+                            <img src="/static/images/resilience.png" alt="Free Icon">
+                            <div>
+                                <strong>Completely Free</strong>
+                                <p>No card needed. Explore freely anytime.</p>
+                            </div>
+                            </div>
+                            <div class="free-item">
+                            <img src="/static/images/help.png" alt="Help Icon">
+                            <div>
+                                <strong>Completely Free</strong>
+                                <p>We are Considerate Volunteering</p>
+                            </div>
+                            </div>
+                        </div>
+                        </div>
+
+                        <div class="free-right">
+                            <img src="/static/images/Free-badge.png" alt="Free img">
+                        </div>
+                        </div>
+                    `;
+                } else if (text === "WordPress") {
+                    content.innerHTML = `
+                        <div class="word-press-container">
+                            <div class="word-press-left">
+                                <div class="word-press-section">
+                                    <h4>WORDPRESS</h4>
+                                    <div class="word-press-grid">
+                                        <div class="word-press-item">
+                                            <img src="/static/images/pin.png" alt="Free Icon">
+                                            <div>
+                                                <strong>Location</strong>
+                                                <p>Location UK</p>
+                                            </div>
+                                        </div>
+                                        <div class="word-press-item">
+                                            <img src="/static/images/circle.png" alt="Circle">
+                                            <div>
+                                                <strong>Managed WordPress</strong>
+                                                <p>WordPress for any project.</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="word-press-section">
+                                    <h4>WORDPRESS ECOMMERCE</h4>
+                                    <div class="word-press-grid">
+                                        <div class="word-press-item">
+                                            <img src="/static/images/social-proof.png" alt="social">
+                                            <div>
+                                                <strong>Social-Proof</strong>
+                                                <p>Mouseforce High Standards</p>
+                                            </div>
+                                        </div>
+                                        <div class="word-press-item">
+                                            <img src="/static/images/information.png" alt="info">
+                                            <div>
+                                                <strong>Info</strong>
+                                                <p>We work for you</p>
+                                            </div>
+                                        </div>
+                                        <div class="word-press-item">
+                                            <img src="/static/images/iso.png" alt="iso">
+                                            <div>
+                                                <strong>Effective</strong>
+                                                <p>A smooth operator</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="word-press-right">
+                                <img src="/static/images/word-press-hst.png" alt="presswordhst">
+                            </div>
+                        </div>
+                    `;
+                } else if (text === "Price") {
+                    content.innerHTML = `
+                    <div class="price-container">
+                        <div class="price-left">
+                            <h4>PRICE</h4>
+                            <p>Our mouse doesn’t work for money – just feed him some cheese.</p>
+                            <img src="/static/images/rat.png" alt="mouse with cheese">
+                        </div>
+                        <div class="price-right">
+                            <img src="/static/images/cheeseroun.png" alt="cheese">
+                        </div>
+                    </div>
+                    `;
+                } else if (text === "Organisation") {
+    content.innerHTML = `
+    <div class="organisation-container">
+        <h4>ORGANISATION</h4>
+
+        <!-- Rând 1 -->
+        <div class="organisation-grid">
+            <div class="organisation-box">
+                <img src="/static/images/worry.png" alt="worrye">
+                <div>
+                    <strong>Structure</strong>
+                    <p>Competative Organisation</p>
+                </div>
+            </div>
+            <div class="organisation-box">
+                <img src="/static/images/stress.png" alt="stresse">
+                <div>
+                    <strong>Mouseforce Team</strong>
+                    <p>No Stress</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Rând 2 -->
+        <div class="organisation-grid single-center">
+            <div class="organisation-box">
+                <img src="/static/images/office.png" alt="office">
+                <div>
+                    <strong>Office</strong>
+                    <p>Office startUp!</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    `;
+
+
+
+                } else {
+                    content.innerHTML = `<h2>${text}</h2><p>This is the content for <strong>${text}</strong> section.</p>`;
+                }
+    
+                overlay.style.display = 'block';
+                dropdown.style.display = 'block';
+            });
+        });
+    
+        overlay.addEventListener('click', function () {
+            overlay.style.display = 'none';
+            dropdown.style.display = 'none';
+            content.innerHTML = '';
+        });
+    });
+    </script>
+    
+    
+
+    {% block extra_js %}{% endblock %}
+
+    <!-- Overlay și container dropdown -->
+<div id="infoOverlay" class="info-overlay" style="display: none;"></div>
+<div id="infoDropdown" class="info-dropdown" style="display: none;">
+  <div id="dropdownContent" class="info-dropdown-content"></div>
+</div>
+
+</body>
+</html>

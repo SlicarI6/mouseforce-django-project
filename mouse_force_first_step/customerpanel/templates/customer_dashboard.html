@@ -1,0 +1,877 @@
+{% extends 'base.html' %}
+{% load static %}
+
+
+
+{% block title %}Customer Dashboard{% endblock %}
+
+{% block extra_head %}
+<link rel="stylesheet" href="{% static 'css/style_customerpanel_css.css' %}">
+<link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+{% endblock %}
+
+
+
+{% block header %}
+
+
+<nav class="bg-transparent px-4 py-2">
+  <div class="flex items-center justify-between">
+
+    <!-- Logo + Welcome -->
+    <div class="flex items-center gap-4">
+      <img src="{% static 'images/mouseforce.png' %}" alt="Mouseforce"
+           class="h-10 w-auto" style="border-bottom-left-radius: 100px; border-bottom-right-radius: 100px;">
+      <span class="text-xl font-semibold text-black">Welcome, {{ user.username }}</span>
+    </div>
+
+<button id="hamburger-btn" class="sm:hidden text-black text-3xl" aria-label="Open menu">
+  &#9776;
+</button>
+
+    <!-- Meniu + Clopoțel + Avatar -->
+    <div class="flex items-center space-x-6">
+      <div class="hidden sm:flex space-x-4 text-sm font-medium">
+        <a href="#" class="text-black hover:underline">System</a>
+
+        {% if user.is_superuser %}
+          <a href="{% url 'chat_user_list' %}" class="text-black hover:underline">👥 Admin Chat Panel</a>
+        {% else %}
+          <a href="{% url 'user_chat_redirect' %}">💬 ChatMe</a>
+        {% endif %}
+
+        <a href="#" class="text-black hover:underline">Support</a>
+      </div>
+
+      <!-- Clopoțel -->
+      <button class="text-black relative" onclick="toggleNotifications()" id="bellBtn">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round"
+                d="M14.857 17.082a23.848 23.848 0 005.454-1.31A8.967 8.967 0 0118 9.75V9A6 6 0 006 9v.75a8.967 8.967 0 01-2.312 6.022 23.855 23.855 0 005.455 1.31m5.714 0a3 3 0 11-5.714 0" />
+        </svg>
+        <span id="notificationBadge"
+              class="absolute -top-1 -right-1 bg-red-600 text-white text-xs px-1.5 py-0.5 rounded-full hidden">1</span>
+      </button>
+
+      <!-- Dropdown notificări -->
+          <div id="notificationDropdown"
+              class="absolute right-4 mt-2 w-72 bg-white shadow-xl rounded-xl p-3 z-50 hidden">
+            
+            
+            <!-- Loading text -->
+            <div id="notificationLoading" class="text-center text-gray-500 py-4 hidden">
+              Loading notifications...
+            </div>
+
+            <!-- Lista de notificări -->
+            <div id="notificationList" class="space-y-2 hidden">
+              <!-- notificările vor fi adăugate aici -->
+            </div>
+          </div>
+
+      <!-- Avatar + Pop-up -->
+<div class="relative">
+    <button id="avatarBtn" class="focus:outline-none">
+      <div class="w-10 h-10 sm:w-12 sm:h-10 flex-shrink-0">
+        <img class="w-full h-full rounded-full object-cover"
+           src="{% if user.profile_picture %}{{ user.profile_picture }}{% else %}{% static 'images/default_avatar.png' %}{% endif %}"
+           alt="Avatar">
+      </div>
+    </button>
+
+  <div id="profileCard" class="hidden absolute right-0 mt-2 w-80 bg-white rounded-xl shadow-lg p-6 z-50 text-center">
+    <div class="relative w-20 h-20 mx-auto">
+      {% if user.profile_picture %}
+        <img class="w-20 h-20 rounded-full object-cover border" src="{{ user.profile_picture }}" alt="Avatar">
+      {% else %}
+        <img class="w-20 h-20 rounded-full object-cover border" src="{% static 'images/default_avatar.png' %}" alt="Avatar">
+      {% endif %}
+
+      <!-- Nou: upload cu iconiță -->
+      <form method="POST" action="{% url 'update_profile_picture' %}" enctype="multipart/form-data">
+        {% csrf_token %}
+        <label for="fileInput" class="absolute bottom-0 right-0 bg-white rounded-full p-1 shadow-md cursor-pointer">
+          <img src="{% static 'images/pen_avatar.png' %}" alt="Edit" class="w-5 h-5">
+        </label>
+        <input id="fileInput" type="file" name="profile_picture" class="hidden" onchange="this.form.submit();">
+      </form>
+    </div>
+
+    <p class="text-sm text-gray-500 mt-2">{{ user.email }}</p>
+    <h2 class="text-lg font-semibold mt-1">Hi, {{ user.first_name|capfirst }}!</h2>
+
+    <button class="mt-2 px-4 py-1 border border-gray-300 rounded-full text-blue-600 text-sm hover:bg-gray-100">
+      Manage your Account
+    </button>
+
+    <form method="POST" action="{% url 'logout' %}" class="mt-4">
+      {% csrf_token %}
+      <button type="submit"
+        class="w-full flex items-center justify-center gap-2 px-4 py-2 bg-gray-100 hover:bg-gray-200 text-black font-medium rounded-lg transition">
+        <img src="{% static 'images/logout_avatar.png' %}" alt="Logout Icon" class="w-6 h-6">
+        Logout
+      </button>
+    </form>
+  </div>
+</div>
+
+    </div>
+  </div>
+</nav>
+
+
+<!-- ✅ Meniu mobil stilizat -->
+<div id="mobile-menu" class="mobile-menu hidden fixed top-0 left-0 w-full h-full bg-gray-900 z-50 overflow-y-auto">
+  <div class="mobile-menu-content text-white px-6 py-4">
+    <div class="flex justify-between items-center mb-6">
+      <span class="text-xl font-semibold">Menu</span>
+      <button id="close-menu-btn" class="text-white text-3xl">&times;</button>
+    </div>
+
+    <ul class="flex flex-col gap-4 text-lg font-semibold">
+      <li><a href="#" class="menu-link-simple block">System</a></li>
+      <li><a href="#" class="menu-link-simple block">Support</a></li>
+      <li><a href="{% url 'user_chat_redirect' %}" class="menu-link-simple block">ChatMe</a></li>
+      <li>
+        <form method="POST" action="{% url 'logout' %}">
+          {% csrf_token %}
+          <button type="submit" class="menu-link-simple text-left w-full">Logout</button>
+        </form>
+      </li>
+    </ul>
+  </div>
+</div>
+
+
+
+{% endblock %}
+
+
+
+
+{% block content %}
+<section class="dashboard">
+  <h2>Exclusive Features</h2>
+  <p>This content is available only for YOU — let’s build your Next project Together.</p>
+
+  <section class="card-section">
+    <div class="custom-card">
+      <div class="card-top-border"></div>
+      <div class="card-content">
+        <h5>IT Operation</h5>
+        <p>I can help by connecting you with a professional and understanding team you can trust — for any IT support, from technical issues to laptop help.</p>
+        <a href="#">IT Support</a>
+      </div>
+    </div>
+
+    <div class="custom-card">
+      <div class="card-top-border"></div>
+      <div class="card-content">
+        <h5>Skilled Worked</h5>
+        <p>If you need any kind of IT specialist — even for technical support — just let me know. My team is happy to advise and help you find the right solution you need. </p>
+        <a href="#">Here to help</a>
+      </div>
+    </div>
+
+    <div class="custom-card">
+      <div class="card-top-border"></div>
+      <div class="card-content">
+        <h5>Cleaning & Maintenance</h5>
+        <p>We work cleanly, provide full maintenance, and make sure every job is completed from start to finish. We do it from the heart, not just for speed.</p>
+        <a href="#">Details</a>
+      </div>
+    </div>
+
+    <div class="custom-card">
+      <div class="card-top-border"></div>
+      <div class="card-content">
+        <h5>Smart Business Support</h5>
+        <p>Smart Business Support — done right, with care and clarity. From advice to action, support every step of the way.</p>
+        <a href="#">Here</a>
+      </div>
+    </div>
+  </section>
+    <section class="extra-description">
+    <p class="extra-paragraph">
+      Right now, we're working on <strong>websites</strong>, <strong>chat apps</strong>, <strong>game scripting</strong>,
+      and even some <strong>SaaS solutions</strong>. But we also offer <strong>hidden gems</strong> — like
+      creating your own <strong>management system</strong>. Just let us know what you need — we build it with care.
+    </p>
+  </section>
+</section>
+
+
+<div class="fade-transition"></div>
+
+<section id="vanta-background" style="min-height: 100vh;">
+    <h1>Discover what's new in Service.</h1>
+
+    <div class="tabs">
+      <div class="tab-btn active" data-tab="innovation">Innovation</div>
+      <div class="tab-btn" data-tab="contents">Contents</div>
+      <div class="tab-btn" data-tab="events">Events</div>
+      <div class="tab-btn" data-tab="reports">Reports</div>
+    </div>
+
+    <div class="tab-content active" id="innovation">
+      <section class="service-cards">
+        <div class="service-card">
+          <div class="card-image field-service-bg"></div>
+          <div class="card-body">
+            <h3 class="content_discover_cards">Field Assistance</h3>
+            <p>Every response you receive is written by a real person — not AI. You're talking to a human, with no automated replies. All answers come from real people who understand your needs.</p>
+            <a href="#">Explore more</a>
+          </div>
+        </div>
+
+        <div class="service-card">
+          <div class="card-image ai-support-bg"></div>
+          <div class="card-body">
+            <h3 class="content_discover_cards">AI Support System</h3>
+            <p>We use AI support to enhance your experience, better understand your needs, and exceed your expectations — all while keeping the human touch at the heart of our service.</p>
+            <a href="#">Try now</a>
+          </div>
+        </div>
+
+        <div class="service-card">
+          <div class="card-image crm-tools-bg"></div>
+          <div class="card-body">
+            <h3 class="content_discover_cards">CRM + Automation</h3>
+            <p>We sometimes use automation to speed up the projects we deliver — for both your needs and ours — but always with great care, attention to detail, and a focus on quality.</p>
+            <a href="#">View features</a>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <div class="tab-content" id="contents">
+      <section class="service-cards">
+        <div class="service-card">
+          <div class="card-image" style="background-image: url('/static/images/broke_a_bone.png');"></div>
+          <div class="card-body">
+            <h3 class="content_discover_cards">Happy Customer</h3>
+            <p>We do our best to make every customer happy when working with us. We love to please our clients, help them achieve their goals, and leave them with a great impression of our service.</p>
+            <a href="#">Get started</a>
+          </div>
+        </div>
+
+        <div class="service-card">
+          <div class="card-image" style="background-image: url('/static/images/plants.png');"></div>
+          <div class="card-body">
+            <h3 class="content_discover_cards"> We are like leaves</h3>
+            <p> We are like leaves — flexible, calm, and always adapting to the winds of your needs. No matter the season or challenge, we adjust with care and purpose. With us, you're never alone in the storm — we're here to move forward together.</p>
+            <a href="#">Take the tour</a>
+          </div>
+        </div>
+
+        <div class="service-card">
+          <div class="card-image" style="background-image: url('/static/images/it_support.png');"></div>
+          <div class="card-body">
+            <h3 class="content_discover_cards">Discover the latest trends in field service</h3>
+            <p>Innovative solutions, smarter workflows, and improved customer satisfaction. Stay ahead with tools and strategies designed to make every job efficient and successful.</p>
+            <a href="#">Get the report</a>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <div class="tab-content" id="events">
+      <section class="service-cards">
+        <div class="service-card">
+          <div class="card-image" style="background-image: url('/static/images/clouding.png');"></div>
+          <div class="card-body">
+            <h3 class="content_discover_cards">Service Expert Series</h3>
+            <p>Discover how Mouseforce enhances security, optimizes data storage, and accelerates issue resolution — all to improve satisfaction and productivity for service teams.</p>
+            <a href="#">Register now</a>
+          </div>
+        </div>
+
+        <div class="service-card">
+          <div class="card-image" style="background-image: url('/static/images/event_support.png');"></div>
+          <div class="card-body">
+            <h3 class="content_discover_cards">Diverse events</h3>
+            <p>2025<br>We enjoy investing in different events and being part of them.</p>
+            <a href="#">Register now</a>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <div class="tab-content" id="reports">
+      <div style="padding: 40px; text-align: center; font-size: 18px; color: #444;">
+        Hidden content
+      </div>
+    </div>
+  </section>
+
+
+<!-- ✅ BARA DE FEEDBACK JOS (MINIMALĂ) -->
+<div class="feedback-bar">
+    <div class="bar-content">
+      <img src="{% static 'images/feedback.png' %}" class="feedback-icon" alt="Feedback">
+      <input type="text" id="quickMessage" placeholder="Let's see your feedback" maxlength="500">
+      <button class="arrow-button" id="sendButton" disabled onclick="submitQuickFeedback()">
+        <svg id="arrowIcon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" viewBox="0 0 24 24">
+          <path d="M2 21L23 12L2 3V10L17 12L2 14V21Z" />
+        </svg>
+      </button>
+    </div>
+    <!-- Acest buton trebuie să fie în afara divului .bar-content -->
+    <button class="expand-button" onclick="expandFeedback()">
+        <img src="{% static 'images/plus.png' %}" alt="Plus" class="plus-icon">
+    </button>
+  </div>
+
+{% include 'chat_widget.html' %}
+
+<!-- html pentru bara cea mare  -->
+<div id="feedbackOverlay" onclick="collapseFeedback()"></div>
+  <div id="expandedFeedback" class="chat-style-container">
+    <div class="chat-header">
+      <h3>Give Feedback</h3>
+      <button onclick="collapseFeedback()">✖</button>
+    </div>
+    <svg style="display: none;">
+      <defs>
+        <linearGradient id="halfGrad">
+          <stop offset="50%" stop-color="gold"/>
+          <stop offset="50%" stop-color="gray"/>
+        </linearGradient>
+      </defs>
+    </svg>
+    
+    <div class="chat-body">
+      <div class="form-row">
+      <label>⭐ Rating</label>
+      <div class="star-rating" id="starRating">
+        <svg class="star" data-value="1" xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 16 16">
+          <defs>
+            <linearGradient id="halfGrad">
+              <stop offset="50%" stop-color="gold"/>
+              <stop offset="50%" stop-color="gray"/>
+            </linearGradient>
+          </defs>
+          <path fill="gray" d="M2.866 14.85c-.078.444.36.791.746.593l4.39-2.256 4.389 2.256c.386.198.824-.149.746-.592l-.83-4.73 3.522-3.356c.33-.314.16-.888-.282-.95l-4.898-.696L8.465.792a.513.513 0 0 0-.927 0L5.354 5.12l-4.898.696c-.441.062-.612.636-.283.95l3.523 3.356-.83 4.73zm4.905-2.767-3.686 1.894.694-3.957a.56.56 0 0 0-.163-.505L1.71 6.745l4.052-.576a.53.53 0 0 0 .393-.288L8 2.223l1.847 3.658a.53.53 0 0 0 .393.288l4.052.575-2.906 2.77a.56.56 0 0 0-.163.506l.694 3.957-3.686-1.894a.5.5 0 0 0-.461 0z"/>
+        </svg>
+        <svg class="star" data-value="2" xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 16 16">
+          <path fill="gray" d="M2.866 14.85c-.078.444.36.791.746.593l4.39-2.256 4.389 2.256c.386.198.824-.149.746-.592l-.83-4.73 3.522-3.356c.33-.314.16-.888-.282-.95l-4.898-.696L8.465.792a.513.513 0 0 0-.927 0L5.354 5.12l-4.898.696c-.441.062-.612.636-.283.95l3.523 3.356-.83 4.73zm4.905-2.767-3.686 1.894.694-3.957a.56.56 0 0 0-.163-.505L1.71 6.745l4.052-.576a.53.53 0 0 0 .393-.288L8 2.223l1.847 3.658a.53.53 0 0 0 .393.288l4.052.575-2.906 2.77a.56.56 0 0 0-.163.506l.694 3.957-3.686-1.894a.5.5 0 0 0-.461 0z"/>
+        </svg>
+        <svg class="star" data-value="3" xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 16 16">
+          <path fill="gray" d="M2.866 14.85c-.078.444.36.791.746.593l4.39-2.256 4.389 2.256c.386.198.824-.149.746-.592l-.83-4.73 3.522-3.356c.33-.314.16-.888-.282-.95l-4.898-.696L8.465.792a.513.513 0 0 0-.927 0L5.354 5.12l-4.898.696c-.441.062-.612.636-.283.95l3.523 3.356-.83 4.73zm4.905-2.767-3.686 1.894.694-3.957a.56.56 0 0 0-.163-.505L1.71 6.745l4.052-.576a.53.53 0 0 0 .393-.288L8 2.223l1.847 3.658a.53.53 0 0 0 .393.288l4.052.575-2.906 2.77a.56.56 0 0 0-.163.506l.694 3.957-3.686-1.894a.5.5 0 0 0-.461 0z"/>
+        </svg>
+        <svg class="star" data-value="4" xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 16 16">
+          <path fill="gray" d="M2.866 14.85c-.078.444.36.791.746.593l4.39-2.256 4.389 2.256c.386.198.824-.149.746-.592l-.83-4.73 3.522-3.356c.33-.314.16-.888-.282-.95l-4.898-.696L8.465.792a.513.513 0 0 0-.927 0L5.354 5.12l-4.898.696c-.441.062-.612.636-.283.95l3.523 3.356-.83 4.73zm4.905-2.767-3.686 1.894.694-3.957a.56.56 0 0 0-.163-.505L1.71 6.745l4.052-.576a.53.53 0 0 0 .393-.288L8 2.223l1.847 3.658a.53.53 0 0 0 .393.288l4.052.575-2.906 2.77a.56.56 0 0 0-.163.506l.694 3.957-3.686-1.894a.5.5 0 0 0-.461 0z"/>
+        </svg>
+        <svg class="star" data-value="5" xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 16 16">
+          <path fill="gray" d="M2.866 14.85c-.078.444.36.791.746.593l4.39-2.256 4.389 2.256c.386.198.824-.149.746-.592l-.83-4.73 3.522-3.356c.33-.314.16-.888-.282-.95l-4.898-.696L8.465.792a.513.513 0 0 0-.927 0L5.354 5.12l-4.898.696c-.441.062-.612.636-.283.95l3.523 3.356-.83 4.73zm4.905-2.767-3.686 1.894.694-3.957a.56.56 0 0 0-.163-.505L1.71 6.745l4.052-.576a.53.53 0 0 0 .393-.288L8 2.223l1.847 3.658a.53.53 0 0 0 .393.288l4.052.575-2.906 2.77a.56.56 0 0 0-.163.506l.694 3.957-3.686-1.894a.5.5 0 0 0-.461 0z"/>
+        </svg>
+      </div>
+      <input type="hidden" id="ratingValue" name="rating">
+    </div>
+
+    <div class="form-row">
+      <label>🌍 Country</label>
+      <input type="text" name="country" id="countryInput" placeholder="Enter your country">
+    </div>
+
+    <div class="form-row">
+      <label>📝 Today's day</label>
+      <input type="date" id="dateInput" name="date" readonly>
+    </div>
+
+    <div class="form-row">
+      <label>🎙️ Audio</label>
+      <div class="move-button-record">
+        <button type="button" id="startRecord">Start</button>
+        <button type="button" id="stopRecord">Stop</button>
+      </div>
+      <p id="recordingStatus"></p>
+      <audio id="audioPlayer" controls style="display:none;"></audio>
+      <input type="file" id="audioInput" name="audio" accept="audio/*" style="display:none;" />
+    </div>
+    </div>
+<div class="chat-footer modern-footer">
+  <span class="emoji-label">📝</span>
+  <input type="text" id="feedbackInput" maxlength="500" placeholder="Let's see your feedback " />
+  <input type="hidden" id="ratingValue" value="">
+  <button type="submit" class="send-button" onclick="submitFeedback()">
+    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 16 16">
+      <path d="M15.854 7.646a.5.5 0 0 0 0-.707l-4-4a.5.5 0 1 0-.708.708L14.293 7.5H1.5a.5.5 0 0 0 0 1h12.793l-3.147 3.146a.5.5 0 0 0 .708.708l4-4z"/>
+    </svg>
+  </button>
+</div>
+    
+  </div>
+
+  
+{% endblock %}
+
+{% block extra_js %}
+
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+  const openBtn = document.getElementById('hamburger-btn');
+  const closeBtn = document.getElementById('close-menu-btn');
+  const menu = document.getElementById('mobile-menu');
+
+  openBtn.addEventListener('click', () => {
+    menu.classList.add('show');
+    menu.classList.remove('hidden');
+  });
+
+  closeBtn.addEventListener('click', () => {
+    menu.classList.remove('show');
+    menu.classList.add('hidden');
+  });
+});
+</script>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    const avatarBtn = document.getElementById('avatarBtn');
+    const profileCard = document.getElementById('profileCard');
+
+    avatarBtn.addEventListener('click', function (e) {
+      e.stopPropagation();
+      profileCard.classList.toggle('hidden');
+    });
+
+    document.addEventListener('click', function (e) {
+      if (!profileCard.contains(e.target) && e.target !== avatarBtn) {
+        profileCard.classList.add('hidden');
+      }
+    });
+  });
+</script>
+
+<script>
+  const today = new Date().toISOString().split('T')[0];
+  document.getElementById('dateInput').value = today;
+</script>
+
+
+<!-- pentru ca chatme sa lucreze s isa trimita mesaje intre ele  -->
+<script>
+const chatRoom = "{{ room_name }}";  // înlocuiește cu logica reală
+
+const wsProtocol = window.location.protocol === "https:" ? "wss://" : "ws://";
+const chatSocket = new WebSocket(
+  wsProtocol + window.location.host + "/ws/chat/" + chatRoom + "/"
+);
+
+chatSocket.onopen = function () {
+  console.log("🟢 Chat WebSocket connected");
+};
+
+chatSocket.onmessage = function (e) {
+  const data = JSON.parse(e.data);
+  console.log("📩 New chat message:", data);
+};
+
+chatSocket.onclose = function (e) {
+  console.log("❌ Chat socket closed");
+};
+
+function sendChatMessage(msg) {
+  chatSocket.send(JSON.stringify({ message: msg }));
+}
+</script>
+
+<!-- asta e pentru notificare ca sa mearga -->
+<script>
+  let notifCount = 0;
+  let hasMessageNotification = false;
+
+  const username = "{{ request.user.username }}";
+  const protocol = window.location.protocol === "https:" ? "wss://" : "ws://";
+
+  const notifSocket = new WebSocket(
+    protocol + window.location.host + "/ws/notifications/" + username + "/"
+  );
+
+    notifSocket.onmessage = function (e) {
+        const data = JSON.parse(e.data);
+
+        // 🟢 doar incrementăm badge-ul, nu adăugăm direct în listă
+        notifCount += 1;
+        const badge = document.getElementById("notificationBadge");
+        badge.innerText = notifCount;
+        badge.classList.remove("hidden");
+
+        hasMessageNotification = true;
+    };
+
+
+  function getCookie(name) {
+  let cookieValue = null;
+  if (document.cookie && document.cookie !== "") {
+    const cookies = document.cookie.split(";");
+    for (let i = 0; i < cookies.length; i++) {
+      const cookie = cookies[i].trim();
+      // Verifică dacă cookie-ul începe cu numele dorit
+      if (cookie.substring(0, name.length + 1) === (name + "=")) {
+        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+        break;
+      }
+    }
+  }
+  return cookieValue;
+}
+
+
+function toggleNotifications() {
+  const dropdown = document.getElementById("notificationDropdown");
+  dropdown.classList.toggle("hidden");
+
+  const badge = document.getElementById("notificationBadge");
+  const list = document.getElementById("notificationList");
+  const loading = document.getElementById("notificationLoading");
+
+  if (!dropdown.classList.contains("hidden")) {
+    // 🔄 Arată "Loading..." și ascunde lista
+    loading.style.display = "block";
+    list.classList.add("hidden");
+    list.innerHTML = "";
+
+    // 🔄 Marchează ca citite în backend PRIMA OARĂ
+    fetch("{% url 'mark_notifications_as_read' %}", {
+      method: "POST",
+      headers: {
+        "X-CSRFToken": getCookie("csrftoken"),
+        "Content-Type": "application/json"
+      }
+    })
+    .then(() => {
+      // 🔄 După ce s-au marcat ca citite, abia acum facem fetch notificări
+      fetch("{% url 'load_notifications' %}")
+        .then(response => response.json())
+        .then(data => {
+          // 🔄 Ascunde "Loading...", arată lista
+          loading.style.display = "none";
+          list.classList.remove("hidden");
+
+          // 🔄 Resetează badge
+          notifCount = 0;
+          badge.innerText = "";
+          badge.classList.add("hidden");
+          hasMessageNotification = false;
+
+          // 🔄 Populează lista notificări
+          data.notifications.forEach(n => {
+            const div = document.createElement("div");
+            div.className = "bg-gray-100 rounded-lg px-3 py-2 text-sm cursor-pointer hover:bg-gray-200";
+            div.innerHTML = `
+              <div class="flex items-start justify-between">
+                <div class="flex items-center space-x-2">
+                  <span class="text-xl">📨</span>
+                  <span class="font-medium text-sm text-black">${n.message}</span>
+                </div>
+                <span class="text-xs text-gray-400">${n.created_at}</span>
+              </div>
+            `;
+            console.log("📩 Notification:", n.message);
+            list.appendChild(div);
+          });
+        });
+    });
+  }
+}
+
+
+
+
+// 🟢 Închide dropdown când apeși pe restul paginii
+document.addEventListener("click", function (e) {
+    const dropdown = document.getElementById("notificationDropdown");
+    const bellBtn = document.getElementById("bellBtn");
+
+    if (!dropdown.contains(e.target) && !bellBtn.contains(e.target)) {
+        dropdown.classList.add("hidden");
+    }
+});
+
+</script>
+
+
+
+
+
+
+
+<script>
+function expandFeedback() {
+  document.getElementById('expandedFeedback').style.display = 'flex';
+  document.getElementById('feedbackOverlay').style.display = 'block';
+  document.querySelector('.feedback-bar').style.display = 'none';
+  document.body.style.overflow = 'hidden'; // 🚫 blocăm scroll-ul
+}
+
+function collapseFeedback() {
+  document.getElementById('expandedFeedback').style.display = 'none';
+  document.getElementById('feedbackOverlay').style.display = 'none';
+  document.querySelector('.feedback-bar').style.display = 'flex';
+  document.body.style.overflow = 'auto'; // ✅ readucem scroll-ul
+}
+
+
+
+let mediaRecorder;
+let audioChunks = [];
+
+document.getElementById('startRecord').onclick = async () => {
+  const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+  mediaRecorder = new MediaRecorder(stream);
+  mediaRecorder.start();
+  document.getElementById('recordingStatus').textContent = '🎙️ Înregistrare...';
+
+  audioChunks = [];
+  mediaRecorder.ondataavailable = e => audioChunks.push(e.data);
+
+  mediaRecorder.onstop = () => {
+    const blob = new Blob(audioChunks, { type: 'audio/webm' });
+    const audioURL = URL.createObjectURL(blob);
+    document.getElementById('audioPlayer').src = audioURL;
+    document.getElementById('audioPlayer').style.display = 'block';
+
+    const file = new File([blob], 'voice_feedback.webm', { type: 'audio/webm' });
+    const dataTransfer = new DataTransfer();
+    dataTransfer.items.add(file);
+    document.getElementById('audioInput').files = dataTransfer.files;
+    document.getElementById('recordingStatus').textContent = '✅ Înregistrare completă';
+  };
+};
+
+document.getElementById('stopRecord').onclick = () => {
+  mediaRecorder.stop();
+};
+</script>
+
+
+
+<!-- JS pentru  bara să stea fix deasupra footerului -->
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+  const feedbackBar = document.querySelector(".feedback-bar");
+  const footer = document.getElementById("footer");
+
+  const observer = new IntersectionObserver(
+    function (entries) {
+      const entry = entries[0];
+      if (entry.isIntersecting) {
+        // Footerul e în vizibilitate – treci la absolute
+        const overlap = entry.boundingClientRect.height;
+        feedbackBar.style.position = 'absolute';
+        feedbackBar.style.bottom = `${overlap}px`;
+      } else {
+        // Footerul NU e vizibil – stă fix jos
+        feedbackBar.style.position = 'fixed';
+        feedbackBar.style.bottom = '0';
+      }
+    },
+    {
+      root: null,
+      threshold: 0.01 // detectează chiar și o atingere minimă
+    }
+  );
+
+  observer.observe(footer);
+});
+
+  </script>
+  
+
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    const input = document.getElementById("quickMessage");
+    const sendBtn = document.getElementById("sendButton");
+
+    console.log("Buton găsit?", sendBtn); // Verificare la început
+
+    input.addEventListener("input", () => {
+      console.log("Valoare introdusă:", input.value); // Verificare la fiecare scriere
+
+      const text = input.value.toLowerCase();
+      const hasLetter = /[a-zăâîșț]/.test(text);
+
+      if (hasLetter) {
+        sendBtn.classList.add("enabled");
+        sendBtn.disabled = false;
+      } else {
+        sendBtn.classList.remove("enabled");
+        sendBtn.disabled = true;
+      }
+    });
+  });
+
+
+
+
+
+
+</script>
+
+<!-- Bara mica - pentru feedback sa fie trimis la backend -->
+<script>
+function submitQuickFeedback() {
+  const msg = document.getElementById('quickMessage').value.trim();
+
+  if (!msg) {
+    alert('Scrie un mesaj înainte de a trimite.');
+    return;
+  }
+
+  fetch('/customer/save-feedback/', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/x-www-form-urlencoded',
+      'X-CSRFToken': getCookie('csrftoken')
+    },
+    body: new URLSearchParams({ message: msg })
+  })
+  .then(response => response.json())
+  .then(data => {
+    if (data.status === 'ok') {
+      alert('Feedback sent successfully!');
+      document.getElementById('quickMessage').value = '';
+    } else {
+      alert('You sent 2 attemps. Wait please');
+    }
+  });
+}
+</script>
+
+
+<!-- pentru bara cea mare backend fetch -->
+<script>
+  function submitFeedback() {
+  const message = document.getElementById('feedbackInput').value.trim();
+  const rating = document.getElementById('ratingValue').value || null;
+  const country = document.getElementById('countryInput')?.value || '';
+  const audioInput = document.getElementById('audioInput');
+  const audioFile = audioInput?.files?.[0];
+
+  if (!message) {
+    alert('Scrie un mesaj înainte de a trimite.');
+    return;
+  }
+
+  const formData = new FormData();
+  formData.append('message', message);
+  if (rating) formData.append('rating', rating);
+  if (country) formData.append('country', country);
+  if (audioFile) formData.append('audio', audioFile);
+
+  fetch('/customer/save-feedback/', {
+    method: 'POST',
+    headers: {
+      'X-CSRFToken': getCookie('csrftoken')
+    },
+    body: formData
+  })
+  .then(response => response.json())
+  .then(data => {
+    if (data.status === 'ok') {
+      alert('Feedback sent successfully!');
+      document.getElementById('feedbackInput').value = '';
+    } else if (data.status === 'limit') {
+      alert('You send 3 times wait 24 hours. Thanks');
+    } else {
+      alert('Error,please try again.');
+    }
+  });
+}
+
+function getCookie(name) {
+  let cookieValue = null;
+  if (document.cookie && document.cookie !== '') {
+    const cookies = document.cookie.split(';');
+    for (let cookie of cookies) {
+      cookie = cookie.trim();
+      if (cookie.startsWith(name + '=')) {
+        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+        break;
+      }
+    }
+  }
+  return cookieValue;
+}
+
+  </script>
+  
+
+  <!-- script pentru stele sa fie de culoare -->
+<script>
+  const stars = document.querySelectorAll('.star');
+  const ratingInput = document.getElementById('ratingValue');
+  let currentRating = 0;
+
+  stars.forEach((star, index) => {
+    star.addEventListener('mouseover', () => {
+      highlightStars(index + 1);
+    });
+
+    star.addEventListener('click', () => {
+      currentRating = index + 1;
+      ratingInput.value = currentRating;
+    });
+
+    star.addEventListener('mouseleave', () => {
+      highlightStars(currentRating);
+    });
+  });
+
+  function highlightStars(rating) {
+    stars.forEach((star, index) => {
+      const svg = star.querySelector('path');
+      svg.setAttribute('fill', index < rating ? 'gold' : 'gray');
+    });
+  }
+</script>
+
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r134/three.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/vanta@latest/dist/vanta.clouds.min.js"></script>
+<script>
+  VANTA.CLOUDS({
+    el: "#vanta-background",
+    mouseControls: true,
+    touchControls: true,
+    gyroControls: false,
+    minHeight: 200.00,
+    minWidth: 200.00,
+    skyColor: 0xa2deff
+  });
+</script>
+<style>
+#vanta-background {
+  position: relative;
+  z-index: 1;
+  padding-top: 80px;
+  min-height: 380vh;
+  width: 100%;
+  overflow: hidden;
+}
+</style>
+<script>
+const tabs = document.querySelectorAll('.tab-btn');
+const contents = document.querySelectorAll('.tab-content');
+
+tabs.forEach(tab => {
+  tab.addEventListener('click', () => {
+    tabs.forEach(t => t.classList.remove('active'));
+    contents.forEach(c => c.classList.remove('active'));
+
+    tab.classList.add('active');
+    document.getElementById(tab.dataset.tab).classList.add('active');
+  });
+});
+</script>
+
+<!-- pentru clopotel sa arata notificare -->
+
+
+
+
+
+{% endblock %}

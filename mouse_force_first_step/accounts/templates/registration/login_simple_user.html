@@ -1,0 +1,140 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign in</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'css/login_simple_user_style.css' %}">
+</head>
+<body>
+<div class="card login-card">
+    <!-- STEP 1: INTRODU EMAIL -->
+    <div id="step1" class="card-body">
+        <h3 class="card-title mb-4">Sign in to Start Your <span style="color: #52d3c5;">Automation Project</span></h3>
+        <form id="emailForm">
+            {% csrf_token %}
+            <div class="mb-3">
+                <input type="email" name="email" id="emailInput" class="form-control custom-input" placeholder="Email, phone, or Skype" required>
+            </div>
+            <div class="mb-2">
+                <span class="signup-text">No account? <a href="{% url 'simple_user_signup' %}">Create one!</a></span>
+            </div>
+            <div class="text-end mt-4">
+                <button type="submit" class="btn btn-primary next-btn">Next</button>
+            </div>
+        </form>
+        <div id="emailError" class="text-danger mt-2" style="display:none;"></div>
+    </div>
+
+    <!-- STEP 2: INTRODU PAROLA -->
+    <div id="step2" class="card-body" style="display:none;">
+        <button id="backToEmail" class="btn btn-link p-0 m-0" style="font-size: 20px;">&larr;</button>
+        <h3 class="card-title mb-4" id="emailDisplay">Email</h3>
+        <form method="post" action="{% url 'login_simple_user' %}">
+            {% csrf_token %}
+            <input type="hidden" name="username" id="hiddenEmail">
+            <div class="mb-3">
+                <input type="password" name="password" class="form-control custom-input" placeholder="Password" required>
+            </div>
+
+            {% if error_message and error_message != '' %}
+            <div class="text-danger mt-2">
+                {{ error_message }}
+                <a href="{% url 'password_reset' %}">Reset your password</a>.
+            </div>
+            {% endif %}
+
+            <div class="text-end mt-4">
+                <button type="submit" class="btn btn-primary next-btn">Sign in</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- JAVASCRIPT -->
+<script>
+    const emailForm = document.getElementById('emailForm');
+    const backButton = document.getElementById('backToEmail');
+    const step1 = document.getElementById('step1');
+    const step2 = document.getElementById('step2');
+
+    emailForm.addEventListener('submit', function(e) {
+        e.preventDefault();
+        const email = document.getElementById('emailInput').value;
+        const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+
+        fetch("{% url 'check_email_exists_simple_user' %}", {
+            method: "POST",
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': csrfToken
+            },
+            body: JSON.stringify({ email: email })
+        })
+        .then(res => res.json())
+        .then(data => {
+            const emailError = document.getElementById('emailError');
+
+            if (!data.exists) {
+                fetch("{% url 'check_email_exists_customer_account' %}", {
+                    method: "POST",
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': csrfToken
+                    },
+                    body: JSON.stringify({ email: email })
+                })
+                .then(res => res.json())
+                .then(customerData => {
+                    if (customerData.exists) {
+                        emailError.innerText = "⚠️ This email is registered as a Customer IT Innovation.. Please log in on the correct page or Create here a new one.";
+                    } else {
+                        emailError.innerText = "❌ Email not found. Please sign up first.";
+                    }
+                    emailError.style.display = 'block';
+                });
+
+                return;
+            }
+
+            emailError.style.display = 'none';
+            step1.style.display = 'none';
+            step2.style.display = 'block';
+            document.getElementById('emailDisplay').textContent = email;
+            document.getElementById('hiddenEmail').value = email;
+        })
+        .catch(error => {
+            console.error('Error fetching email verification:', error);
+        });
+    });
+
+    backButton.addEventListener('click', () => {
+        step2.style.display = 'none';
+        step1.style.display = 'block';
+
+        document.getElementById('emailInput').value = '';
+        document.getElementById('hiddenEmail').value = '';
+        document.getElementById('emailDisplay').textContent = 'Email';
+
+        // Șterge mesajele de eroare
+        document.querySelectorAll('.text-danger').forEach(e => {
+            e.style.display = 'none';
+            e.innerHTML = '';
+        });
+    });
+</script>
+
+{% if step == 'password' %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    step1.style.display = 'none';
+    step2.style.display = 'block';
+    document.getElementById('emailDisplay').textContent = "{{ email_for_password }}";
+    document.getElementById('hiddenEmail').value = "{{ email_for_password }}";
+});
+</script>
+{% endif %}
+</body>
+</html>

@@ -1,0 +1,27 @@
+body {
+    background-color: #1b1f23;
+    margin: 0;
+    font-family: Arial, sans-serif;
+}
+
+.login-card {
+    max-width: 420px;
+    margin: 100px auto;
+    border-radius: 6px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+}
+
+.custom-input {
+    border: none;
+    border-bottom: 1px solid #aaa;
+    border-radius: 0;
+}
+
+.signup-text {
+    font-size: 14px;
+}
+
+.next-btn {
+    padding: 6px 30px;
+    font-size: 15px;
+}

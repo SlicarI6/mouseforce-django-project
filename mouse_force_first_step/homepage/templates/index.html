@@ -1,0 +1,862 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Homepage{% endblock %}
+
+{% block header %}
+<div class="header-container">
+
+  <!-- Mobil -->
+  <div class="mobile-header">
+    <button id="hamburger-btn" class="hamburger-btn" aria-label="Open menu">
+      <span></span><span></span><span></span>
+    </button>
+    <a href="/" class="mobile-logo-link">
+      <img src="{% static 'images/mouseforce.png' %}" alt="Logo" class="mobile-logo">
+    </a>
+    <div class="mobile-login">
+      {% if user.is_authenticated and user.role == 'simple' %}
+        <form method="POST" action="{% url 'logout' %}" style="display:inline;">
+          {% csrf_token %}<button type="submit" class="logout-btn-mobile">Logout</button>
+        </form>
+      {% else %}
+        <a href="#" id="openRoleOverlayMobile" class="login-btn-mobile">Login</a>
+      {% endif %}
+    </div>
+  </div>
+
+  <!-- Desktop -->
+  <a href="/" class="desktop-logo-link">
+    <img src="{% static 'images/mouseforce.png' %}" alt="Logo" class="desktop-logo">
+  </a>
+
+  <div class="desktop-search">
+    <input type="text" placeholder="Search..." class="search-bar">
+  </div>
+
+  <nav class="desktop-nav">
+    <a href="https://buy.stripe.com/00w14mcD400n8074m273G00">Support</a>
+    <a href="{% url 'about' %}">About</a>
+    <a href="{% url 'contact' %}">Contact</a>
+    {% if user.is_authenticated and user.role == 'simple' %}
+      <span>Hi, {{ user.username }}</span>
+      <form method="POST" action="{% url 'logout' %}" style="display:inline;">
+        {% csrf_token %}<button type="submit">Logout</button>
+      </form>
+    {% else %}
+      <a href="#" id="openRoleOverlay">Login</a>
+    {% endif %}
+  </nav>
+</div>
+
+<!-- Mobil: slide-in menu (acordeon) -->
+<div id="mobile-menu-overlay" class="mobile-menu-overlay"></div>
+<div id="mobile-menu" class="mobile-menu">
+  <button id="close-menu-btn" class="close-menu-btn" aria-label="Close menu">&times;</button>
+  <div class="mobile-menu-content">
+
+    <div class="accordion-item">
+      <button class="accordion-button menu-link-simple">Services</button>
+      <div class="accordion-panel">
+        <div class="rich-panel-content" data-content-for="Services"></div>
+      </div>
+    </div>
+
+    <div class="accordion-item">
+      <button class="accordion-button menu-link-simple">Website</button>
+      <div class="accordion-panel">
+        <div class="rich-panel-content" data-content-for="Website"></div>
+      </div>
+    </div>
+
+    <div class="accordion-item">
+      <button class="accordion-button menu-link-simple">Mega-Market</button>
+      <div class="accordion-panel">
+        <div class="rich-panel-content" data-content-for="Mega-Market"></div>
+      </div>
+    </div>
+
+    <div class="accordion-item">
+      <button class="accordion-button menu-link-simple">Free</button>
+      <div class="accordion-panel">
+        <div class="rich-panel-content" data-content-for="Free"></div>
+      </div>
+    </div>
+
+    <div class="accordion-item">
+      <button class="accordion-button menu-link-simple">WordPress</button>
+      <div class="accordion-panel">
+        <div class="rich-panel-content" data-content-for="WordPress"></div>
+      </div>
+    </div>
+
+    <div class="accordion-item">
+      <button class="accordion-button menu-link-simple">Price</button>
+      <div class="accordion-panel">
+        <div class="rich-panel-content" data-content-for="Price"></div>
+      </div>
+    </div>
+
+    <div class="accordion-item">
+      <button class="accordion-button menu-link-simple">Organisation</button>
+      <div class="accordion-panel">
+        <div class="rich-panel-content" data-content-for="Organisation"></div>
+      </div>
+    </div>
+
+    <a href="https://buy.stripe.com/00w14mcD400n8074m273G00" class="menu-link-simple">Support</a>
+    <a href="{% url 'about' %}" class="menu-link-simple">About</a>
+    <a href="{% url 'contact' %}" class="menu-link-simple">Contact</a>
+  </div>
+</div>
+{% endblock %}
+
+{% block after_header %}
+<div class="sub-header">
+  <a href="#" data-section="services">Services</a>
+  <a href="#" data-section="website">Website</a>
+  <a href="#" data-section="mega-market">Mega-Market</a>
+  <a href="#" data-section="free">Free</a>
+  <a href="#" data-section="wordpress">WordPress</a>
+  <a href="#" data-section="price">Price</a>
+  <a href="#" data-section="organisation">Organisation</a>
+
+  <!-- Desktop mega menu (ascuns by default) -->
+  <div id="infoDropdown" class="info-dropdown" style="display:none;">
+    <div class="info-content" id="dropdownContent"></div>
+  </div>
+</div>
+{% endblock %}
+
+{% block content %}
+{% if messages %}
+  <div class="alert alert-success" style="text-align:center; margin:10px; padding:10px; background:#d4edda; color:#155724; border:1px solid #c3e6cb; border-radius:5px;">
+    {% for message in messages %}{{ message }}{% endfor %}
+  </div>
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      const successMessage = document.getElementById('success-message');
+      if (successMessage) setTimeout(function(){ successMessage.style.display='none'; }, 2000);
+    });
+  </script>
+{% endif %}
+
+{% if not user.is_authenticated %}
+<section class="top-banner">
+  <div class="banner-content">
+    <h2>Welcome to Mouseforce</h2>
+    <p>Everyone has a chance to earn rewards — from small perks to big prizes.</p>
+    <a href="#" class="btn">Get Started</a>
+  </div>
+  <div class="marketing-ticker" aria-label="Mouseforce offers and services">
+    <div class="marketing-ticker-track">
+      <div class="marketing-ticker-group">
+        <span>Automation Services</span>
+        <span>Lightning-Fast Delivery</span>
+        <span>Free Vouchers</span>
+        <span>Big Discounts</span>
+        <span>Global Insights</span>
+        <span>Entertainment</span>
+        <span>Free Games</span>
+        <span>Handy Tools</span>
+        <span>Expert Advice</span>
+        <span>Beauty Deals</span>
+        <span>Price Drops</span>
+        <span>Best Offers</span>
+        <span>Buy One Get One Free</span>
+        <span>Buy One Get More Free</span>
+        <span>Useful Insights</span>
+        <span>News &amp; Updates</span>
+        <span>Tips &amp; Advice</span>
+        <span>Points &amp; Rewards</span>
+        <span>Redemptions</span>
+      </div>
+      <div class="marketing-ticker-group" aria-hidden="true">
+        <span>Automation Services</span>
+        <span>Lightning-Fast Delivery</span>
+        <span>Free Vouchers</span>
+        <span>Big Discounts</span>
+        <span>Global Insights</span>
+        <span>Entertainment</span>
+        <span>Free Games</span>
+        <span>Handy Tools</span>
+        <span>Expert Advice</span>
+        <span>Beauty Deals</span>
+        <span>Price Drops</span>
+        <span>Best Offers</span>
+        <span>Buy One Get One Free</span>
+        <span>Buy One Get More Free</span>
+        <span>Useful Insights</span>
+        <span>News &amp; Updates</span>
+        <span>Tips &amp; Advice</span>
+        <span>Points &amp; Rewards</span>
+        <span>Redemptions</span>
+      </div>
+    </div>
+  </div>
+  <div class="marketing-choices" aria-label="Login choices">
+    <div class="marketing-choice-card">
+      <span class="marketing-choice-letter">L</span>
+      <p>Login for Rewards &amp; Points</p>
+      <p class="marketing-choice-description">Earn points, unlock rewards, claim vouchers and discover exclusive offers.</p>
+    </div>
+    <div class="marketing-choice-card">
+      <span class="marketing-choice-letter">A</span>
+      <p>Login for Automation &amp; Scripting</p>
+      <p class="marketing-choice-description">Explore smart automation, custom scripts and tools designed to save you time.</p>
+    </div>
+  </div>
+</section>
+<section class="frontend-showcase-image" aria-label="Rewards, vouchers and discounts">
+  <img src="{% static 'images/background_frontend.png' %}" alt="Vouchers, prizes and discount offers">
+</section>
+{% endif %}
+
+<section class="card-section">
+  <div class="custom-card">
+    <div class="card-top-border"></div>
+    <div class="card-content">
+      <h5>Want better prices?</h5>
+      <p>We search for better deals, build partnerships and bring you more ways to save.</p>
+    </div>
+  </div>
+  <div class="custom-card">
+    <div class="card-top-border"></div>
+    <div class="card-content">
+      <h5>Too good to pass up?</h5>
+      <p>We aim to bring you offers across a wide range of services — so stay tuned and keep collecting points.</p>
+    </div>
+  </div>
+  <div class="custom-card">
+    <div class="card-top-border"></div>
+    <div class="card-content">
+      <h5>Professional Service</h5>
+      <p>We value every customer and always aim to bring you great discounts, vouchers and more.</p>
+    </div>
+  </div>
+  <div class="custom-card">
+    <div class="card-top-border"></div>
+    <div class="card-content">
+      <h5>Points</h5>
+      <p>Collect points and unlock better rewards. The more you earn, the more exclusive benefits you can access — including special discounts, free trials, free services and even free delivery.</p>
+    </div>
+  </div>
+</section>
+
+<section class="homepage-feature-image-section">
+  <img class="homepage-feature-image" src="{% static 'images/smart_glass.png' %}" alt="Smart glasses price comparison">
+  <div class="savings-animation" aria-label="Savings: unlimited">
+    <h2 class="savings-animation__title">SAVINGS</h2>
+    <div class="savings-animation__value" aria-hidden="true">0</div>
+    <div class="savings-animation__line" aria-hidden="true"></div>
+  </div>
+</section>
+
+<section class="homepage-feature-image-section homepage-feature-image-section--last">
+  <img class="homepage-feature-image" src="{% static 'images/discount_cards.png' %}" alt="Discount cards and rewards">
+</section>
+
+<section class="how-it-works-section">
+  <div class="how-it-works-inner">
+    <div class="how-it-works-visual">
+      <img id="how-it-works-image" src="{% static 'images/points.png' %}" alt="Earn points and build a daily streak">
+    </div>
+    <div class="how-it-works-content">
+      <h2>How it works</h2>
+      <div class="how-it-works-steps">
+        <button class="how-it-works-step is-active" type="button" data-image="{% static 'images/points.png' %}" data-alt="Earn points and build a daily streak">
+          <span class="how-it-works-step-number">1</span>
+          <span class="how-it-works-step-copy">
+            <strong>Earn Points</strong>
+            <span>Stay active, collect your points and build your daily streak. The more consistently you return, the bigger your boost can become.</span>
+          </span>
+        </button>
+        <button class="how-it-works-step" type="button" data-image="{% static 'images/save_spend.png' %}" data-alt="Save points or spend them on rewards">
+          <span class="how-it-works-step-number">2</span>
+          <span class="how-it-works-step-copy">
+            <strong>Save or Spend</strong>
+            <span>Use your points on available discounts and rewards, or keep saving them for something better.</span>
+          </span>
+        </button>
+        <button class="how-it-works-step" type="button" data-image="{% static 'images/unlock.png' %}" data-alt="Unlock bigger and more exclusive rewards">
+          <span class="how-it-works-step-number">3</span>
+          <span class="how-it-works-step-copy">
+            <strong>Unlock Bigger Rewards</strong>
+            <span>Build your points over time to unlock better rewards and more exclusive offers.</span>
+          </span>
+        </button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="technology-transition-section" aria-labelledby="technology-transition-title">
+  <div class="technology-transition-inner">
+    <h2 id="technology-transition-title">There’s more for you.</h2>
+    <h3>Looking for technical services?</h3>
+    <p>Explore our Automation &amp; Technology services.</p>
+    <p>Have a quick look below, or log in to learn more.</p>
+  </div>
+</section>
+
+<section class="technical-services-tabs" aria-label="Technical services">
+  <div class="technical-services-tablist" role="tablist" aria-label="Technical service categories">
+    <button class="technical-services-tab is-active" id="technical-tab-automation" type="button" role="tab" aria-selected="true" aria-controls="technical-services-panel" tabindex="0">Automation &amp; Scripting</button>
+    <button class="technical-services-tab" id="technical-tab-api" type="button" role="tab" aria-selected="false" aria-controls="technical-services-panel" tabindex="-1">API Integration</button>
+    <button class="technical-services-tab" id="technical-tab-database" type="button" role="tab" aria-selected="false" aria-controls="technical-services-panel" tabindex="-1">Database Solutions</button>
+    <button class="technical-services-tab" id="technical-tab-ai" type="button" role="tab" aria-selected="false" aria-controls="technical-services-panel" tabindex="-1">AI Integration</button>
+  </div>
+  <div class="technical-services-panel" id="technical-services-panel" role="tabpanel" aria-labelledby="technical-tab-automation">
+    <div class="technical-service-content" id="technical-automation-content">
+      <div class="technical-service-copy">
+        <h2>Automation &amp; Scripting</h2>
+        <p class="technical-service-intro">Save time by automating repetitive tasks and everyday workflows.</p>
+        <ul class="technical-service-list">
+          <li><strong>Repetitive Task Automation</strong> — automate repetitive daily tasks to significantly reduce manual work and save time.</li>
+          <li><strong>Browser &amp; Website Automation</strong> — automate clicks, form filling, data collection, searches and other repetitive browser workflows.</li>
+          <li><strong>Game &amp; Web App Scripts</strong> — create custom scripts for repetitive actions, alerts, scheduled tasks and browser-based workflows.</li>
+          <li><strong>Email &amp; Notification Automation</strong> — automatically send emails, alerts and notifications based on specific actions or data.</li>
+          <li><strong>Data &amp; Spreadsheet Automation</strong> — automatically collect, organise, filter and process data from Excel, CSV files, websites and other sources.</li>
+        </ul>
+        <div class="technical-service-cta">
+          <h3>Have something repetitive taking up your time?</h3>
+          <p>Tell us how you currently do it, and we'll see how much of the process can be automated.</p>
+          <a class="technical-service-contact" href="{% url 'contact' %}">Contact Us</a>
+        </div>
+      </div>
+      <div class="technical-service-video-wrap">
+        <video class="technical-service-video" src="{% static 'images/email_automation.mkv' %}" controls preload="metadata" aria-label="Email automation demonstration">
+          Your browser does not support this video.
+        </video>
+      </div>
+    </div>
+    <div class="technical-service-content" id="technical-api-content" hidden>
+      <div class="technical-service-copy">
+        <h2>API Integration</h2>
+        <p class="technical-service-intro">Connect your website, apps and services so they can communicate and automate tasks.</p>
+        <ul class="technical-service-list">
+          <li><strong>Payments &amp; Services</strong> — connect payments, subscriptions and other external services.</li>
+          <li><strong>Apps &amp; Business Tools</strong> — connect websites, apps, CRM systems and business platforms.</li>
+          <li><strong>Data Sync &amp; Automation</strong> — automatically exchange and synchronise data between systems.</li>
+          <li><strong>Custom API Connections</strong> — connect compatible services around your specific workflow.</li>
+        </ul>
+        <div class="technical-service-cta">
+          <h3>Need two systems to work together?</h3>
+          <p>Tell us what you use and what you want to connect.</p>
+          <a class="technical-service-contact" href="{% url 'contact' %}">Contact Us</a>
+        </div>
+      </div>
+      <div class="technical-service-video-wrap technical-service-image-wrap">
+        <img class="technical-service-image" src="{% static 'images/api_integration_image.png' %}" alt="API integration workflow">
+      </div>
+    </div>
+    <div class="technical-service-content" id="technical-database-content" hidden>
+      <div class="technical-service-copy">
+        <h2>Database Solutions</h2>
+        <p class="technical-service-intro">Build organised, reliable databases that keep your application data easy to manage and ready to grow.</p>
+        <ul class="technical-service-list">
+          <li><strong>Database Design</strong> — structure users, products, orders and other application data clearly.</li>
+          <li><strong>PostgreSQL Solutions</strong> — build and manage relational databases using PostgreSQL.</li>
+          <li><strong>Data Management</strong> — store, update, search and organise application data efficiently.</li>
+          <li><strong>Database Integration</strong> — connect databases with websites, applications, APIs and automated workflows.</li>
+        </ul>
+        <div class="technical-service-technology">
+          <p>Our primary database technology: PostgreSQL</p>
+          <a href="https://www.postgresql.org/" target="_blank" rel="noopener noreferrer">Learn about PostgreSQL →</a>
+        </div>
+        <div class="technical-service-cta">
+          <h3>Need a database for your project?</h3>
+          <p>Tell us what your application needs to store and we'll explore a suitable solution.</p>
+          <a class="technical-service-contact" href="{% url 'contact' %}">Contact Us</a>
+        </div>
+      </div>
+      <div class="technical-service-video-wrap">
+        <video class="technical-service-video" src="{% static 'images/database_video.mkv' %}" controls preload="metadata" aria-label="Database solutions demonstration">
+          Your browser does not support this video.
+        </video>
+      </div>
+    </div>
+    <div class="technical-service-content" id="technical-ai-content" hidden>
+      <div class="technical-service-copy">
+        <h2>AI Integration</h2>
+        <p class="technical-service-intro">Add practical AI capabilities to your website, application or business workflow.</p>
+        <ul class="technical-service-list">
+          <li><strong>AI Assistants &amp; Chat</strong> — add intelligent assistants that can answer questions and help users.</li>
+          <li><strong>Customer Support</strong> — use AI to handle common questions and support customer interactions.</li>
+          <li><strong>Smart Content &amp; Responses</strong> — generate, summarise or adapt content and responses based on your needs.</li>
+          <li><strong>AI Workflow Integration</strong> — connect AI with your existing data, APIs and automated processes.</li>
+        </ul>
+        <div class="technical-service-technology">
+          <p><strong>AI tailored to your workflow</strong></p>
+          <p>Configure responses, behaviour and integrations around the needs of your application or business.</p>
+        </div>
+        <div class="technical-service-cta">
+          <h3>Have an idea for using AI?</h3>
+          <p>Tell us what you want AI to help with and we'll explore a practical solution.</p>
+          <a class="technical-service-contact" href="{% url 'contact' %}">Contact Us</a>
+        </div>
+      </div>
+      <div class="technical-service-video-wrap technical-service-image-wrap">
+        <img class="technical-service-image" src="{% static 'images/api_integration_img.png' %}" alt="AI integration capabilities">
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="wide-card-section">
+  <div class="wide-card">
+    <a href="#" class="wide-image-link"><img src="/static/images/itsuppor.png" alt="IT Support Image"></a>
+    <div class="wide-card-content">
+      <h2>Smart IT Support</h2>
+      <p>Practical help for everyday technology.</p>
+      <p>From software issues to setup and technical guidance, we provide straightforward support to help you get things working.</p>
+    </div>
+  </div>
+
+  <div class="wide-card">
+    <a href="#" class="wide-image-link"><img src="/static/images/agentlook.png" alt="Agent Image"></a>
+    <div class="wide-card-content">
+      <h2>Service You Can Trust</h2>
+      <p>Your privacy and needs come first.</p>
+      <p>We handle your information with care, keep communication clear, and focus on solutions that genuinely fit your needs.</p>
+    </div>
+  </div>
+</section>
+
+<section class="blue-heading">
+  <h2><strong>With us, you’ll experience high-quality service...</strong></h2>
+</section>
+
+<section class="map-with-cards">
+  <div class="map-image"><img src="/static/images/mylocationpy.svg" alt="Location"></div>
+  <div class="cards-right">
+    <div class="wide-card">
+      <div class="wide-card-content">
+        <h2>Support Without Borders</h2>
+        <p>We strive to help customers from different countries and backgrounds. Every customer is unique to us, so we focus on finding a solution that fits their individual needs.</p>
+      </div>
+    </div>
+    <div class="wide-card">
+      <div class="wide-card-content">
+        <h2>Service Project</h2>
+        <p>Every project starts with understanding what you need. We focus on practical, reliable solutions and work carefully to deliver a service that fits your goals.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="homepage-contact-cta" aria-labelledby="homepage-contact-cta-title">
+  <div class="homepage-contact-cta-inner">
+    <h2 id="homepage-contact-cta-title">Ready to Make Technology Work for You?</h2>
+    <p>Whether you need automation, API integration, database solutions or AI, tell us what you want to achieve. We'll help you explore a practical solution built around your needs.</p>
+    <a class="homepage-contact-cta-button" href="{% url 'contact' %}">Contact Us</a>
+  </div>
+</section>
+
+<section class="homepage-availability-statement" aria-label="Customer availability">
+  <h2>We’re Here for You 24/7</h2>
+  <div class="mouseforce-winking-eyes" aria-hidden="true">
+    <span class="mouseforce-eye mouseforce-eye-left"><span class="mouseforce-pupil"></span></span>
+    <span class="mouseforce-eye mouseforce-eye-right"><span class="mouseforce-pupil"></span></span>
+  </div>
+</section>
+{% endblock %}
+
+{% block footer %}
+<footer class="custom-footer">
+  <div class="container">
+    <div class="row gy-4">
+      <div class="col-md-3">
+        <h5>Company</h5>
+        <ul class="list-unstyled">
+          <li><a href="{% url 'about' %}">About Us</a></li>
+          <li><a href="{% url 'privacy_policy' %}">Privacy Policy</a></li>
+          <li><a href="{% url 'terms' %}">Terms</a></li>
+        </ul>
+      </div>
+      <div class="col-md-3">
+        <h5>Knowledge</h5>
+        <ul class="list-unstyled">
+          <li><a href="{% url 'startupguid' %}">Startup Guide</a></li>
+          <li><a href="{% url 'marketingresources' %}">Marketing Resources</a></li>
+        </ul>
+      </div>
+      <div class="col-md-3">
+        <h5>Support</h5>
+        <ul class="list-unstyled">
+          <li><a href="{% url 'contact' %}">Contact</a></li>
+          <li><a href="#">Help Center</a></li>
+        </ul>
+      </div>
+      <div class="col-md-3 text-center earth-label">
+        <p class="mouseforce-label">Mouseforce</p>
+        <img src="{% static 'images/planet-earth.png' %}" alt="Planet Earth" class="earth-icon">
+      </div>
+    </div>
+  </div>
+</footer>
+{% endblock %}
+
+{% block extra_js %}
+<!-- Select Role Overlay -->
+<div id="roleOverlay" class="overlay" style="display: none;">
+  <div class="overlay-content">
+    <h2>Select your account type</h2>
+    <form method="post" action="{% url 'select_role' %}">
+      {% csrf_token %}
+      <label class="role-box">
+        <input type="radio" name="role" value="customer" required>
+        <div class="text-box">
+          <span class="role-title">Login to collect points</span>
+          <span class="role-desc">Collect points and use them for discounts, vouchers and great deals — everything in one place.</span>
+        </div>
+      </label>
+      <label class="role-box">
+        <input type="radio" name="role" value="simple" required>
+        <div class="text-box">
+          <span class="role-title">Login to automate your project</span>
+          <span class="role-desc">Smart automation and scripting solutions built for you.</span>
+        </div>
+      </label>
+      <button type="submit" class="continue-btn">Continue</button>
+    </form>
+  </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+  const technicalTabs = document.querySelectorAll('.technical-services-tab');
+  const technicalPanel = document.getElementById('technical-services-panel');
+  const automationContent = document.getElementById('technical-automation-content');
+  const apiContent = document.getElementById('technical-api-content');
+  const databaseContent = document.getElementById('technical-database-content');
+  const aiContent = document.getElementById('technical-ai-content');
+
+  technicalTabs.forEach(function (tab) {
+    tab.addEventListener('click', function () {
+      technicalTabs.forEach(function (item) {
+        const isCurrentTab = item === tab;
+        item.classList.toggle('is-active', isCurrentTab);
+        item.setAttribute('aria-selected', String(isCurrentTab));
+        item.setAttribute('tabindex', isCurrentTab ? '0' : '-1');
+      });
+
+      if (technicalPanel) {
+        technicalPanel.setAttribute('aria-labelledby', tab.id);
+      }
+
+      if (automationContent) {
+        automationContent.hidden = tab.id !== 'technical-tab-automation';
+      }
+
+      if (apiContent) {
+        apiContent.hidden = tab.id !== 'technical-tab-api';
+      }
+
+      if (databaseContent) {
+        databaseContent.hidden = tab.id !== 'technical-tab-database';
+      }
+
+      if (aiContent) {
+        aiContent.hidden = tab.id !== 'technical-tab-ai';
+      }
+    });
+  });
+
+  const savingsAnimation = document.querySelector('.savings-animation');
+
+  if (savingsAnimation) {
+    const savingsValue = savingsAnimation.querySelector('.savings-animation__value');
+    let hasStarted = false;
+
+    function showInfinity() {
+      savingsValue.classList.add('is-changing');
+      setTimeout(function () {
+        savingsValue.textContent = '∞';
+        savingsValue.classList.add('is-infinity');
+        savingsValue.classList.remove('is-changing');
+      }, 180);
+    }
+
+    function startSavingsAnimation() {
+      if (hasStarted) return;
+      hasStarted = true;
+      savingsAnimation.classList.add('is-running');
+
+      if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+        savingsValue.textContent = '∞';
+        savingsValue.classList.add('is-infinity');
+        return;
+      }
+
+      let startTime;
+      function updateValue(timestamp) {
+        if (!startTime) startTime = timestamp;
+        const progress = Math.min((timestamp - startTime) / 1000, 1);
+        savingsValue.textContent = Math.round(250 * progress);
+
+        if (progress < 1) {
+          requestAnimationFrame(updateValue);
+        } else {
+          setTimeout(showInfinity, 100);
+        }
+      }
+      requestAnimationFrame(updateValue);
+    }
+
+    if ('IntersectionObserver' in window) {
+      const savingsObserver = new IntersectionObserver(function (entries) {
+        if (entries[0].isIntersecting) {
+          startSavingsAnimation();
+          savingsObserver.disconnect();
+        }
+      }, { threshold: 0.35 });
+      savingsObserver.observe(savingsAnimation);
+    } else {
+      startSavingsAnimation();
+    }
+  }
+
+  const howItWorksImage = document.getElementById('how-it-works-image');
+  const howItWorksSteps = document.querySelectorAll('.how-it-works-step');
+
+  if (howItWorksImage && howItWorksSteps.length) {
+    let imageChangeTimer;
+
+    howItWorksSteps.forEach(function (step) {
+      const preloadedImage = new Image();
+      preloadedImage.src = step.dataset.image;
+
+      function selectStep() {
+        const nextImage = step.dataset.image;
+        howItWorksSteps.forEach(function (item) {
+          item.classList.toggle('is-active', item === step);
+        });
+
+        clearTimeout(imageChangeTimer);
+        if (howItWorksImage.getAttribute('src') === nextImage) {
+          howItWorksImage.classList.remove('is-changing');
+          return;
+        }
+        howItWorksImage.classList.add('is-changing');
+        imageChangeTimer = setTimeout(function () {
+          howItWorksImage.src = nextImage;
+          howItWorksImage.alt = step.dataset.alt;
+          requestAnimationFrame(function () {
+            howItWorksImage.classList.remove('is-changing');
+          });
+        }, 150);
+      }
+
+      step.addEventListener('mouseenter', selectStep);
+      step.addEventListener('focus', selectStep);
+      step.addEventListener('click', selectStep);
+    });
+  }
+
+  /* ====== MENIU MOBIL (slide-in) ====== */
+  const hamburgerBtn = document.getElementById('hamburger-btn');
+  const closeMenuBtn = document.getElementById('close-menu-btn');
+  const mobileMenu = document.getElementById('mobile-menu');
+  const overlay = document.getElementById('mobile-menu-overlay');
+  const body = document.body;
+
+  function openMenu(){ mobileMenu.classList.add('is-open'); overlay.classList.add('is-open'); body.classList.add('menu-open'); }
+  function closeMenu(){ mobileMenu.classList.remove('is-open'); overlay.classList.remove('is-open'); body.classList.remove('menu-open'); }
+  if (hamburgerBtn) hamburgerBtn.addEventListener('click', openMenu);
+  if (closeMenuBtn) closeMenuBtn.addEventListener('click', closeMenu);
+  if (overlay) overlay.addEventListener('click', closeMenu);
+
+  /* ====== ACORDEON MOBIL ====== */
+  const accordionButtons = document.querySelectorAll('.accordion-button');
+
+  function getMobilePanel(categoryName){
+    const contentMap = {
+      "Services": `<h4>ROOT SERVER</h4><div class="service-row"><div class="service-box"><img src="/static/images/running.png" alt=""><div><strong>Need someone fast? We’ve got you.</strong><p>Fully virtualised private servers.</p><ul><li>Immediate availability</li><li>Quick response</li><li>Skilled workers available on short notice.</li><li>Urgent staff support, anytime.</li></ul></div></div><div class="service-box"><img src="/static/images/laptop.png" alt=""><div><strong>Dedicated Servers</strong><p>Get enterprise hardware with unlimited traffic.</p></div></div></div>`,
+      "Website": `<h4>LAUNCH YOUR WEBSITE</h4><div class="website-subheader-row"><div class="website-subheader-box"><img src="/static/images/website-builder.png" alt=""><div><strong>Website Builder</strong><p>We create your own website easily.</p></div></div><div class="website-subheader-box"><img src="/static/images/web-design.png" alt=""><div><strong>Website Design Service</strong><p>Get your website built by experts.</p></div></div><div class="website-subheader-box"><img src="/static/images/data-migration.png" alt=""><div><strong>Migration Service</strong><p>Trust your move to the experts.</p></div></div></div>`,
+      "Mega-Market": `<h4>Mega-Market</h4><ul class="vertical-timeline"><li><span class="dot"></span><p>AI Marketplace</p></li><li><span class="dot"></span><p>Cloud Storage</p></li><li><span class="dot"></span><p>Marketing Tools</p></li><li><span class="dot"></span><p>Online Shops</p></li></ul>`,
+      "Free": `<div class="free-grid"><div class="free-item"><img src="/static/images/free.png"><div><strong>Starter Pack</strong><p>Free plans</p></div></div><div class="free-item"><img src="/static/images/open.png"><div><strong>Open to anything</strong><p>No card needed.</p></div></div></div>`,
+      "WordPress": `<h4>WORDPRESS</h4><div class="word-press-grid"><div class="word-press-item"><img src="/static/images/pin.png"><div><strong>Location</strong><p>Location UK</p></div></div><div class="word-press-item"><img src="/static/images/circle.png"><div><strong>Managed WordPress</strong><p>For any project.</p></div></div></div>`,
+      "Price": `<h4>PRICE</h4><p>Our mouse doesn’t work for money – just feed him some cheese.</p>`,
+      "Organisation": `<h4>ORGANISATION</h4><div class="organisation-grid"><div class="organisation-box"><img src="/static/images/worry.png"><div><strong>Structure</strong><p>Competitive Organisation</p></div></div></div>`
+    };
+    return contentMap[categoryName] || `<p>Content for ${categoryName} not found.</p>`;
+  }
+
+  accordionButtons.forEach(button => {
+    button.addEventListener('click', function() {
+      const panel = this.nextElementSibling;
+      const contentDiv = panel.querySelector('.rich-panel-content');
+      const isOpening = !panel.style.maxHeight;
+      if (isOpening && contentDiv && contentDiv.innerHTML.trim()==="") {
+        const category = this.textContent.trim();
+        contentDiv.innerHTML = getMobilePanel(category);
+      }
+      this.classList.toggle('active');
+      if (panel.style.maxHeight) panel.style.maxHeight = null;
+      else setTimeout(() => { panel.style.maxHeight = panel.scrollHeight + "px"; }, 10);
+    });
+  });
+
+  /* ====== OVERLAY LOGIN ====== */
+  const roleOverlay = document.getElementById('roleOverlay');
+  const overlayContent = document.querySelector('.overlay-content');
+  const loginLinkDesktop = document.getElementById('openRoleOverlay');
+  const loginLinkMobile = document.getElementById('openRoleOverlayMobile');
+  function openLoginOverlay(e){ e.preventDefault(); if (roleOverlay) roleOverlay.style.display='flex'; }
+  if (loginLinkDesktop) loginLinkDesktop.addEventListener('click', openLoginOverlay);
+  if (loginLinkMobile) loginLinkMobile.addEventListener('click', openLoginOverlay);
+  if (roleOverlay) roleOverlay.addEventListener('click', function(e){
+    if (overlayContent && !overlayContent.contains(e.target)) roleOverlay.style.display='none';
+  });
+
+  /* ====== DESKTOP MEGA MENU (hover + click) ====== */
+  const subLinks = document.querySelectorAll('.sub-header a[data-section]');
+  const infoDropdown = document.getElementById('infoDropdown');
+  const dropdownContent = document.getElementById('dropdownContent');
+  let hoverTimer = null;
+
+  function getDesktopPanel(key){
+    const T = {
+      'services': `
+        <div class="mega-grid">
+          <div class="mega-col">
+            <h4>SHARED HOSTING</h4>
+            <a class="mega-item" href="#"><span class="mega-ico">🖥️</span><div><strong>Web Hosting</strong><p>Fast, scalable hosting for any website.</p></div></a>
+            <a class="mega-item" href="#"><span class="mega-ico">🧩</span><div><strong>ASP.NET Hosting</strong><p>Windows® Server 2022.</p></div></a>
+            <a class="mega-item" href="#"><span class="mega-ico">🚀</span><div><strong>Deploy Now</strong><p>Deploy from GitHub.</p></div></a>
+            <h4>DEDICATED / VPS</h4>
+            <a class="mega-item" href="#"><span class="mega-ico">⚙️</span><div><strong>VPS Hosting</strong><p>KVM + SSD storage.</p></div></a>
+          </div>
+          <div class="mega-col">
+            <h4>OTHER SOLUTIONS</h4>
+            <a class="mega-item" href="#"><span class="mega-ico">⚡</span><div><strong>Jamstack Hosting</strong><p>Leaner, faster sites.</p></div></a>
+            <a class="mega-item" href="#"><span class="mega-ico">🧱</span><div><strong>Joomla! Hosting</strong><p>Optimised with extensions.</p></div></a>
+            <div class="mega-note"><h5>Useful Tools</h5><a href="#" class="mega-link">PHP Extended Support →</a></div>
+          </div>
+          <aside class="mega-aside">
+            <img src="/static/images/itsuppor.png" alt="Rack">
+            <div class="aside-card"><h3>Hosting Options Compared</h3><p>Compare shared vs. dedicated hosting.</p><a href="#" class="aside-cta">View comparison</a></div>
+          </aside>
+        </div>`,
+      'website': `
+        <div class="mega-grid">
+          <div class="mega-col">
+            <h4>LAUNCH YOUR WEBSITE</h4>
+            <a class="mega-item" href="#"><span class="mega-ico">🖼️</span><div><strong>Website Builder</strong><p>Create your site easily.</p></div></a>
+            <a class="mega-item" href="#"><span class="mega-ico">🎨</span><div><strong>Website Design Service</strong><p>Built by experts.</p></div></a>
+            <a class="mega-item" href="#"><span class="mega-ico">☁️</span><div><strong>Migration Service</strong><p>Handled by pros.</p></div></a>
+            <h4>ONLINE MARKETING</h4>
+            <a class="mega-item" href="#"><span class="mega-ico">📈</span><div><strong>SEO Tool</strong><p>Improve ranking.</p></div></a>
+            <a class="mega-item" href="#"><span class="mega-ico">✉️</span><div><strong>Email Marketing</strong><p>Ready-made campaigns.</p></div></a>
+          </div>
+          <div class="mega-col">
+            <h4>GOOGLE ADS</h4>
+            <a class="mega-item" href="#"><span class="mega-ico">🔎</span><div><strong>Ads Management</strong><p>Connect with Google.</p></div></a>
+            <div class="mega-note"><h5>Need help choosing?</h5><a href="#" class="mega-link">Talk to an expert →</a></div>
+          </div>
+          <aside class="mega-aside">
+            <img src="/static/images/agentlook.png" alt="Preview">
+            <div class="aside-card"><h3>Build & Launch Faster</h3><p>Templates, migration and growth tools.</p><a href="#" class="aside-cta">Start for free</a></div>
+          </aside>
+        </div>`,
+      'mega-market': `
+        <div class="mega-grid">
+          <div class="mega-col">
+            <h4>AI & TOOLS</h4>
+            <a class="mega-item" href="#"><span class="mega-ico">🧠</span><div><strong>AI Model Hub</strong><p>LLMs & image models.</p></div></a>
+            <a class="mega-item" href="#"><span class="mega-ico">📦</span><div><strong>Cloud Storage</strong><p>Simple & secure.</p></div></a>
+            <a class="mega-item" href="#"><span class="mega-ico">📣</span><div><strong>Marketing</strong><p>Campaign kits.</p></div></a>
+          </div>
+          <div class="mega-col">
+            <h4>MANAGEMENT</h4>
+            <a class="mega-item" href="#"><span class="mega-ico">🧭</span><div><strong>Management Service</strong><p>Operate with clarity.</p></div></a>
+            <a class="mega-item" href="#"><span class="mega-ico">🔐</span><div><strong>Secure</strong><p>Everything you need.</p></div></a>
+          </div>
+          <aside class="mega-aside">
+            <img src="/static/images/wall.png" alt="Market">
+            <div class="aside-card"><h3>It’s ready</h3><p>Spin up tools and scale comfortably.</p><a href="#" class="aside-cta">Explore marketplace</a></div>
+          </aside>
+        </div>`,
+      'free': `
+        <div class="mega-grid">
+          <div class="mega-col">
+            <h4>FREE START TOOLS</h4>
+            <a class="mega-item" href="#"><span class="mega-ico">🎁</span><div><strong>Starter Pack</strong><p>Free plans.</p></div></a>
+            <a class="mega-item" href="#"><span class="mega-ico">🟩</span><div><strong>Open to anything</strong><p>No card needed.</p></div></a>
+            <a class="mega-item" href="#"><span class="mega-ico">🤝</span><div><strong>Volunteering</strong><p>We help communities.</p></div></a>
+          </div>
+          <aside class="mega-aside">
+            <img src="/static/images/Free-badge.png" alt="Free">
+            <div class="aside-card"><h3>Completely Free</h3><p>Explore at your own pace.</p></div>
+          </aside>
+        </div>`,
+      'wordpress': `
+        <div class="mega-grid">
+          <div class="mega-col">
+            <h4>WORDPRESS</h4>
+            <a class="mega-item" href="#"><span class="mega-ico">📍</span><div><strong>Location</strong><p>Location UK</p></div></a>
+            <a class="mega-item" href="#"><span class="mega-ico">🟠</span><div><strong>Managed WordPress</strong><p>For any project.</p></div></a>
+            <h4>ECOMMERCE</h4>
+            <a class="mega-item" href="#"><span class="mega-ico">⭐</span><div><strong>Social-Proof</strong><p>Mouseforce High Standards</p></div></a>
+            <a class="mega-item" href="#"><span class="mega-ico">ℹ️</span><div><strong>Info</strong><p>We work for you</p></div></a>
+          </div>
+          <aside class="mega-aside">
+            <img src="/static/images/word-press-hst.png" alt="WP">
+            <div class="aside-card"><h3>WordPress Hosting</h3><p>Optimised stack and updates.</p></div>
+          </aside>
+        </div>`,
+      'price': `
+        <div class="mega-grid">
+          <div class="mega-col">
+            <h4>PRICE</h4>
+            <a class="mega-item" href="#"><span class="mega-ico">🧀</span><div><strong>Cheese Model</strong><p>Feed the mouse, not the meter.</p></div></a>
+          </div>
+          <aside class="mega-aside">
+            <img src="/static/images/cheeseroun.png" alt="Cheese">
+            <div class="aside-card"><h3>Simple Pricing</h3><p>Transparent and fun.</p></div>
+          </aside>
+        </div>`,
+      'organisation': `
+        <div class="mega-grid">
+          <div class="mega-col">
+            <h4>ORGANISATION</h4>
+            <a class="mega-item" href="#"><span class="mega-ico">🏗️</span><div><strong>Structure</strong><p>Competitive organisation.</p></div></a>
+            <a class="mega-item" href="#"><span class="mega-ico">🧘</span><div><strong>Mouseforce Team</strong><p>No stress.</p></div></a>
+            <a class="mega-item" href="#"><span class="mega-ico">🏢</span><div><strong>Office</strong><p>Startup office!</p></div></a>
+          </div>
+          <aside class="mega-aside">
+            <img src="/static/images/office.png" alt="Office">
+            <div class="aside-card"><h3>We’re hiring</h3><p>Join the team and build with us.</p></div>
+          </aside>
+        </div>`
+    };
+    return T[key] || '';
+  }
+
+  function openDropdown(key){
+    dropdownContent.innerHTML = getDesktopPanel(key);
+    infoDropdown.style.display = 'block';
+  }
+  function closeDropdown(){
+    infoDropdown.style.display = 'none';
+    dropdownContent.innerHTML = '';
+  }
+
+  subLinks.forEach(link=>{
+    const key = link.dataset.section;
+    link.addEventListener('mouseenter', ()=> openDropdown(key));
+    link.addEventListener('click', (e)=>{ e.preventDefault(); openDropdown(key); });
+  });
+
+  const subHeader = document.querySelector('.sub-header');
+  [subHeader, infoDropdown].forEach(el=>{
+    el.addEventListener('mouseenter', ()=>{ if(hoverTimer){ clearTimeout(hoverTimer); hoverTimer=null; }});
+    el.addEventListener('mouseleave', ()=>{ hoverTimer = setTimeout(closeDropdown, 120); });
+  });
+
+  document.addEventListener('keydown', e=>{ if(e.key==='Escape') closeDropdown(); });
+  window.addEventListener('scroll', closeDropdown);
+});
+</script>
+{% endblock %}

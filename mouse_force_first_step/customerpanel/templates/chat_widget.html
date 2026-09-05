@@ -1,0 +1,598 @@
+{% load static %}
+<style>
+  #chat-toggle-btn, #chat-close-btn {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    background-color: #0a2b5c;
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 55px;
+    height: 55px;
+    font-size: 22px;
+    cursor: pointer;
+    z-index: 9999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  }
+  #chat-close-btn {
+    display: none;
+  }
+
+  #chat-box {
+    position: fixed;
+    bottom: 100px;
+    right: 30px;
+    width: 420px;
+    height: 550px;
+    background-color: white;
+    border-radius: 12px;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.25);
+    z-index: 9998;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    opacity: 0;
+    transform: translateY(20px);
+    transition: opacity 0.3s ease, transform 0.3s ease;
+    pointer-events: none;
+  }
+  #chat-box.visible {
+    opacity: 1;
+    transform: translateY(0);
+    pointer-events: auto;
+  }
+
+  #chat-header {
+    background-color: #0a2b5c;
+    color: white;
+    padding: 12px 16px;
+    font-weight: bold;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 16px;
+  }
+  #chat-header button {
+    background: none;
+    border: none;
+    color: white;
+    font-size: 18px;
+    cursor: pointer;
+  }
+
+#chat-body {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start; /* schimbat din flex-end */
+  padding: 15px;
+  font-size: 14px;
+  overflow-y: auto;
+  max-height: 100%;
+  min-height: 200px; /* forțează spațiu */
+}
+
+
+  .chat-message.with-icon {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    margin-bottom: 14px;
+  }
+  .chat-message.bot.no-icon {
+    display: flex;
+    justify-content: flex-start;
+    margin-bottom: 12px;
+  }
+
+  .chat-icon {
+    width: 36px;
+    height: 36px;
+    object-fit: cover;
+    border-radius: 50%;
+  }
+
+  .chat-bubble {
+    background: #f1f1f1;
+    padding: 10px 12px;
+    border-radius: 10px;
+    max-width: 80%;
+    line-height: 1.4;
+    text-align: left;
+  }
+
+  .chat-message.bot {
+    margin-bottom: 12px;
+  }
+
+  .chat-message.user {
+    text-align: right;
+    background: #d8e9ff;
+    padding: 10px 12px;
+    border-radius: 10px;
+    display: inline-block;
+    max-width: 80%;
+    color: #0a2b5c;
+    margin-bottom: 12px;
+    align-self: flex-end;
+  }
+
+  .yes-no-btns {
+    margin-top: 12px;   /* spațiu deasupra */
+    margin-bottom: 16px; /* spațiu dedesubt */
+    display: flex;
+    gap: 10px;
+    justify-content: flex-end;
+    padding-right: 10px;
+  }
+
+  .yes-no-btns button {
+    padding: 6px 14px;
+    border: 1px solid #0a2b5c;
+    border-radius: 20px;
+    background: white;
+    color: #0a2b5c;
+    cursor: pointer;
+    font-size: 14px;
+  }
+
+  #chat-footer {
+    display: flex;
+    padding: 24px 12px;
+    border-top: 1px solid #ddd;
+  }
+
+  #chat-footer input {
+    flex: 1;
+    border: none;
+    border-radius: 20px;
+    padding: 10px 16px;
+    font-size: 15px;
+    outline: none;
+  }
+
+  #chat-footer button {
+    margin-left: 8px;
+    background-color: #0a2b5c;
+    color: white;
+    border: none;
+    border-radius: 20px;
+    padding: 8px 14px;
+    font-size: 14px;
+    cursor: pointer;
+  }
+
+  #chat-loader-bar {
+    height: 4px;
+    width: 0;
+    background: gray;
+    transition: width 0.3s ease;
+  }
+
+  .chat-message.bot.no-icon .chat-bubble {
+    margin-left: 44px;
+    text-align: left;
+  }
+  .consultant-container {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start; /* 🔧 această linie e cheia */
+  }
+.consultant-container .chat-bubble {
+  margin-left: 0;
+}
+
+  .chat-meta {
+    font-size: 12px;
+    color: #777;
+    margin-top: 4px;
+  }
+
+@media (max-width: 768px) {
+  #chat-box.visible {
+    width: 100vw;
+    height: 100vh;
+    bottom: 0;
+    right: 0;
+    left: 0;
+    border-radius: 0;
+    z-index: 10000;
+  }
+
+  #chat-toggle-btn {
+    left: 10px;
+    right: auto;
+    bottom: 100px;
+  }
+
+  #chat-close-btn {
+    display: none !important;
+  }
+}
+
+</style>
+<!-- Butoane -->
+<button id="chat-toggle-btn">💬</button>
+<button id="chat-close-btn">↧</button>
+
+<!-- Chat Box -->
+<div id="chat-box">
+  <div id="chat-header">
+    Message Us
+    <button onclick="clearChat()">🗑️</button>
+  </div>
+  <div id="chat-loader-bar"></div>
+  <div id="chat-body"></div>
+  <div id="chat-footer">
+    <input type="text" id="chat-input" placeholder="Type a message..." />
+    <button onclick="sendChat()">Send</button>
+  </div>
+</div>
+<!-- Chat input pt OpenAI -->
+<div id="openai-chat-container" style="display: none; padding: 12px;">
+  <input type="text" id="user-question" placeholder="Ask something..." style="width: 70%; padding: 8px; border-radius: 6px; border: 1px solid #ccc;" />
+  <button onclick="sendQuestion()" style="padding: 8px 12px; background: #0a2b5c; color: white; border: none; border-radius: 6px; cursor: pointer;">Send</button>
+</div>
+
+<script>
+  function clearChat() {
+  sessionStorage.removeItem("chat_content"); // șterge salvarea
+  chatBody.innerHTML = "";                  // curăță vizual
+  toggleChatClose();                        // închide vizual
+}
+
+</script>
+<script>
+let activeConsultantName = "";
+let activeConsultantImage = "";
+
+const chatBox = document.getElementById("chat-box");
+const chatToggleBtn = document.getElementById("chat-toggle-btn");
+const chatCloseBtn = document.getElementById("chat-close-btn");
+const chatBody = document.getElementById("chat-body");
+
+function toggleChatOpen() {
+  const loader = document.getElementById("chat-loader-bar");
+  loader.style.width = "100%";
+  chatBox.style.display = "flex";
+
+  setTimeout(() => { loader.style.width = "0"; }, 1000);
+
+  setTimeout(() => {
+    chatBox.classList.add("visible");
+    const saved = sessionStorage.getItem("chat_content");
+    if (saved) {
+      chatBody.innerHTML = saved;
+    } else {
+      startIntroConversation();
+    }
+  }, 10);
+
+  chatToggleBtn.style.display = "none";
+  chatCloseBtn.style.display = "flex";
+}
+
+function toggleChatClose() {
+  chatBox.classList.remove("visible");
+  chatCloseBtn.style.display = "none";
+  chatToggleBtn.style.display = "flex";
+  setTimeout(() => { chatBox.style.display = "none"; }, 300);
+}
+
+function sendChat() {
+  const input = document.getElementById("chat-input");
+  const msg = input.value.trim();
+  if (!msg) return;
+
+  const userMsg = document.createElement("div");
+  userMsg.className = "chat-message user";
+  userMsg.textContent = msg;
+  chatBody.appendChild(userMsg);
+
+  chatBody.scrollTop = chatBody.scrollHeight;
+  input.value = "";
+
+  if (aiChatActive) {
+    fetch("/customer/ask-openai/", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "X-CSRFToken": getCookie("csrftoken"),
+      },
+      body: JSON.stringify({ question: msg }),
+    })
+      .then((res) => res.json())
+      .then((data) => {
+        const delay = Math.floor(Math.random() * (60000 - 40000 + 1)) + 40000;
+
+        setTimeout(() => {
+          const botBubble = document.createElement("div");
+          botBubble.className = "chat-message bot with-icon";
+          botBubble.innerHTML = `
+            <img src="{% static 'images/chat_force_img.png' %}" class="chat-icon" alt="Bot">
+            <div class="chat-bubble">${data.response}</div>
+          `;
+          chatBody.appendChild(botBubble);
+          chatBody.scrollTop = chatBody.scrollHeight;
+        }, delay);
+      });
+  }
+}
+
+
+function getGreeting() {
+  const hour = new Date().getHours();
+  if (hour < 12) return "Good morning and warm welcome!";
+  if (hour < 18) return "Good afternoon and warm welcome!";
+  return "Good evening and warm welcome!";
+}
+
+function startIntroConversation() {
+  chatBody.innerHTML = `<div style="color:#666;margin-bottom:12px">This is the beginning of your conversation with us.</div>`;
+
+  setTimeout(() => {
+    const welcome = document.createElement("div");
+    welcome.innerHTML = `
+      <div class="chat-message bot no-icon">
+        <div class="chat-bubble">${getGreeting()}</div>
+      </div>`;
+    chatBody.appendChild(welcome);
+    chatBody.scrollTop = chatBody.scrollHeight;
+  }, 1000);
+
+  setTimeout(() => {
+    const privacyWrapper = document.createElement("div");
+    privacyWrapper.innerHTML = `
+      <div class="chat-message bot with-icon">
+        <img src="{% static 'images/chat_force_img.png' %}" class="chat-icon" alt="Bot">
+        <div>
+          <div class="chat-bubble">
+            For <a href="#">Privacy Policy</a>. We would store the history for 90 days. Do you agree to this?
+          </div>
+          <div style="font-size: 12px; color: #888; margin-top: 4px;">MF · ${getCurrentTime()}</div>
+        </div>
+      </div>
+      <div class="yes-no-btns">
+        <button onclick="handleYes()">Yes</button>
+        <button onclick="handleNo()">No</button>
+      </div>
+    `;
+    chatBody.appendChild(privacyWrapper);
+    chatBody.scrollTop = chatBody.scrollHeight;
+  }, 2500);
+}
+
+function handleYes() {
+  const userYes = document.createElement("div");
+  userYes.className = "chat-message user";
+  userYes.textContent = "Yes";
+  chatBody.appendChild(userYes);
+
+  handleSupportPrompt();
+}
+
+function handleNo() {
+  const userNo = document.createElement("div");
+  userNo.className = "chat-message user";
+  userNo.textContent = "No";
+  chatBody.appendChild(userNo);
+
+  handleSupportPrompt();
+}
+
+function handleSupportPrompt() {
+  const yesNoBtns = document.querySelector(".yes-no-btns");
+  if (yesNoBtns) yesNoBtns.remove();
+
+  const botMsg = document.createElement("div");
+  botMsg.className = "chat-message bot with-icon";
+  botMsg.innerHTML = `
+    <img src="{% static 'images/chat_force_img.png' %}" class="chat-icon" alt="Bot">
+    <div class="chat-bubble">
+      Do you need technical support or product advice?
+    </div>
+  `;
+  chatBody.appendChild(botMsg);
+
+  const optionsBtns = document.createElement("div");
+  optionsBtns.className = "yes-no-btns";
+  optionsBtns.innerHTML = `
+    <button onclick="handleTechnicalSupport()">Technical Support</button>
+    <button onclick="startOpenAIChat()">Product Advice</button>
+
+  `;
+  chatBody.appendChild(optionsBtns);
+
+  chatBody.scrollTop = chatBody.scrollHeight;
+}
+
+function handleTechnicalSupport() {
+  const msg1 = document.createElement("div");
+  msg1.className = "chat-message bot with-icon";
+  msg1.innerHTML = `
+    <img src="{% static 'images/chat_force_img.png' %}" class="chat-icon" alt="Bot">
+    <div class="chat-bubble">
+      Our technical experts are currently assisting other customers.<br>
+      However, we are available 24/7 to support you by phone:<br><br>
+      <span style="font-size: 18px;">📞 +44 7786xxxxxx</span>
+    </div>
+  `;
+  chatBody.appendChild(msg1);
+
+  const msg2 = document.createElement("div");
+  msg2.className = "chat-message bot with-icon";
+  msg2.innerHTML = `
+    <img src="{% static 'images/chat_force_img.png' %}" class="chat-icon" alt="Bot">
+    <div class="chat-bubble">
+      Alternatively, you can find more contact options here:<br><br>
+      🌐 <a href="https://mouseforce.onrender.com/contact/" target="_blank">https://mouseforce.contact</a><br><br>
+      Thank you for your understanding!
+    </div>
+  `;
+  chatBody.appendChild(msg2);
+
+  const now = new Date();
+  const time = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+  const date = now.toLocaleDateString(undefined, { year: 'numeric', month: 'long', day: 'numeric' });
+
+  const endMsg = document.createElement("div");
+  endMsg.style.textAlign = "center";
+  endMsg.style.fontSize = "13px";
+  endMsg.style.color = "#666";
+  endMsg.style.marginTop = "20px";
+  endMsg.innerHTML = `
+    <div>Your conversation has ended</div>
+    <div>${date} ${time}</div>
+  `;
+  chatBody.appendChild(endMsg);
+
+  const restartBtn = document.createElement("div");
+  restartBtn.style.textAlign = "center";
+  restartBtn.innerHTML = `
+    <button onclick="restartConversation()" style="margin-top: 15px; padding: 8px 16px; font-size: 15px; border-radius: 6px; background-color: #0a2b5c; color: white; border: none; cursor: pointer;">
+      Start new
+    </button>
+  `;
+  chatBody.appendChild(restartBtn);
+
+  chatBody.scrollTop = chatBody.scrollHeight;
+}
+
+function restartConversation() {
+  sessionStorage.removeItem("chat_content");
+  chatBody.innerHTML = "";
+  startIntroConversation();
+}
+
+
+function getCurrentTime() {
+  const now = new Date();
+  return now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+}
+
+
+let aiChatActive = true;
+
+
+
+
+
+
+
+
+
+
+
+function sendQuestion() {
+  const question = document.getElementById("user-question").value.trim();
+  if (!question) return;
+
+  const userBubble = document.createElement("div");
+  userBubble.className = "chat-message user";
+  userBubble.textContent = question;
+  chatBody.appendChild(userBubble);
+
+  document.getElementById("user-question").value = "";
+
+  fetch("/ask-openai/", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "X-CSRFToken": getCookie("csrftoken"),
+    },
+    body: JSON.stringify({ question }),
+  })
+    .then((res) => res.json())
+    .then((data) => {
+      const delay = Math.floor(Math.random() * (60000 - 40000 + 1)) + 40000;
+
+      setTimeout(() => {
+        const botBubble = document.createElement("div");
+        botBubble.className = "chat-message bot with-icon";
+        botBubble.innerHTML = `
+          <img src="{% static 'images/chat_force_img.png' %}" class="chat-icon" alt="Bot">
+          <div class="chat-bubble">${data.response}</div>
+        `;
+        chatBody.appendChild(botBubble);
+        chatBody.scrollTop = chatBody.scrollHeight;
+      }, delay);
+    });
+}
+
+function getCookie(name) {
+  let cookieValue = null;
+  if (document.cookie && document.cookie !== "") {
+    const cookies = document.cookie.split(";");
+    for (let i = 0; i < cookies.length; i++) {
+      const cookie = cookies[i].trim();
+      if (cookie.substring(0, name.length + 1) === name + "=") {
+        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+        break;
+      }
+    }
+  }
+  return cookieValue;
+}
+
+
+chatToggleBtn.addEventListener("click", toggleChatOpen);
+chatCloseBtn.addEventListener("click", () => {
+  sessionStorage.setItem("chat_content", chatBody.innerHTML);
+  toggleChatClose();
+});
+
+</script>
+
+
+<script>
+function startOpenAIChat() {
+  const yesNoBtns = document.querySelector(".yes-no-btns");
+  if (yesNoBtns) yesNoBtns.remove();
+
+  // 🟢 Alege aleatoriu un consultant
+  const consultants = [
+    { name: "Leon S.", image: "leon_support.png", initial: "L" },
+    { name: "Sofia W.", image: "sofia_support.png", initial: "S" },
+    { name: "Charles M.", image: "charles_support.png", initial: "C" },
+  ];
+  const randomConsultant = consultants[Math.floor(Math.random() * consultants.length)];
+  activeConsultantName = randomConsultant.name;
+  activeConsultantImage = randomConsultant.image;
+
+  // 🕒 Ora curentă
+  const now = new Date();
+  const timeString = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+
+  // 🟢 Mesajul principal
+  const aiMsg = document.createElement("div");
+  aiMsg.className = "chat-message bot with-icon";
+  aiMsg.innerHTML = `
+    <img src="{% static 'images/chat_force_img.png' %}" class="chat-icon" alt="Bot">
+    <div class="chat-bubble">
+      <strong>Great! You can ask me anything about our IT services below.</strong><br>
+      <br>Next available consultant is <strong>${randomConsultant.name}</strong>.
+    </div>
+  `;
+  chatBody.appendChild(aiMsg);
+
+  // 🟢 Mesajul cu consultantul
+  const consultantMsg = document.createElement("div");
+  consultantMsg.className = "chat-message bot with-icon";
+ consultantMsg.innerHTML = `
+  <img src="{% static 'images/' %}${randomConsultant.image}" class="chat-icon" alt="${randomConsultant.initial}">
+  <div class="consultant-container">
+    <div class="chat-bubble">
+      Hello! I'm ${randomConsultant.name}. What service do you need?
+    </div>
+    <div class="chat-meta">${randomConsultant.name} · ${timeString}</div>
+  </div>
+`;
+  chatBody.appendChild(consultantMsg);
+
+  chatBody.scrollTop = chatBody.scrollHeight;
+}
+</script>

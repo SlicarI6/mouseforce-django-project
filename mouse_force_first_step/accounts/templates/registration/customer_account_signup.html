@@ -1,0 +1,207 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Customer Account Sign Up</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background: url('{% static "images/signupbackground.png" %}') no-repeat center center fixed;
+            background-size: cover;
+            font-family: Arial, sans-serif;
+        }
+
+        .signup-container {
+            display: flex;
+            justify-content: flex-start;
+            align-items: center;
+            min-height: 100vh;
+            padding: 50px;
+        }
+
+        .signup-box {
+            background-color: white;
+            padding: 40px 30px;
+            border-radius: 10px;
+            max-width: 420px;
+            width: 100%;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        }
+        .signup-box form input {
+            width: 100%;      /* Adaugă asta */
+            padding: 10px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+            box-sizing: border-box;  /* să includă padding și border în lățime */
+}
+        .signup-box h2 {
+            text-align: center;
+            margin-bottom: 25px;
+        }
+
+        .signup-box form label,
+        .signup-box form input {
+            display: block;
+            width: 100%;
+            margin-bottom: 12px;
+            font-size: 14px;
+        }
+
+        .signup-box form input {
+            padding: 10px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+        }
+
+        .captcha-refresh {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .captcha-refresh button {
+            padding: 6px 12px;
+            font-size: 16px;
+            border: none;
+            background-color: #eee;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        .signup-box button[type="submit"] {
+            width: 100%;
+            padding: 12px;
+            background-color: #1a73e8;
+            color: white;
+            font-weight: bold;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+
+        .signup-box button[type="submit"]:hover {
+            background-color: #0c53b3;
+        }
+
+        .info-text {
+            font-size: 12px;
+            color: #333;
+            margin-top: 15px;
+            line-height: 1.4;
+        }
+
+        .action-links {
+            text-align: center;
+            margin-top: 20px;
+            font-size: 14px;
+        }
+
+        .action-links a {
+            color: #1a73e8;
+            text-decoration: none;
+        }
+
+        .action-links a:hover {
+            text-decoration: underline;
+        }
+
+        .error-message {
+            color: red;
+            font-size: 0.9rem;
+            margin-top: 5px;
+        }
+    </style>
+</head>
+<body>
+<div class="signup-container">
+    <div class="signup-box">
+        <h2>Create an Account to <span style="color: #52d3c5;">Earn Points</span></h2>
+
+        <form method="post">
+            {% csrf_token %}
+
+            {% if form.non_field_errors %}
+                <div class="error-message">{{ form.non_field_errors }}</div>
+            {% endif %}
+
+            {{ form.first_name.label_tag }}{{ form.first_name }}
+            {% if form.first_name.errors %}
+                <div class="error-message">{{ form.first_name.errors }}</div>
+            {% endif %}
+
+            {{ form.last_name.label_tag }}{{ form.last_name }}
+            {% if form.last_name.errors %}
+                <div class="error-message">{{ form.last_name.errors }}</div>
+            {% endif %}
+
+            {{ form.email.label_tag }}{{ form.email }}
+            {% if form.email.errors %}
+                <div class="error-message">{{ form.email.errors }}</div>
+            {% endif %}
+
+            {{ form.birth_date.label_tag }}{{ form.birth_date }}
+            {% if form.birth_date.errors %}
+                <div class="error-message">{{ form.birth_date.errors }}</div>
+            {% endif %}
+
+            {{ form.password1.label_tag }}{{ form.password1 }}
+            {% if form.password1.errors %}
+                <div class="error-message">{{ form.password1.errors }}</div>
+            {% endif %}
+
+            {{ form.password2.label_tag }}{{ form.password2 }}
+            {% if form.password2.errors %}
+                <div class="error-message">{{ form.password2.errors }}</div>
+            {% endif %}
+
+            <label for="id_captcha_1">Captcha:</label>
+            <div class="captcha-refresh">
+                {{ form.captcha }}
+                <button type="button" onclick="refreshCaptcha()">↻</button>
+            </div>
+            {% if form.captcha.errors %}
+                <div class="error-message">{{ form.captcha.errors.as_text }}</div>
+            {% endif %}
+
+            <button type="submit">Create Account</button>
+        </form>
+
+        <!-- Mesaje globale din messages framework -->
+        <div id="message-container">
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="error-message">{{ message }}</div>
+                {% endfor %}
+            {% endif %}
+        </div>
+
+        {% if show_customer_actions %}
+        <div class="action-links">
+            Already have an account? <a href="{% url 'login_account_customer' %}">Sign in</a><br>
+            <a href="{% url 'password_reset' %}">Forgot password?</a>
+        </div>
+        {% endif %}
+
+        <div class="info-text">
+            Occasionally, we may email you with important information, product updates, special offers, and helpful tips to get the most from your account. You can unsubscribe at any time.
+        </div>
+    </div>
+</div>
+
+<script>
+function refreshCaptcha() {
+    // Curăță mesajele
+    const msg = document.getElementById('message-container');
+    if (msg) msg.innerHTML = '';
+
+    // Reîncarcă pagina ca GET să dispară erorile formularului
+    window.location.href = window.location.pathname;
+}
+</script>
+</body>
+</html>

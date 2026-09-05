@@ -1,0 +1,200 @@
+{% load static %}
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Startup Guide — Mouseforce</title>
+
+  <style>
+    :root{
+      --bg:#0b0f14;
+      --bg-2:#0b1520;
+      --card:#111823;
+      --soft:#0f1620;
+      --line:#1f2b3a;
+      --text:#e9f0f7;
+      --muted:#9fb0c2;
+      --brand:#27b0ff;
+      --brand2:#5ee3ff;
+      --accent:#69d3ff;
+      --ok:#39d98a;
+      --warn:#ffd166;
+    }
+    *{box-sizing:border-box}
+    html,body{margin:0;background:linear-gradient(180deg,var(--bg),var(--bg-2));color:var(--text);
+      font:16px/1.6 system-ui,-apple-system,Segoe UI,Roboto,Arial}
+    .wrap{max-width:1080px;margin:40px auto;padding:24px}
+
+    /* brand bar */
+    .brand{display:flex;align-items:center;gap:12px;margin-bottom:18px}
+    .brand a{display:inline-flex;align-items:center;gap:10px;color:var(--text);text-decoration:none}
+    .brand img{height:46px;border-radius:10%;border-bottom-left-radius:100px;border-bottom-right-radius:100px}
+    .badge{padding:6px 10px;border-radius:999px;background:rgba(94,227,255,.12);
+      border:1px solid rgba(94,227,255,.35);color:#cfefff;font-size:12px;letter-spacing:.3px}
+
+    /* hero */
+    .hero{background:linear-gradient(180deg,var(--card),var(--soft));border:1px solid var(--line);
+      border-radius:16px;padding:26px 24px;position:relative;overflow:hidden}
+    .hero h1{margin:6px 0 8px;font-size:34px;line-height:1.2}
+    .lead{color:var(--muted);margin:0 0 18px}
+    .cta{display:flex;gap:12px;flex-wrap:wrap}
+    .btn{display:inline-block;padding:12px 16px;border-radius:10px;text-decoration:none;font-weight:700}
+    .btn-primary{color:#00233a;background:linear-gradient(90deg,var(--brand),var(--brand2))}
+    .btn-ghost{border:1px solid #274357;color:#cfe3f7}
+    .note{margin-top:10px;color:var(--muted);font-size:14px}
+
+    /* sections */
+    section{margin-top:26px}
+    h2{margin:0 0 10px;font-size:22px}
+    h3{margin:0 0 8px;font-size:18px}
+    .grid{display:grid;gap:16px}
+    .grid.two{grid-template-columns:1fr 1fr}
+    .grid.three{grid-template-columns:repeat(3,1fr)}
+    .card{background:linear-gradient(180deg,var(--card),var(--soft));border:1px solid var(--line);
+      border-radius:14px;padding:18px}
+    .card p{margin:0}
+    .list{margin:8px 0 0 18px}
+    .chip{display:inline-block;padding:6px 10px;border:1px solid #274357;border-radius:999px;margin:6px 6px 0 0;color:#cfe3f7}
+    .tip{font-size:14px;color:var(--muted)}
+    .ok{color:var(--ok)} .warn{color:var(--warn)}
+
+    /* process boxes */
+    .step{display:flex;align-items:center;gap:12px;background:rgba(39,176,255,.06);border:1px solid #213041;
+      border-radius:12px;padding:12px 14px}
+    .step .num{width:28px;height:28px;border-radius:50%;display:inline-grid;place-items:center;
+      background:linear-gradient(90deg,var(--brand),var(--brand2));color:#00233a;font-weight:800}
+
+    /* footer */
+    .footer{margin-top:28px;color:var(--muted);font-size:14px}
+
+    /* code-like block (for examples) */
+    pre{margin:10px 0;background:#0a121a;border:1px solid #213041;border-radius:10px;padding:12px;overflow:auto}
+    code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}
+
+    /* responsive */
+    @media (max-width:1024px){
+      .grid.three{grid-template-columns:1fr 1fr}
+    }
+    @media (max-width:880px){
+      .grid.two{grid-template-columns:1fr}
+    }
+    @media (max-width:640px){
+      .wrap{padding:16px;margin:24px auto}
+      .hero h1{font-size:28px}
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <!-- Logo → back to homepage -->
+    <div class="brand">
+      <a href="{% url 'homepage' %}" aria-label="Back to homepage">
+        <img src="{% static 'images/mouseforce.png' %}" alt="Mouseforce logo">
+        <strong>Mouseforce</strong>
+      </a>
+      <span class="badge">Startup Guide</span>
+    </div>
+
+    <!-- HERO -->
+    <div class="hero">
+      <h1>Start simple. We’ll help you finish strong.</h1>
+      <p class="lead">
+        Before we build anything together, it helps if you clearly imagine your idea:
+        what you need, why you need it, and how fast you want it. We’re friendly,
+        patient, and happy to guide you — because we love helping people.
+      </p>
+      <div class="cta">
+        <a class="btn btn-primary" href="{% url 'contact' %}">Contact us</a>
+        <a class="btn btn-ghost" href="{% url 'homepage' %}">Explore the website</a>
+        <a class="btn btn-ghost" href="{% url 'about' %}">See what we build</a>
+      </div>
+      <p class="note">Have an account already? Open the homepage and use the Login button.</p>
+    </div>
+
+    <!-- 1) Understand your need -->
+    <section>
+      <h2>1) Understand your need</h2>
+      <div class="grid two">
+        <div class="card">
+          <h3>Questions to clarify</h3>
+          <ul class="list">
+            <li>What do you want to achieve — in one sentence?</li>
+            <li>Who benefits from it (you, your team, your customers)?</li>
+            <li>Is this a one-time tool or something you’ll use weekly?</li>
+            <li>Do you prefer a quick prototype or a solid long-term solution?</li>
+            <li>Free or paid? (see options below)</li>
+          </ul>
+          <p class="tip">Clear answers help us choose the fastest, most affordable path for you.</p>
+        </div>
+        <div class="card">
+          <h3>Typical ideas we turn into reality</h3>
+          <span class="chip">Game scripts (economy, AI helpers)</span>
+          <span class="chip">Scraping & automations</span>
+          <span class="chip">Job-finding bots</span>
+          <span class="chip">Test scripting (Playwright)</span>
+          <span class="chip">Small/medium turnkey projects</span>
+          <pre><code># tiny example
+goal = "Track marketplace prices daily"
+path = "scraper + db + csv export"
+result = "daily email with best deals"</code></pre>
+        </div>
+      </div>
+    </section>
+
+    <!-- 2) Free vs Paid -->
+    <section>
+      <h2>2) Free vs paid — pick what suits you</h2>
+      <div class="grid two">
+        <div class="card">
+          <h3 class="ok">Free (when it fits)</h3>
+          <ul class="list">
+            <li>Very small tasks or guidance (“how to…”)</li>
+            <li>Short reviews / quick fixes if trivial</li>
+            <li>Pointing you to templates or ready snippets</li>
+          </ul>
+          <p class="tip">We volunteer when it’s quick and clearly helpful.</p>
+        </div>
+        <div class="card">
+          <h3 class="warn">Paid (recommended for results)</h3>
+          <ul class="list">
+            <li>Real deliverables (scripts, bots, dashboards)</li>
+            <li>Anti-bot/proxy rotation, reliability, monitoring</li>
+            <li>Milestones, documentation, optional maintenance</li>
+          </ul>
+          <p class="tip">You get focused time, higher quality and ongoing support.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- 3) Simple process -->
+    <section>
+      <h2>3) Simple process</h2>
+      <div class="grid two">
+        <div class="step"><span class="num">1</span><div><strong>Quick chat.</strong> Tell us your goal and constraints.</div></div>
+        <div class="step"><span class="num">2</span><div><strong>Proposal.</strong> We suggest the most effective path (free or paid).</div></div>
+        <div class="step"><span class="num">3</span><div><strong>Build.</strong> We implement in small, clear iterations.</div></div>
+        <div class="step"><span class="num">4</span><div><strong>Finish.</strong> Delivery + handover, and IT help until it works for you.</div></div>
+      </div>
+    </section>
+
+    <!-- 4) Ready -->
+    <section>
+      <h2>Ready when you are</h2>
+      <div class="card">
+        <p>
+          Whether you just need a friendly hint or a complete solution,
+          we’re here to help from start to finish. Tell us your idea and we’ll
+          turn it into something useful — quickly and respectfully.
+        </p>
+        <div class="cta" style="margin-top:10px">
+          <a class="btn btn-primary" href="{% url 'contact' %}">Let’s talk</a>
+          <a class="btn btn-ghost" href="{% url 'homepage' %}">Browse more</a>
+        </div>
+      </div>
+    </section>
+
+    <div class="footer">© {% now "Y" %} Mouseforce — Friendly, understanding, ready to help.</div>
+  </div>
+</body>
+</html>

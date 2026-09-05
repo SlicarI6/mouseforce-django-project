@@ -1,0 +1,394 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Privacy Policy — Mouseforce</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+  <style>
+    :root{
+      --bg-top: #0d1b2a;
+      --bg-bottom: #0b1622;
+      --panel: rgba(255,255,255,.06);
+      --panel-strong: rgba(255,255,255,.09);
+      --text: #EAF1F8;
+      --muted: #a8b6c6;
+      --accent: #2aa8e0;      /* brand blue */
+      --accent-2: #D89F39;    /* gold you also use */
+      --border: rgba(255,255,255,.12);
+      --shadow: 0 10px 30px rgba(0,0,0,.35);
+      --radius: 14px;
+      --container: 1100px;
+    }
+
+    * { box-sizing: border-box; }
+    html, body { height: 100%; }
+    body{
+      margin: 0;
+      font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+      color: var(--text);
+      background: radial-gradient(1200px 600px at 20% -10%, #133149 0%, transparent 70%) ,
+                  linear-gradient(180deg, var(--bg-top), var(--bg-bottom));
+      background-attachment: fixed;
+      line-height: 1.6;
+    }
+
+    /* Top brand / back-home */
+    .brand-bar{
+      position: sticky; top: 0; z-index: 10;
+      backdrop-filter: saturate(130%) blur(8px);
+      background: linear-gradient(180deg, rgba(13,27,42,.85), rgba(13,27,42,.55));
+      border-bottom: 1px solid var(--border);
+    }
+    .brand-inner{
+      max-width: var(--container);
+      margin: 0 auto;
+      padding: 10px 16px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .brand-link{
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      text-decoration: none;
+      color: var(--text);
+      padding: 8px 12px;
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      background: linear-gradient(180deg, rgba(255,255,255,.05), rgba(255,255,255,.02));
+      box-shadow: var(--shadow);
+      transition: transform .15s ease, border-color .15s ease;
+    }
+    .brand-link:hover{ transform: translateY(-1px); border-color: rgba(255,255,255,.25); }
+    .brand-logo{ height: 34px; width: 34px; border-radius: 10px; display:block; }
+    .brand-name{ font-weight: 700; letter-spacing: .4px; font-size: 14px; }
+
+    /* Container */
+    .container{ max-width: var(--container); margin: 24px auto; padding: 0 16px; }
+
+    /* Hero */
+    .hero{
+      background: linear-gradient(180deg, var(--panel-strong), rgba(255,255,255,.03));
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 28px 28px 22px;
+    }
+    .eyebrow{
+      display:inline-block;
+      padding: 6px 10px;
+      border-radius: 999px;
+      border:1px solid var(--border);
+      background: rgba(255,255,255,.05);
+      color: var(--muted);
+      font-weight: 600;
+      font-size: 12px;
+      letter-spacing: .5px;
+      text-transform: uppercase;
+      margin-bottom: 10px;
+    }
+    h1{
+      margin: 8px 0 6px;
+      font-size: clamp(26px, 3.2vw, 38px);
+      line-height: 1.2;
+      letter-spacing: .2px;
+    }
+    .last-updated{ color: var(--muted); font-size: 14px; }
+
+    /* TOC */
+    .toc{
+      display:grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 10px;
+      margin-top: 18px;
+    }
+    .toc a{
+      text-decoration: none;
+      color: var(--text);
+      background: var(--panel);
+      border: 1px solid var(--border);
+      padding: 10px 12px;
+      border-radius: 10px;
+      font-size: 14px;
+      transition: background .15s ease, border-color .15s ease;
+    }
+    .toc a:hover{ background: var(--panel-strong); border-color: rgba(255,255,255,.22); }
+
+    /* Section cards */
+    .section{
+      margin-top: 18px;
+      background: var(--panel);
+      border:1px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 24px;
+    }
+    .section h2{
+      margin: 0 0 12px;
+      font-size: clamp(20px, 2.2vw, 24px);
+      line-height: 1.35;
+    }
+    .section h3{ margin: 18px 0 10px; font-size: 18px; }
+    .muted{ color: var(--muted); }
+
+    /* Grid inside sections */
+    .grid-2{ display:grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    .callout{
+      background: linear-gradient(180deg, rgba(42,168,224,.08), rgba(42,168,224,.03));
+      border: 1px solid rgba(42,168,224,.35);
+      border-radius: 12px;
+      padding: 14px 16px;
+    }
+    .callout.gold{
+      background: linear-gradient(180deg, rgba(216,159,57,.10), rgba(216,159,57,.04));
+      border-color: rgba(216,159,57,.45);
+    }
+
+    ul{ padding-left: 18px; margin: 8px 0; }
+    li+li{ margin-top: 6px; }
+
+    a.inline{ color: var(--accent); text-decoration: underline; }
+    code.inline{ background: rgba(255,255,255,.08); padding: 2px 6px; border-radius: 6px; }
+
+    /* Footer note */
+    .foot{
+      text-align:center; color: var(--muted); font-size: 13px;
+      margin: 18px 0 30px;
+    }
+
+    /* Responsive */
+    @media (max-width: 1100px){
+      .toc{ grid-template-columns: repeat(3,1fr); }
+    }
+    @media (max-width: 900px){
+      .grid-2{ grid-template-columns: 1fr; }
+      .toc{ grid-template-columns: repeat(2,1fr); }
+    }
+    @media (max-width: 560px){
+      .brand-inner{ padding: 8px 12px; }
+      .brand-logo{ height: 30px; width: 30px; }
+      .brand-name{ font-size: 13px; }
+      .toc{ grid-template-columns: 1fr; }
+      .section{ padding: 18px; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Brand / Back to home -->
+  <div class="brand-bar">
+    <div class="brand-inner">
+      <a class="brand-link" href="{% url 'homepage' %}" aria-label="Back to homepage">
+        <img class="brand-logo" src="{% static 'images/mouseforce.png' %}" alt="Mouseforce logo">
+        <span class="brand-name">Back to Home</span>
+      </a>
+    </div>
+  </div>
+
+  <div class="container">
+
+    <!-- Hero -->
+    <header class="hero">
+      <span class="eyebrow">Mouseforce</span>
+      <h1>Privacy Policy</h1>
+      <div class="last-updated">Last updated: <span class="muted">13.09.2025</span></div>
+
+      <nav class="toc" aria-label="On this page">
+        <a href="#who-we-are">Who we are</a>
+        <a href="#data-we-collect">Data we collect</a>
+        <a href="#how-we-use">How we use data</a>
+        <a href="#legal-bases">Legal bases</a>
+        <a href="#retention">Data retention</a>
+        <a href="#sharing">Sharing & vendors</a>
+        <a href="#international">International transfers</a>
+        <a href="#security">Security</a>
+        <a href="#your-rights">Your rights</a>
+        <a href="#cookies">Cookies</a>
+        <a href="#product-notes">Product-specific notes</a>
+        <a href="#changes-contact">Changes & contact</a>
+      </nav>
+    </header>
+
+    <!-- Sections -->
+    <section id="who-we-are" class="section">
+      <h2>Who we are</h2>
+      <p>
+        Mouseforce builds <strong>scripts, automations, scraping pipelines, job-finding bots</strong>,
+        and <strong>testing tools</strong>. We also deliver <strong>small/medium turnkey projects</strong>.
+        This policy explains how we collect, use, store, and share personal data when you visit our
+        websites, contact us, or use our services.<strong>In the near future, we will focus on enhancing our system’s Help Center to enable rapid hiring of skilled workers.</strong>
+      </p>
+    </section>
+
+    <section id="data-we-collect" class="section">
+      <h2>Data we collect</h2>
+      <div class="grid-2">
+        <div>
+          <h3>Information you provide</h3>
+          <ul>
+            <li><strong>Contact form data:</strong> name, business email, company, locations, and your message.</li>
+            <li><strong>Account/project info:</strong> requirements, technical preferences, credentials you explicitly provide
+              (e.g., API keys) for integration. We strongly recommend using least-privilege keys.</li>
+            <li><strong>Support messages:</strong> emails, tickets, or chat communications.</li>
+          </ul>
+        </div>
+        <div>
+          <h3>Information collected automatically</h3>
+          <ul>
+            <li><strong>Usage & device data:</strong> IP address, timestamps, pages, user-agent.
+              We keep this minimal for debugging, security and service quality.</li>
+            <li><strong>Cookies/local storage:</strong> your consent choice and essential settings
+              (see <a class="inline" href="#cookies">Cookies</a>).</li>
+          </ul>
+        </div>
+      </div>
+      <div class="callout gold" style="margin-top:12px">
+        <strong>Note on scraping:</strong> We only scrape data <em>you instruct us to process</em> and/or data
+        that is public or authorized by terms. We follow rate limits, robots guidance where applicable,
+        and anti-abuse rules agreed in the contract.
+      </div>
+    </section>
+
+    <section id="how-we-use" class="section">
+      <h2>How we use personal data</h2>
+      <div class="grid-2">
+        <div>
+          <ul>
+            <li><strong>Provide and improve services</strong> — development, deployment, maintenance.</li>
+            <li><strong>Operate automations</strong> — e.g., job notifications via email/Discord/Telegram.</li>
+            <li><strong>Security & fraud prevention</strong> — detect abuse and protect infrastructure.</li>
+            <li><strong>Analytics (lightweight)</strong> — diagnose performance and UX issues.</li>
+          </ul>
+        </div>
+        <div>
+          <ul>
+            <li><strong>Communications</strong> — replies to inquiries, service notices, invoices.</li>
+            <li><strong>Compliance</strong> — legal obligations and dispute handling.</li>
+            <li><strong>Portfolio demos (anonymized)</strong> — only with your explicit permission.</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <section id="legal-bases" class="section">
+      <h2>Legal bases (EU/UK GDPR)</h2>
+      <ul>
+        <li><strong>Contract</strong> — to deliver the services you request.</li>
+        <li><strong>Legitimate interests</strong> — security, quality, basic analytics.</li>
+        <li><strong>Consent</strong> — cookies or optional notifications where required.</li>
+        <li><strong>Legal obligation</strong> — invoices, records, regulatory requests.</li>
+      </ul>
+    </section>
+
+    <section id="retention" class="section">
+      <h2>Data retention</h2>
+      <p>
+        We retain data only as long as needed for the purposes above:
+        project files and logs are kept for the service lifecycle, then archived or deleted.
+        You can request deletion where applicable (see <a class="inline" href="#your-rights">Your rights</a>).
+      </p>
+    </section>
+
+    <section id="sharing" class="section">
+      <h2>Sharing & vendors</h2>
+      <div class="grid-2">
+        <div>
+          <ul>
+            <li><strong>Service providers</strong> — hosting, CI/CD, email, storage, payment processors.</li>
+            <li><strong>Sub-contractors</strong> — when needed for delivery, under NDA and strict DPAs.</li>
+            <li><strong>Legal authorities</strong> — only if we must comply with the law.</li>
+          </ul>
+        </div>
+        <div class="callout">
+          We never sell personal data. Access is limited to the minimum required.
+          Credentials (e.g., API keys) are stored securely with encryption at rest
+          or kept in your own vault when possible.
+        </div>
+      </div>
+    </section>
+
+    <section id="international" class="section">
+      <h2>International transfers</h2>
+      <p>
+        Depending on the stack you choose, data may be processed in the UK, EU, or other regions.
+        Where required, we use appropriate safeguards (e.g., SCCs) with our vendors.
+      </p>
+    </section>
+
+    <section id="security" class="section">
+      <h2>Security</h2>
+      <ul>
+        <li>Principle of least privilege and environment separation.</li>
+        <li>Encrypted storage for secrets; rotate keys on project completion when feasible.</li>
+        <li>Structured logs and monitoring to detect anomalies.</li>
+        <li>Regular dependency updates and patching.</li>
+      </ul>
+    </section>
+
+    <section id="your-rights" class="section">
+      <h2>Your rights</h2>
+      <p class="muted">Subject to your jurisdiction (e.g., EU/UK/US state laws):</p>
+      <ul>
+        <li>Access, correct, or delete your personal data.</li>
+        <li>Object to or restrict certain processing.</li>
+        <li>Data portability (a copy in a common format).</li>
+        <li>Withdraw consent where processing relies on it.</li>
+        <li>Complain to your supervisory authority.</li>
+      </ul>
+    </section>
+
+    <section id="cookies" class="section">
+      <h2>Cookies</h2>
+      <p>
+        We use strictly necessary cookies (e.g., remembering your consent) and limited analytics.
+        You can update your preference from the banner or your browser settings. If you previously
+        consented and want to reset, clear site data in your browser and reload the page to see the banner again.
+      </p>
+    </section>
+
+    <section id="product-notes" class="section">
+      <h2>Product-specific notes</h2>
+      <div class="grid-2">
+        <div class="callout">
+          <h3 style="margin-top:0">Game scripts</h3>
+          <p>We process in-game identifiers only when needed for the requested features (economies,
+            progress, admin tools). We don’t track players beyond what you instruct.</p>
+        </div>
+        <div class="callout">
+          <h3 style="margin-top:0">Scraping & automations</h3>
+          <p>We scrape only public/authorized sources per your instructions, respect rate limits, and
+             include backoff/headers/rotations to avoid service abuse.</p>
+        </div>
+        <div class="callout">
+          <h3 style="margin-top:0">Job-finding bots</h3>
+          <p>We parse job posts, score them against rules you define, and notify on matches.
+             You can disable or delete your rules at any time.</p>
+        </div>
+        <div class="callout">
+          <h3 style="margin-top:0">Test scripting</h3>
+          <p>We run automated tests against environments you control. Test logs may include
+             metadata required to investigate failures.</p>
+        </div>
+      </div>
+    </section>
+
+    <section id="changes-contact" class="section">
+      <h2>Changes & contact</h2>
+      <p>
+        We may update this policy to reflect our practices or legal requirements.
+        Material changes will be highlighted here with a new “Last updated” date.
+      </p>
+      <p>
+        Questions or requests? <a class="inline" href="{% url 'contact' %}">Contact us</a>.
+      </p>
+    </section>
+
+    <p>© {% now "Y" %} Mouseforce. All rights reserved.</p>
+  </div>
+
+</body>
+</html>

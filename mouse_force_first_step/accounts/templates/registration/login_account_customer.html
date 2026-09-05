@@ -1,0 +1,366 @@
+{% load static %}
+{% load socialaccount %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Sign in</title>
+    <link rel="stylesheet" href="{% static 'css/login_customer_account_style.css' %}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<body>
+<div class="card login-card">
+
+    <!-- STEP 1: LOGIN BY EMAIL -->
+    <div id="step1" class="card-body">
+        <h3 class="card-title mb-4">Sign in to <span style="color: #52d3c5;">Earn Points</span></h3>
+        <form id="emailForm">
+            {% csrf_token %}
+            <div class="mb-3">
+                <input type="email" name="email" id="emailInput" class="form-control" placeholder="Email, phone, or Skype" required>
+            </div>
+            <div class="mb-2">
+                <span class="signup-text">No account? <a href="{% url 'customer_account_signup' %}">Create one!</a></span>
+            </div>
+            <div class="text-end mt-4">
+                <button type="submit" class="btn btn-primary next-btn">Next</button>
+            </div>
+        </form>
+        <div id="emailError" class="text-danger mt-2" style="display:none;"></div>
+    </div>
+
+    <!-- STEP 2: PASSWORD FOR EMAIL -->
+    <div id="step2" class="card-body" style="display:none;">
+        <button id="backToEmail" class="btn btn-link">&larr;</button>
+        <h3 class="card-title mb-4" id="emailDisplay">Email</h3>
+        <form method="post" action="{% url 'login_account_customer' %}">
+            {% csrf_token %}
+            <input type="hidden" name="username" id="hiddenEmail">
+            <div class="mb-3">
+                <input type="password" name="password" class="form-control" placeholder="Password" required>
+            </div>
+            {% if error_message %}
+            <div class="text-danger mt-2">
+                {{ error_message }} 
+                <a href="{% url 'password_reset' %}">Reset your password</a>.
+            </div>
+            {% endif %}
+            <div class="text-end">
+                <button type="submit" class="btn btn-primary">Sign in</button>
+            </div>
+        </form>
+    </div>
+
+    <!-- STEP 1: LOGIN BY USERNAME -->
+    <div id="step1_username" class="card-body" style="display:none;">
+        <h3 class="card-title mb-4">Sign in with Username</h3>
+        <form id="usernameForm">
+            {% csrf_token %}
+            <div class="mb-3">
+                <input type="text" name="username" id="usernameInput" class="form-control" placeholder="Username" required oninput="this.value = this.value.replace(/@/g, '')">
+            </div>
+            <div class="text-end mt-2">
+                <button type="submit" class="btn btn-primary next-btn">Next</button>
+            </div>
+        </form>
+        <div id="usernameError" class="text-danger mt-2" style="display:none;"></div>
+        <div class="mt-2">
+            <a href="#" onclick="showRecoverUsername()">Forgot username?</a>
+        </div>
+    </div>
+
+    <!-- STEP 2: PASSWORD FOR USERNAME -->
+    <div id="step2_username" class="card-body" style="display:none;">
+        <button id="backToUsername" class="btn btn-link">&larr;</button>
+        <h3 class="card-title mb-4" id="usernameDisplay">Username</h3>
+        <form method="post" action="{% url 'login_account_customer' %}">
+            {% csrf_token %}
+            <input type="hidden" name="username" id="hiddenUsername">
+            <div class="mb-3">
+                <input type="password" name="password" class="form-control" placeholder="Password" required>
+            </div>
+            {% if error_message %}
+            <div class="text-danger mt-2">
+                {{ error_message }} 
+                <a href="{% url 'password_reset' %}">Reset your password</a>.
+            </div>
+            {% endif %}
+            <div class="text-end">
+                <button type="submit" class="btn btn-primary">Sign in</button>
+            </div>
+        </form>
+    </div>
+
+    <!-- STEP 1: RECOVER USERNAME -->
+    <div id="recoverUsernameForm" class="card-body" style="display:none;">
+        <h4 class="card-title mb-3">Recover your username</h4>
+        <form id="recoverForm">
+            {% csrf_token %}
+            <input type="email" id="recoverEmail" class="form-control mb-3" placeholder="Enter your email" required>
+            <button type="submit" class="btn btn-primary">Recover</button>
+        </form>
+        <div id="recoverResult" class="mt-3 text-success" style="display:none;"></div>
+        <div id="recoverError" class="text-danger mt-2" style="display:none;"></div>
+
+    </div>
+
+    <!-- AUTH OPTIONS -->
+    <div id="authOptions" class="card-body" style="display:none;">
+        <h5 class="mb-3">Choose login method:</h5>
+        <button onclick="showUsernameLogin()" class="btn btn-outline-dark mb-2 w-100">🔤 Login with Username</button>
+        <a href="{% provider_login_url 'google' %}" class="btn btn-outline-danger w-100">🔐 Login with Google</a>
+    </div>
+</div>
+
+<!-- AUTH BUTTONS -->
+<div class="login-option-wrapper">
+    <div id="authOptionsButton" class="login-option-bar" onclick="showAuthOptions()">
+        <i class="fa-solid fa-key login-option-icon"></i>
+        <span class="login-option-text">Authentication Options</span>
+    </div>
+    <div id="authBackButton" class="login-option-bar" onclick="returnToSignIn()" style="display:none;">
+        <i class="fa-solid fa-arrow-left login-option-icon"></i>
+        <span class="login-option-text">Back to Sign in</span>
+    </div>
+</div>
+
+<!-- JAVASCRIPT FINAL -->
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const step1 = document.getElementById('step1');
+        const step2 = document.getElementById('step2');
+        const step1_username = document.getElementById('step1_username');
+        const step2_username = document.getElementById('step2_username');
+        const authOptions = document.getElementById('authOptions');
+    
+        const emailForm = document.getElementById('emailForm');
+        const usernameForm = document.getElementById('usernameForm');
+        const recoverForm = document.getElementById('recoverForm');
+    
+        const backButton = document.getElementById('backToEmail');
+        const backToUsername = document.getElementById('backToUsername');
+    
+        function clearErrorMessage() {
+            const emailError = document.getElementById('emailError');
+            const usernameError = document.getElementById('usernameError');
+            const recoverError = document.getElementById('recoverError');
+            const generalErrors = document.querySelectorAll('.text-danger');
+            if (emailError) emailError.style.display = 'none';
+            if (usernameError) usernameError.style.display = 'none';
+            if (recoverError) recoverError.style.display = 'none';
+            generalErrors.forEach(error => {
+                error.style.display = 'none';
+                error.innerHTML = '';
+            });
+        }
+    
+        emailForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            clearErrorMessage();
+            sessionStorage.setItem('loginMethod', 'email');
+            const email = document.getElementById('emailInput').value;
+            const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+            fetch("{% url 'check_email_exists_customer_account' %}", {
+                method: "POST",
+                headers: {'Content-Type': 'application/json', 'X-CSRFToken': csrfToken},
+                body: JSON.stringify({email: email})
+            })
+            .then(res => res.json())
+            .then(data => {
+                const emailError = document.getElementById('emailError');
+
+                if (!data.exists) {
+                    emailError.innerHTML = '❌ Account not found. <span class="signup-text">No account? <a href="{% url "customer_account_signup" %}">Create one!</a></span>';
+                    emailError.style.display = 'block';
+                    return;
+}
+
+                if (data.role !== 'customer') {
+                    emailError.textContent = "⚠️ This email is registered with an Automation account, so it can’t be used here.";
+                    emailError.style.display = 'block';
+                    return;
+                }
+
+                // Dacă totul e corect → trecem la step2
+                emailError.style.display = 'none';
+                step1.style.display = 'none';
+                step2.style.display = 'block';
+                document.getElementById('emailDisplay').textContent = email;
+                document.getElementById('hiddenEmail').value = email;
+            })
+
+            .catch(error => {
+                console.error('Error:', error);
+            });
+        });
+
+
+    
+        usernameForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            clearErrorMessage();
+            sessionStorage.setItem('loginMethod', 'username');
+            const username = document.getElementById('usernameInput').value;
+            const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+            fetch("{% url 'check_username_exists_customer_account' %}", {
+                method: "POST",
+                headers: {'Content-Type': 'application/json', 'X-CSRFToken': csrfToken},
+                body: JSON.stringify({username: username})
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.exists) {
+                    step1_username.style.display = 'none';
+                    step2_username.style.display = 'block';
+                    document.getElementById('usernameDisplay').textContent = username;
+                    document.getElementById('hiddenUsername').value = username;
+                } else {
+                    const usernameError = document.getElementById('usernameError');
+                    if (usernameError) {
+                        usernameError.innerHTML = '❌ This username does not exist. <span class="signup-text">No account? <a href="{% url "customer_account_signup" %}">Create one!</a></span>';
+                        usernameError.style.display = 'block';
+                    }
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
+        });
+
+        
+        recoverForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            clearErrorMessage();
+
+            const email = document.getElementById('recoverEmail').value;
+            const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+
+            fetch("{% url 'recover_username_customer' %}", {
+                method: "POST",
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': csrfToken
+                },
+                body: JSON.stringify({ email: email })
+            })
+            .then(res => res.json())
+            .then(data => {
+                const recoverError = document.getElementById('recoverError');
+                const recoverResult = document.getElementById('recoverResult');
+
+                if (data.success) {
+                    continueWithRecoveredUsername(data.username);
+                } else {
+                    if (data.error.includes("Simple User")) {
+                        recoverError.innerHTML = "⚠️ This email is registered as a Simple User. You cannot recover your username here.";
+                    } else {
+                        recoverError.innerHTML = '❌ ' + data.error + ' <span class="signup-text">No account? <a href="{% url "customer_account_signup" %}">Create one!</a></span>';
+                    }
+                    recoverError.style.display = 'block';
+                    recoverResult.style.display = 'none';
+                }
+            });
+        });
+
+
+    
+        backButton.addEventListener('click', function() {
+            clearErrorMessage();
+            step2.style.display = 'none';
+            step1.style.display = 'block';
+        });
+    
+        backToUsername.addEventListener('click', function() {
+            clearErrorMessage();
+            step2_username.style.display = 'none';
+            step1_username.style.display = 'block';
+        });
+    
+        window.showAuthOptions = function() {
+            clearErrorMessage();
+            step1.style.display = 'none';
+            step2.style.display = 'none';
+            step1_username.style.display = 'none';
+            step2_username.style.display = 'none';
+            document.getElementById('recoverUsernameForm').style.display = 'none';
+            authOptions.style.display = 'block';
+            document.getElementById('authOptionsButton').style.display = 'none';
+            document.getElementById('authBackButton').style.display = 'flex';
+        };
+    
+        window.returnToSignIn = function() {
+            clearErrorMessage();
+            authOptions.style.display = 'none';
+            step1.style.display = 'block';
+            step2.style.display = 'none';
+            step1_username.style.display = 'none';
+            step2_username.style.display = 'none';
+            document.getElementById('recoverUsernameForm').style.display = 'none';
+            document.getElementById('authOptionsButton').style.display = 'flex';
+            document.getElementById('authBackButton').style.display = 'none';
+        };
+    
+        window.showUsernameLogin = function() {
+            clearErrorMessage();
+            sessionStorage.setItem('loginMethod', 'username');
+            authOptions.style.display = 'none';
+            step1.style.display = 'none';
+            step2.style.display = 'none';
+            step1_username.style.display = 'block';
+            step2_username.style.display = 'none';
+            document.getElementById('recoverUsernameForm').style.display = 'none';
+        };
+    
+        window.showEmailLogin = function() {
+            clearErrorMessage();
+            sessionStorage.setItem('loginMethod', 'email');
+            authOptions.style.display = 'none';
+            step1.style.display = 'block';
+            step2.style.display = 'none';
+            step1_username.style.display = 'none';
+            step2_username.style.display = 'none';
+            document.getElementById('recoverUsernameForm').style.display = 'none';
+        };
+    
+        window.showRecoverUsername = function() {
+            clearErrorMessage();
+            step1_username.style.display = 'none';
+            step2_username.style.display = 'none';
+            document.getElementById('recoverUsernameForm').style.display = 'block';
+        };
+        function continueWithRecoveredUsername(username) {
+            document.getElementById('recoverUsernameForm').style.display = 'none';
+            document.getElementById('step2_username').style.display = 'block';
+            document.getElementById('usernameDisplay').textContent = username;
+            document.getElementById('hiddenUsername').value = username;
+}
+    });
+</script>
+    
+
+{% if step == 'password' %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const selectedMethod = "{{ selected_method }}";
+
+    if (selectedMethod === 'email') {
+        document.getElementById('step1').style.display = 'none';
+        document.getElementById('step2').style.display = 'block';
+        document.getElementById('emailDisplay').textContent = "{{ email_for_password }}";
+        document.getElementById('hiddenEmail').value = "{{ email_for_password }}";
+    } else if (selectedMethod === 'username') {
+        document.getElementById('step1_username').style.display = 'none';
+        document.getElementById('step2_username').style.display = 'block';
+        document.getElementById('usernameDisplay').textContent = "{{ username_for_password }}";
+        document.getElementById('hiddenUsername').value = "{{ username_for_password }}";
+        // 🔥 AICI foarte important:
+        document.getElementById('step1').style.display = 'none';  // ASCUNDE și email login
+    }
+});
+</script>
+{% endif %}
+
+</body>
+</html>
