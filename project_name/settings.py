@@ -265,8 +265,14 @@ CLOUDINARY_STORAGE = {
     'API_SECRET': config('CLOUDINARY_API_SECRET'),
 }
 
+import cloudinary
 
-print("🟢 Cloudinary config:", CLOUDINARY_STORAGE)
+cloudinary.config(
+    cloud_name=CLOUDINARY_STORAGE['CLOUD_NAME'],
+    api_key=CLOUDINARY_STORAGE['API_KEY'],
+    api_secret=CLOUDINARY_STORAGE['API_SECRET'],
+)
+
 print("🟢 File Storage:", DEFAULT_FILE_STORAGE)
 
 print("🔗 Redis:", config("REDIS_URL"))

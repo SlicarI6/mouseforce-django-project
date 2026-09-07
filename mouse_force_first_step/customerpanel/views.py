@@ -110,7 +110,11 @@ def update_profile_picture(request):
     else:
         print("❌ POST lipsă sau fără fișier.")
 
-    return redirect('customer_dashboard')
+    return redirect(
+        'simple_user_dashboard'
+        if request.user.role in ('simple', 'user')
+        else 'customer_dashboard'
+    )
 
 
 
