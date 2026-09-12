@@ -1,4 +1,4 @@
-{% extends 'base.html' %}
+{% extends 'customer_base.html' %}
 {% load static %}
 
 
@@ -6,148 +6,94 @@
 {% block title %}Customer Dashboard{% endblock %}
 
 {% block extra_head %}
-<link rel="stylesheet" href="{% static 'css/style_customerpanel_css.css' %}">
-<link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+{{ block.super }}
+{% if points_state %}
+<link rel="stylesheet" href="{% static 'css/customer_points.css' %}">
+<style>
+  .rewards-intro {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 400px;
+    background: #fff;
+  }
+  .rewards-intro > #points-controls { grid-column: 1 / -1; grid-row: 1; }
+  .rewards-intro-copy {
+    grid-column: 1;
+    grid-row: 1;
+    align-self: center;
+    box-sizing: border-box;
+    max-width: 800px;
+    padding: 24px clamp(24px, 4vw, 64px);
+  }
+  .rewards-intro-copy h2 {
+    margin: 0 0 14px;
+    color: #143d3b;
+    font-size: clamp(28px, 3vw, 38px);
+    font-weight: 700;
+    line-height: 1.2;
+    letter-spacing: -0.03em;
+  }
+  .rewards-intro-copy p {
+    margin: 0;
+    color: #476560;
+    font-size: 16px;
+    line-height: 1.65;
+  }
+  @media (max-width: 900px) {
+    .rewards-intro { display: flow-root; }
+    .rewards-intro-copy { padding: 24px 24px 0; }
+  }
+</style>
+{% endif %}
 {% endblock %}
 
 
 
-{% block header %}
 
 
-<nav class="bg-transparent px-4 py-2">
-  <div class="flex items-center justify-between">
 
-    <!-- Logo + Welcome -->
-    <div class="flex items-center gap-4">
-      <img src="{% static 'images/mouseforce.png' %}" alt="Mouseforce"
-           class="h-10 w-auto" style="border-bottom-left-radius: 100px; border-bottom-right-radius: 100px;">
-      <span class="text-xl font-semibold text-black">Welcome, {{ user.username }}</span>
-    </div>
 
-<button id="hamburger-btn" class="sm:hidden text-black text-3xl" aria-label="Open menu">
-  &#9776;
-</button>
 
-    <!-- Meniu + Clopoțel + Avatar -->
-    <div class="flex items-center space-x-6">
-      <div class="hidden sm:flex space-x-4 text-sm font-medium">
-        <a href="#" class="text-black hover:underline">System</a>
-
-        {% if user.is_superuser %}
-          <a href="{% url 'chat_user_list' %}" class="text-black hover:underline">👥 Admin Chat Panel</a>
-        {% else %}
-          <a href="{% url 'user_chat_redirect' %}">💬 ChatMe</a>
-        {% endif %}
-
-        <a href="#" class="text-black hover:underline">Support</a>
-      </div>
-
-      <!-- Clopoțel -->
-      <button class="text-black relative" onclick="toggleNotifications()" id="bellBtn">
-        <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round"
-                d="M14.857 17.082a23.848 23.848 0 005.454-1.31A8.967 8.967 0 0118 9.75V9A6 6 0 006 9v.75a8.967 8.967 0 01-2.312 6.022 23.855 23.855 0 005.455 1.31m5.714 0a3 3 0 11-5.714 0" />
-        </svg>
-        <span id="notificationBadge"
-              class="absolute -top-1 -right-1 bg-red-600 text-white text-xs px-1.5 py-0.5 rounded-full hidden">1</span>
-      </button>
-
-      <!-- Dropdown notificări -->
-          <div id="notificationDropdown"
-              class="absolute right-4 mt-2 w-72 bg-white shadow-xl rounded-xl p-3 z-50 hidden">
-            
-            
-            <!-- Loading text -->
-            <div id="notificationLoading" class="text-center text-gray-500 py-4 hidden">
-              Loading notifications...
-            </div>
-
-            <!-- Lista de notificări -->
-            <div id="notificationList" class="space-y-2 hidden">
-              <!-- notificările vor fi adăugate aici -->
-            </div>
-          </div>
-
-      <!-- Avatar + Pop-up -->
-<div class="relative">
-    <button id="avatarBtn" class="focus:outline-none">
-      <div class="w-10 h-10 sm:w-12 sm:h-10 flex-shrink-0">
-        <img class="w-full h-full rounded-full object-cover"
-           src="{% if user.profile_picture %}{{ user.profile_picture }}{% else %}{% static 'images/default_avatar.png' %}{% endif %}"
-           alt="Avatar">
-      </div>
-    </button>
-
-  <div id="profileCard" class="hidden absolute right-0 mt-2 w-80 bg-white rounded-xl shadow-lg p-6 z-50 text-center">
-    <div class="relative w-20 h-20 mx-auto">
-      {% if user.profile_picture %}
-        <img class="w-20 h-20 rounded-full object-cover border" src="{{ user.profile_picture }}" alt="Avatar">
-      {% else %}
-        <img class="w-20 h-20 rounded-full object-cover border" src="{% static 'images/default_avatar.png' %}" alt="Avatar">
-      {% endif %}
-
-      <!-- Nou: upload cu iconiță -->
-      <form method="POST" action="{% url 'update_profile_picture' %}" enctype="multipart/form-data">
-        {% csrf_token %}
-        <label for="fileInput" class="absolute bottom-0 right-0 bg-white rounded-full p-1 shadow-md cursor-pointer">
-          <img src="{% static 'images/pen_avatar.png' %}" alt="Edit" class="w-5 h-5">
-        </label>
-        <input id="fileInput" type="file" name="profile_picture" class="hidden" onchange="this.form.submit();">
-      </form>
-    </div>
-
-    <p class="text-sm text-gray-500 mt-2">{{ user.email }}</p>
-    <h2 class="text-lg font-semibold mt-1">Hi, {{ user.first_name|capfirst }}!</h2>
-
-    <button class="mt-2 px-4 py-1 border border-gray-300 rounded-full text-blue-600 text-sm hover:bg-gray-100">
-      Manage your Account
-    </button>
-
-    <form method="POST" action="{% url 'logout' %}" class="mt-4">
-      {% csrf_token %}
-      <button type="submit"
-        class="w-full flex items-center justify-center gap-2 px-4 py-2 bg-gray-100 hover:bg-gray-200 text-black font-medium rounded-lg transition">
-        <img src="{% static 'images/logout_avatar.png' %}" alt="Logout Icon" class="w-6 h-6">
-        Logout
-      </button>
-    </form>
+{% block after_header %}
+{{ block.super }}
+{% if points_state %}
+<section class="rewards-intro" aria-labelledby="rewards-intro-title">
+  <div class="rewards-intro-copy">
+    <h2 id="rewards-intro-title">Make every visit count</h2>
+    <p>Claim your daily points, keep your streak going and unlock more value as your balance grows.</p>
   </div>
-</div>
-
-    </div>
-  </div>
-</nav>
-
-
-<!-- ✅ Meniu mobil stilizat -->
-<div id="mobile-menu" class="mobile-menu hidden fixed top-0 left-0 w-full h-full bg-gray-900 z-50 overflow-y-auto">
-  <div class="mobile-menu-content text-white px-6 py-4">
-    <div class="flex justify-between items-center mb-6">
-      <span class="text-xl font-semibold">Menu</span>
-      <button id="close-menu-btn" class="text-white text-3xl">&times;</button>
-    </div>
-
-    <ul class="flex flex-col gap-4 text-lg font-semibold">
-      <li><a href="#" class="menu-link-simple block">System</a></li>
-      <li><a href="#" class="menu-link-simple block">Support</a></li>
-      <li><a href="{% url 'user_chat_redirect' %}" class="menu-link-simple block">ChatMe</a></li>
-      <li>
-        <form method="POST" action="{% url 'logout' %}">
-          {% csrf_token %}
-          <button type="submit" class="menu-link-simple text-left w-full">Logout</button>
-        </form>
-      </li>
-    </ul>
-  </div>
-</div>
-
-
-
+<section id="points-controls" class="rewards-widget" aria-label="Points and streak"
+         data-daily-url="{% url 'claim_daily_points' %}"
+         data-bonus-url="{% url 'claim_streak_bonus' %}">
+  {% csrf_token %}
+  <button type="button" id="points-daily" {% if not points_state.daily_claimable %}disabled{% endif %}
+          class="rewards-daily" data-state="{% if points_state.daily_claimable %}available{% else %}completed{% endif %}">
+    <span class="rewards-daily-content">
+      <span id="points-total" aria-live="polite" aria-atomic="true">{{ points_state.total_points }} Points</span>
+      <span class="rewards-daily-reward">+10 Daily</span>
+      <span id="points-daily-label" class="rewards-daily-status">{{ points_state.daily_label }}</span>
+    </span>
+    <span class="rewards-daily-symbol" aria-hidden="true">
+      <svg class="rewards-claim-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7M7 7h10v10"/></svg>
+      <svg class="rewards-done-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="m6 12 4 4 8-8"/></svg>
+    </span>
+  </button>
+  <button type="button" id="points-bonus" {% if not points_state.day_7_bonus_claimable and not points_state.day_14_bonus_claimable %}disabled{% endif %}
+          class="rewards-streak" data-state="{% if points_state.day_7_bonus_claimable or points_state.day_14_bonus_claimable %}available{% else %}status{% endif %}">
+    <span class="rewards-streak-heading"><span class="rewards-flame" aria-hidden="true">🔥</span><span id="points-streak">{{ points_state.streak_label }}</span></span>
+    <span id="points-next-milestone" class="rewards-next">{{ points_state.next_milestone_label }}</span>
+    <span class="rewards-progress-row">
+      <progress id="points-progress" value="{{ points_state.displayed_streak }}" max="{% if points_state.displayed_streak > 7 or points_state.day_7_bonus_awarded and not points_state.streak_broken %}14{% else %}7{% endif %}" aria-label="Streak progress toward the next reward"></progress>
+      <span id="points-progress-text" aria-hidden="true"></span>
+    </span>
+    <span id="points-bonus-label" class="rewards-bonus-status" {% if not points_state.day_7_bonus_claimable and not points_state.day_14_bonus_claimable %}hidden{% endif %}>{{ points_state.bonus_label }}</span>
+  </button>
+  <p id="points-streak-status" class="rewards-note">{{ points_state.streak_status }}</p>
+  <p id="points-message" class="rewards-note" role="status" aria-live="polite"></p>
+</section>
+</section>
+{{ points_state|json_script:"points-initial-state" }}
+{% endif %}
 {% endblock %}
-
-
-
 
 {% block content %}
 <section class="dashboard">
@@ -401,43 +347,91 @@
 {% endblock %}
 
 {% block extra_js %}
+{{ block.super }}
+{% if points_state %}
+<script id="points-script">
+(() => {
+  const controls = document.getElementById('points-controls');
+  if (!controls) return;
 
+  const dailyButton = document.getElementById('points-daily');
+  const bonusButton = document.getElementById('points-bonus');
+  const message = document.getElementById('points-message');
+  const csrfToken = controls.querySelector('[name="csrfmiddlewaretoken"]').value;
+  let state = JSON.parse(document.getElementById('points-initial-state').textContent);
+  let pending = false;
 
-<script>
-document.addEventListener('DOMContentLoaded', function () {
-  const openBtn = document.getElementById('hamburger-btn');
-  const closeBtn = document.getElementById('close-menu-btn');
-  const menu = document.getElementById('mobile-menu');
+  function render() {
+    document.getElementById('points-total').textContent = `${state.total_points} Points`;
+    document.getElementById('points-streak').textContent = state.streak_label;
+    const dailyCompleted = !state.daily_claimable && state.daily_label === 'Claimed today';
+    document.getElementById('points-daily-label').textContent = dailyCompleted
+      ? 'Claimed today ✓' : (state.daily_claimable ? 'Ready to claim' : state.daily_label);
+    dailyButton.dataset.state = dailyCompleted ? 'completed' : (state.daily_claimable ? 'available' : 'unavailable');
 
-  openBtn.addEventListener('click', () => {
-    menu.classList.add('show');
-    menu.classList.remove('hidden');
+    // Presentation only: eligibility still comes from the unchanged server flags.
+    const streak = state.displayed_streak;
+    const bonusAvailable = state.day_7_bonus_claimable || state.day_14_bonus_claimable;
+    const bonusCompleted = !state.streak_broken && (
+      (streak === 7 && state.day_7_bonus_awarded) || (streak === 14 && state.day_14_bonus_awarded)
+    );
+    const goal = streak > 7 || (streak === 7 && state.day_7_bonus_awarded) ? 14 : 7;
+    const goalLabel = `${goal} Day Streak → +${goal === 7 ? 35 : 50} Points`;
+    document.getElementById('points-next-milestone').textContent = goalLabel;
+    const progress = document.getElementById('points-progress');
+    progress.max = goal;
+    progress.value = streak;
+    progress.setAttribute('aria-label', goalLabel);
+    document.getElementById('points-progress-text').textContent = `${streak} / ${goal}`;
+    const bonusLabel = document.getElementById('points-bonus-label');
+    bonusLabel.hidden = !bonusAvailable && !bonusCompleted;
+    bonusLabel.textContent = bonusAvailable ? state.bonus_label : (bonusCompleted ? 'Bonus claimed ✓' : '');
+    bonusButton.dataset.state = bonusAvailable ? 'available' : (bonusCompleted ? 'completed' : 'status');
+    document.getElementById('points-streak-status').textContent = state.streak_broken
+      ? 'Streak broken. A fresh start is one daily claim away.' : '';
+    dailyButton.disabled = pending || !state.daily_claimable;
+    bonusButton.disabled = pending || !(state.day_7_bonus_claimable || state.day_14_bonus_claimable);
+    controls.setAttribute('aria-busy', String(pending));
+  }
+
+  async function claim(url) {
+    if (pending) return;
+    pending = true;
+    message.textContent = 'Claiming…';
+    render();
+    try {
+      const response = await fetch(url, {
+        method: 'POST',
+        credentials: 'same-origin',
+        headers: { 'X-CSRFToken': csrfToken },
+      });
+      const data = await response.json();
+      if (!response.ok || !data.state) throw new Error('Claim not confirmed');
+      state = data.state;
+      message.textContent = '';
+    } catch (error) {
+      message.textContent = 'Unable to confirm the claim. Refresh the page to check your points before trying again.';
+    } finally {
+      pending = false;
+      render();
+    }
+  }
+
+  dailyButton.addEventListener('click', () => {
+    if (!dailyButton.disabled) claim(controls.dataset.dailyUrl);
   });
-
-  closeBtn.addEventListener('click', () => {
-    menu.classList.remove('show');
-    menu.classList.add('hidden');
+  bonusButton.addEventListener('click', () => {
+    if (!bonusButton.disabled) claim(controls.dataset.bonusUrl);
   });
-});
+  render();
+})();
 </script>
+{% endif %}
 
-<script>
-  document.addEventListener('DOMContentLoaded', function () {
-    const avatarBtn = document.getElementById('avatarBtn');
-    const profileCard = document.getElementById('profileCard');
 
-    avatarBtn.addEventListener('click', function (e) {
-      e.stopPropagation();
-      profileCard.classList.toggle('hidden');
-    });
 
-    document.addEventListener('click', function (e) {
-      if (!profileCard.contains(e.target) && e.target !== avatarBtn) {
-        profileCard.classList.add('hidden');
-      }
-    });
-  });
-</script>
+
+
 
 <script>
   const today = new Date().toISOString().split('T')[0];
@@ -473,119 +467,7 @@ function sendChatMessage(msg) {
 </script>
 
 <!-- asta e pentru notificare ca sa mearga -->
-<script>
-  let notifCount = 0;
-  let hasMessageNotification = false;
 
-  const username = "{{ request.user.username }}";
-  const protocol = window.location.protocol === "https:" ? "wss://" : "ws://";
-
-  const notifSocket = new WebSocket(
-    protocol + window.location.host + "/ws/notifications/" + username + "/"
-  );
-
-    notifSocket.onmessage = function (e) {
-        const data = JSON.parse(e.data);
-
-        // 🟢 doar incrementăm badge-ul, nu adăugăm direct în listă
-        notifCount += 1;
-        const badge = document.getElementById("notificationBadge");
-        badge.innerText = notifCount;
-        badge.classList.remove("hidden");
-
-        hasMessageNotification = true;
-    };
-
-
-  function getCookie(name) {
-  let cookieValue = null;
-  if (document.cookie && document.cookie !== "") {
-    const cookies = document.cookie.split(";");
-    for (let i = 0; i < cookies.length; i++) {
-      const cookie = cookies[i].trim();
-      // Verifică dacă cookie-ul începe cu numele dorit
-      if (cookie.substring(0, name.length + 1) === (name + "=")) {
-        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-        break;
-      }
-    }
-  }
-  return cookieValue;
-}
-
-
-function toggleNotifications() {
-  const dropdown = document.getElementById("notificationDropdown");
-  dropdown.classList.toggle("hidden");
-
-  const badge = document.getElementById("notificationBadge");
-  const list = document.getElementById("notificationList");
-  const loading = document.getElementById("notificationLoading");
-
-  if (!dropdown.classList.contains("hidden")) {
-    // 🔄 Arată "Loading..." și ascunde lista
-    loading.style.display = "block";
-    list.classList.add("hidden");
-    list.innerHTML = "";
-
-    // 🔄 Marchează ca citite în backend PRIMA OARĂ
-    fetch("{% url 'mark_notifications_as_read' %}", {
-      method: "POST",
-      headers: {
-        "X-CSRFToken": getCookie("csrftoken"),
-        "Content-Type": "application/json"
-      }
-    })
-    .then(() => {
-      // 🔄 După ce s-au marcat ca citite, abia acum facem fetch notificări
-      fetch("{% url 'load_notifications' %}")
-        .then(response => response.json())
-        .then(data => {
-          // 🔄 Ascunde "Loading...", arată lista
-          loading.style.display = "none";
-          list.classList.remove("hidden");
-
-          // 🔄 Resetează badge
-          notifCount = 0;
-          badge.innerText = "";
-          badge.classList.add("hidden");
-          hasMessageNotification = false;
-
-          // 🔄 Populează lista notificări
-          data.notifications.forEach(n => {
-            const div = document.createElement("div");
-            div.className = "bg-gray-100 rounded-lg px-3 py-2 text-sm cursor-pointer hover:bg-gray-200";
-            div.innerHTML = `
-              <div class="flex items-start justify-between">
-                <div class="flex items-center space-x-2">
-                  <span class="text-xl">📨</span>
-                  <span class="font-medium text-sm text-black">${n.message}</span>
-                </div>
-                <span class="text-xs text-gray-400">${n.created_at}</span>
-              </div>
-            `;
-            console.log("📩 Notification:", n.message);
-            list.appendChild(div);
-          });
-        });
-    });
-  }
-}
-
-
-
-
-// 🟢 Închide dropdown când apeși pe restul paginii
-document.addEventListener("click", function (e) {
-    const dropdown = document.getElementById("notificationDropdown");
-    const bellBtn = document.getElementById("bellBtn");
-
-    if (!dropdown.contains(e.target) && !bellBtn.contains(e.target)) {
-        dropdown.classList.add("hidden");
-    }
-});
-
-</script>
 
 
 

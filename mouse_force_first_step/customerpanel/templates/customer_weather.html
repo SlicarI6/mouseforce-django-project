@@ -1,0 +1,191 @@
+{% extends 'customer_base.html' %}
+{% load tz %}
+
+{% block title %}Weather | MouseForce{% endblock %}
+
+{% block extra_head %}
+{{ block.super }}
+<style>
+  #customer-weather { min-width: 0; }
+  #customer-weather .weather-intro { margin-bottom: 28px; }
+  #customer-weather .weather-search { max-width: 660px; margin-bottom: 32px; }
+  #customer-weather .weather-search label {
+    display: block; margin-bottom: 10px; font-size: 15px; font-weight: 650;
+  }
+  #customer-weather .weather-search-row { display: flex; gap: 12px; }
+  #customer-weather .weather-search input {
+    flex: 1; min-width: 0; width: 100%; min-height: 48px; padding: 12px 16px;
+    border: 1px solid #bed9d2; border-radius: 12px; background: #fff;
+    color: #143d3b; font: inherit; font-size: 16px;
+  }
+  #customer-weather .weather-search input::placeholder { color: #617a75; opacity: 1; }
+  #customer-weather .weather-search button {
+    flex: 0 0 auto; min-height: 48px; padding: 12px 22px; border: 1px solid #08776b;
+    border-radius: 12px; background: #08776b; color: #fff;
+    font-size: 15px; font-weight: 650; cursor: pointer;
+    transition: background-color 150ms ease;
+  }
+  #customer-weather .weather-search button:hover { background: #065f56; }
+  #customer-weather :is(input, button, a, .weather-forecast-scroll):focus-visible {
+    outline: 3px solid #08776b; outline-offset: 3px;
+  }
+  #customer-weather #weather-city-help { margin-top: 10px; font-size: 13px; }
+  #customer-weather #weather-city-errors ul {
+    margin: 10px 0 0; padding: 0; list-style: none; color: #a23b42; font-size: 14px;
+  }
+  #customer-weather .weather-message {
+    padding: clamp(24px, 4vw, 40px); border: 1px solid #dcece7;
+    border-radius: 20px; background: #fff;
+  }
+  #customer-weather .weather-current {
+    display: grid; grid-template-columns: minmax(0, 1fr) minmax(260px, 0.85fr);
+    gap: 32px; align-items: center; padding: clamp(24px, 4vw, 40px);
+    border: 1px solid #c8e4dd; border-radius: 24px;
+    background: linear-gradient(125deg, #e2f5ef 0%, #f0f9f8 100%);
+    box-shadow: 0 10px 32px rgba(14, 59, 51, 0.05);
+  }
+  #customer-weather .weather-eyebrow {
+    margin-bottom: 12px; color: #35685f; font-size: 12px;
+    font-weight: 650; letter-spacing: 0.09em; text-transform: uppercase;
+  }
+  #customer-weather .weather-current h2 {
+    margin-bottom: 6px; font-size: clamp(24px, 3vw, 32px); overflow-wrap: anywhere;
+  }
+  #customer-weather .weather-region { font-size: 14px; overflow-wrap: anywhere; }
+  #customer-weather .weather-temperature-row { display: flex; align-items: center; gap: 20px; margin-top: 22px; }
+  #customer-weather .weather-temperature {
+    color: #143d3b; font-size: clamp(48px, 6vw, 68px); font-weight: 650;
+    line-height: 1.1; letter-spacing: -0.05em; white-space: nowrap;
+  }
+  #customer-weather .weather-current-icon {
+    color: #a66b0d; font-size: clamp(42px, 5vw, 56px); line-height: 1;
+  }
+  #customer-weather .weather-condition { margin-top: 12px; color: #24564f; font-size: 17px; font-weight: 600; }
+  #customer-weather .weather-updated { margin-top: 8px; font-size: 13px; }
+  #customer-weather .weather-metrics {
+    display: grid; grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 24px 20px; margin: 0; padding: 26px; border: 1px solid rgba(255, 255, 255, 0.9);
+    border-radius: 18px; background: rgba(255, 255, 255, 0.65);
+  }
+  #customer-weather .weather-metrics dt { color: #476560; font-size: 13px; line-height: 1.5; }
+  #customer-weather .weather-metrics dt span { display: block; font-size: 11px; }
+  #customer-weather .weather-metrics dd { margin: 6px 0 0; color: #143d3b; font-size: 20px; font-weight: 650; overflow-wrap: anywhere; }
+  #customer-weather .weather-metrics small { font-size: 12px; font-weight: 500; }
+  #customer-weather .weather-forecast { margin-top: 38px; }
+  #customer-weather .weather-forecast h2 { margin-bottom: 8px; font-size: 24px; }
+  #customer-weather .weather-forecast-note { margin-bottom: 20px; font-size: 13px; }
+  #customer-weather .weather-forecast-scroll { max-width: 100%; overflow-x: auto; border-radius: 16px; }
+  #customer-weather .weather-forecast-grid {
+    display: grid; grid-template-columns: repeat(7, minmax(130px, 1fr));
+    gap: 12px; margin: 0; padding: 0 0 12px; list-style: none;
+  }
+  #customer-weather .weather-day {
+    display: flex; flex-direction: column; align-items: center; text-align: center;
+    padding: 20px 12px; border: 1px solid #dcece7; border-radius: 16px; background: #fff;
+  }
+  #customer-weather .weather-day time { color: #143d3b; font-size: 15px; font-weight: 650; }
+  #customer-weather .weather-day time span { display: block; margin-top: 3px; color: #476560; font-size: 12px; font-weight: 400; }
+  #customer-weather .weather-day-icon { margin: 18px 0 12px; color: #967020; font-size: 30px; line-height: 1.2; }
+  #customer-weather .weather-day-condition { flex: 1; margin-bottom: 16px; font-size: 13px; line-height: 1.4; }
+  #customer-weather .weather-day-temperatures { width: 100%; margin: 0; }
+  #customer-weather .weather-day-temperatures div { display: flex; justify-content: space-between; gap: 6px; }
+  #customer-weather .weather-day-temperatures dt { color: #476560; font-size: 12px; }
+  #customer-weather .weather-day-temperatures dd { margin: 0; color: #143d3b; font-size: 14px; font-weight: 650; }
+  #customer-weather .weather-day-rain { margin-top: 14px; font-size: 12px; }
+  #customer-weather .weather-attribution { margin-top: 24px; font-size: 12px; }
+  #customer-weather .weather-attribution a { color: #08776b; text-decoration: underline; text-underline-offset: 3px; }
+  @media (max-width: 700px) {
+    #customer-weather .weather-current { grid-template-columns: minmax(0, 1fr); gap: 24px; }
+    #customer-weather .weather-metrics { padding: 20px; }
+  }
+  @media (max-width: 420px) {
+    #customer-weather .weather-search-row { flex-direction: column; }
+    #customer-weather .weather-search button { width: 100%; }
+    #customer-weather .weather-metrics { gap: 20px 12px; padding: 16px; }
+    #customer-weather .weather-metrics dd { font-size: 18px; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    #customer-weather .weather-search button { transition: none; }
+  }
+</style>
+{% endblock %}
+
+{% block customer_page_content %}
+<section id="customer-weather" aria-labelledby="weather-title">
+  <div class="weather-intro">
+    <h1 id="weather-title">Weather</h1>
+    <p>Search a city for current weather and the week ahead.</p>
+  </div>
+  <form class="weather-search" action="{% url 'customer_weather' %}" method="get" role="search" aria-label="City weather search">
+    <label for="{{ city_form.city.id_for_label }}">Search for a city</label>
+    <div class="weather-search-row">
+      {{ city_form.city }}
+      <button type="submit">Search</button>
+    </div>
+    <p id="weather-city-help">You can include a country, for example Paris, France.</p>
+    <div id="weather-city-errors"{% if city_form.city.errors %} role="alert"{% endif %}>{{ city_form.city.errors }}</div>
+  </form>
+
+  {% if weather.status == 'ok' %}
+  <section class="weather-current" aria-labelledby="weather-city-name">
+    <div>
+      <p class="weather-eyebrow">Current weather</p>
+      <h2 id="weather-city-name">{{ weather.location.name }}</h2>
+      {% if weather.location.region %}<p class="weather-region">{{ weather.location.region }}</p>{% endif %}
+      <div class="weather-temperature-row">
+        <span class="weather-temperature">{{ weather.current.temperature|floatformat:0 }}°C</span>
+        <span class="weather-current-icon" aria-hidden="true">{{ weather.current.condition.icon }}</span>
+      </div>
+      <p class="weather-condition">{{ weather.current.condition.label }}</p>
+      {% if weather.current.local_time %}{% localtime off %}
+      <p class="weather-updated">Updated <time datetime="{{ weather.current.local_time|date:'c' }}">{{ weather.current.local_time|date:'j M, H:i' }}</time> local time</p>
+      {% endlocaltime %}{% endif %}
+    </div>
+    <dl class="weather-metrics">
+      {% if weather.current.feels_like is not None %}
+      <div><dt>Feels like</dt><dd>{{ weather.current.feels_like|floatformat:0 }}°C</dd></div>
+      {% endif %}
+      <div><dt>Wind speed</dt><dd>{% if weather.current.wind_speed is not None %}{{ weather.current.wind_speed|floatformat:1 }} <small>km/h</small>{% else %}Unavailable{% endif %}</dd></div>
+      <div>
+        <dt>Precipitation{% if weather.current.interval_minutes %}<span>Last {{ weather.current.interval_minutes|floatformat:0 }} min</span>{% endif %}</dt>
+        <dd>{% if weather.current.precipitation is not None %}{{ weather.current.precipitation|floatformat:1 }} <small>mm</small>{% else %}Unavailable{% endif %}</dd>
+      </div>
+      {% if weather.current.rain is not None %}
+      <div>
+        <dt>Rain{% if weather.current.interval_minutes %}<span>Last {{ weather.current.interval_minutes|floatformat:0 }} min</span>{% endif %}</dt>
+        <dd>{{ weather.current.rain|floatformat:1 }} <small>mm</small></dd>
+      </div>
+      {% endif %}
+    </dl>
+  </section>
+
+  <section class="weather-forecast" aria-labelledby="weather-forecast-title">
+    <h2 id="weather-forecast-title">7 Day Forecast</h2>
+    <p class="weather-forecast-note">Daily highs, lows and chance of precipitation. Dates are local to {{ weather.location.name }}.</p>
+    <div class="weather-forecast-scroll" role="region" aria-label="Seven-day forecast cards" tabindex="0">
+      <ul class="weather-forecast-grid">
+        {% for day in weather.days %}
+        <li class="weather-day">
+          <time datetime="{{ day.date|date:'Y-m-d' }}">{{ day.date|date:'D' }}<span>{{ day.date|date:'j M' }}</span></time>
+          <span class="weather-day-icon" aria-hidden="true">{{ day.condition.icon }}</span>
+          <p class="weather-day-condition">{{ day.condition.label }}</p>
+          <dl class="weather-day-temperatures">
+            <div><dt>High</dt><dd>{% if day.maximum is not None %}{{ day.maximum|floatformat:0 }}°C{% else %}—{% endif %}</dd></div>
+            <div><dt>Low</dt><dd>{% if day.minimum is not None %}{{ day.minimum|floatformat:0 }}°C{% else %}—{% endif %}</dd></div>
+          </dl>
+          <p class="weather-day-rain">{% if day.precipitation_probability is not None %}Precip. {{ day.precipitation_probability|floatformat:0 }}%{% else %}Precip. unavailable{% endif %}</p>
+        </li>
+        {% endfor %}
+      </ul>
+    </div>
+  </section>
+  {% elif weather.status == 'not_found' %}
+  <div class="weather-message" role="status"><p>We couldn’t find that city. Check the spelling or try adding the country.</p></div>
+  {% elif weather.status == 'unavailable' %}
+  <div class="weather-message" role="status"><p>Weather is temporarily unavailable. Please try again later.</p></div>
+  {% elif not city_form.is_bound %}
+  <div class="weather-message"><p>Enter a city above to see current conditions and a 7-day forecast.</p></div>
+  {% endif %}
+  <p class="weather-attribution">Weather data by <a href="https://open-meteo.com/" target="_blank" rel="noopener noreferrer">Open-Meteo</a>. Location data by <a href="https://www.geonames.org/" target="_blank" rel="noopener noreferrer">GeoNames</a>.</p>
+</section>
+{% endblock %}

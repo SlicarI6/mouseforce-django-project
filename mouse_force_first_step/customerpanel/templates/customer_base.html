@@ -1,0 +1,809 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block extra_head %}
+<link rel="stylesheet" href="{% static 'css/style_customerpanel_css.css' %}">
+<link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+<style>
+  .customer-secondary-nav {
+    width: 100%;
+    background: #f5fbfa;
+    border-bottom: 1px solid rgba(0, 100, 110, 0.10);
+  }
+  .customer-secondary-nav ul {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px clamp(6px, 2vw, 24px);
+    margin: 0;
+    padding: 6px clamp(16px, 3vw, 40px);
+    list-style: none;
+  }
+  .customer-secondary-nav li { flex: 0 0 auto; }
+  .customer-secondary-nav .customer-secondary-offers { position: relative; }
+  .customer-secondary-nav .customer-secondary-new {
+    position: absolute;
+    top: -5px;
+    right: -8px;
+    padding: 2px 5px;
+    border-radius: 999px;
+    background: #bc4c3c;
+    color: #fff;
+    font-size: 9px;
+    font-weight: 700;
+    line-height: 1;
+    letter-spacing: 0.04em;
+    pointer-events: none;
+  }
+  .customer-secondary-nav a {
+    display: flex;
+    align-items: center;
+    min-height: 38px;
+    padding: 0 12px;
+    border-radius: 8px;
+    color: #315f59;
+    font-size: 13px;
+    font-weight: 600;
+    line-height: 1.4;
+    text-decoration: none;
+    white-space: nowrap;
+    cursor: default;
+    transition: background-color 140ms ease, color 140ms ease;
+  }
+  .customer-secondary-nav a:hover,
+  .customer-secondary-nav a:focus-visible {
+    background: #e4f3ef;
+    color: #14554c;
+  }
+  .customer-secondary-nav a:active { background: #d8ede7; }
+  .customer-secondary-nav a:focus-visible {
+    outline: 2px solid #08776b;
+    outline-offset: 2px;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .customer-secondary-nav a { transition: none; }
+  }
+</style>
+
+<style>
+  .customer-secondary-nav a[href] { cursor: pointer; }
+  .customer-secondary-nav a[aria-current="page"] {
+    background: #e4f3ef;
+    color: #14554c;
+  }
+  body > main:has(> .customer-info-page) {
+    margin: 0;
+    padding: 0;
+    min-height: 60vh;
+    background: #f8fcfb;
+  }
+  .customer-info-page {
+    padding: clamp(28px, 4vw, 56px) 24px 64px;
+    color: #143d3b;
+    text-align: left;
+  }
+  .customer-info-inner { max-width: 1040px; margin: 0 auto; }
+  .customer-info-back {
+    display: inline-block;
+    margin-bottom: 28px;
+    color: #08776b;
+    font-size: 14px;
+    font-weight: 600;
+    text-decoration: none;
+  }
+  .customer-info-back:hover { color: #14554c; text-decoration: underline; }
+  .customer-info-back:focus-visible { outline: 2px solid #08776b; outline-offset: 4px; }
+  .customer-info-intro { margin-bottom: 32px; }
+  .customer-info-page h1 {
+    margin: 0 0 16px;
+    font-size: clamp(30px, 4vw, 44px);
+    font-weight: 700;
+    line-height: 1.2;
+    letter-spacing: -0.03em;
+  }
+  .customer-info-section { padding: 24px 0; border-top: 1px solid #dcece7; }
+  .customer-info-page h2 {
+    margin: 0 0 10px;
+    font-size: 22px;
+    font-weight: 650;
+    line-height: 1.3;
+  }
+  .customer-info-page p {
+    max-width: 720px;
+    margin: 0;
+    color: #476560;
+    font-size: 16px;
+    line-height: 1.65;
+  }
+</style>
+
+<style>
+  #customer-music-control {
+    position: fixed;
+    top: 50%;
+    left: max(12px, env(safe-area-inset-left));
+    z-index: 600;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 7px;
+    width: max-content;
+    transform: translateY(-50%);
+    pointer-events: none;
+  }
+  #customer-music-control button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex: 0 0 auto;
+    width: 32px;
+    height: 32px;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    border-radius: 10px;
+    background: transparent;
+    color: #315f59;
+    font-family: Arial, sans-serif;
+    font-size: 22px;
+    font-weight: 500;
+    line-height: 1;
+    cursor: pointer;
+    transition: background-color 150ms ease, color 150ms ease;
+  }
+  #customer-music-control .customer-music-toggle {
+    border: 1px solid #c6e3dd;
+    border-radius: 50%;
+    background: #f0faf7;
+    box-shadow: 0 3px 12px rgba(20, 61, 59, 0.08);
+    font-size: 17px;
+    pointer-events: auto;
+  }
+  #customer-music-control .customer-music-bar {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    padding: 5px;
+    border: 1px solid #bfded6;
+    border-radius: 16px;
+    background: #f1faf7;
+    box-shadow: 0 5px 18px rgba(20, 61, 59, 0.12);
+    pointer-events: auto;
+  }
+  #customer-music-control .customer-music-bar[hidden] { display: none; }
+  #customer-music-control .customer-music-info {
+    position: absolute;
+    top: calc(100% + 6px);
+    left: 0;
+    width: 100%;
+    box-sizing: border-box;
+    padding: 6px 8px;
+    border-radius: 8px;
+    background: #f1faf7;
+    color: #315f59;
+    font-family: Arial, sans-serif;
+    line-height: 1.4;
+    text-align: center;
+    pointer-events: auto;
+  }
+  #customer-music-control .customer-music-info[hidden] { display: none; }
+  #customer-music-control .customer-music-info span {
+    display: block;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-size: 11px;
+  }
+  #customer-music-control .customer-music-info .customer-music-name { font-weight: 600; }
+  #customer-music-control .customer-music-info .customer-music-artist { font-size: 10px; }
+  #customer-music-control .customer-music-info .customer-music-status { white-space: normal; font-size: 10px; }
+  #customer-music-control .customer-music-play {
+    background: #08776b;
+    color: #fff;
+    font-size: 13px;
+  }
+  #customer-music-control .customer-music-close { font-size: 15px; }
+  #customer-music-control button:disabled { opacity: 1; cursor: default; }
+  #customer-music-control button:not(:disabled):hover { background: #dcefe9; color: #14554c; }
+  #customer-music-control button:focus-visible {
+    outline: 2px solid #08776b;
+    outline-offset: 3px;
+  }
+  @media (max-width: 600px) {
+    #customer-music-control { left: max(6px, env(safe-area-inset-left)); gap: 5px; }
+    #customer-music-control button { width: 28px; height: 28px; }
+    #customer-music-control .customer-music-bar { gap: 2px; padding: 4px; border-radius: 14px; }
+    #customer-music-control .customer-music-toggle { font-size: 15px; }
+    #customer-music-control[data-expanded="false"] { left: max(0px, env(safe-area-inset-left)); }
+    #customer-music-control[data-expanded="false"] .customer-music-toggle { width: 24px; height: 24px; font-size: 14px; }
+  }
+  @media (max-height: 500px) {
+    #customer-music-control { top: 65%; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    #customer-music-control button { transition: none; }
+  }
+</style>
+{% endblock %}
+
+{% block header %}
+
+
+<nav class="bg-transparent px-4 py-2">
+  <div class="flex items-center justify-between">
+
+    <!-- Logo + Welcome -->
+    <div class="flex items-center gap-4">
+      <img src="{% static 'images/mouseforce.png' %}" alt="Mouseforce"
+           class="h-10 w-auto" style="border-bottom-left-radius: 100px; border-bottom-right-radius: 100px;">
+      <span class="text-xl font-semibold text-black">Welcome, {{ user.username }}</span>
+    </div>
+
+<button id="hamburger-btn" class="sm:hidden text-black text-3xl" aria-label="Open menu">
+  &#9776;
+</button>
+
+    <!-- Meniu + Clopoțel + Avatar -->
+    <div class="flex items-center space-x-6">
+      <div class="hidden sm:flex space-x-4 text-sm font-medium">
+        <a href="#" class="text-black hover:underline">System</a>
+
+        {% if user.is_superuser %}
+          <a href="{% url 'chat_user_list' %}" class="text-black hover:underline">👥 Admin Chat Panel</a>
+        {% else %}
+          <a href="{% url 'user_chat_redirect' %}">💬 ChatMe</a>
+        {% endif %}
+
+        <a href="#" class="text-black hover:underline">Support</a>
+      </div>
+
+      <!-- Clopoțel -->
+      <button class="text-black relative" onclick="toggleNotifications()" id="bellBtn">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round"
+                d="M14.857 17.082a23.848 23.848 0 005.454-1.31A8.967 8.967 0 0118 9.75V9A6 6 0 006 9v.75a8.967 8.967 0 01-2.312 6.022 23.855 23.855 0 005.455 1.31m5.714 0a3 3 0 11-5.714 0" />
+        </svg>
+        <span id="notificationBadge"
+              class="absolute -top-1 -right-1 bg-red-600 text-white text-xs px-1.5 py-0.5 rounded-full hidden">1</span>
+      </button>
+
+      <!-- Dropdown notificări -->
+          <div id="notificationDropdown"
+              class="absolute right-4 mt-2 w-72 bg-white shadow-xl rounded-xl p-3 z-50 hidden">
+            
+            
+            <!-- Loading text -->
+            <div id="notificationLoading" class="text-center text-gray-500 py-4 hidden">
+              Loading notifications...
+            </div>
+
+            <!-- Lista de notificări -->
+            <div id="notificationList" class="space-y-2 hidden">
+              <!-- notificările vor fi adăugate aici -->
+            </div>
+          </div>
+
+      <!-- Avatar + Pop-up -->
+<div class="relative">
+    <button id="avatarBtn" class="focus:outline-none">
+      <div class="w-10 h-10 sm:w-12 sm:h-10 flex-shrink-0">
+        <img class="w-full h-full rounded-full object-cover"
+           src="{% if user.profile_picture %}{{ user.profile_picture }}{% else %}{% static 'images/default_avatar.png' %}{% endif %}"
+           alt="Avatar">
+      </div>
+    </button>
+
+  <div id="profileCard" class="hidden absolute right-0 mt-2 w-80 bg-white rounded-xl shadow-lg p-6 z-50 text-center">
+    <div class="relative w-20 h-20 mx-auto">
+      {% if user.profile_picture %}
+        <img class="w-20 h-20 rounded-full object-cover border" src="{{ user.profile_picture }}" alt="Avatar">
+      {% else %}
+        <img class="w-20 h-20 rounded-full object-cover border" src="{% static 'images/default_avatar.png' %}" alt="Avatar">
+      {% endif %}
+
+      <!-- Nou: upload cu iconiță -->
+      <form method="POST" action="{% url 'update_profile_picture' %}" enctype="multipart/form-data">
+        {% csrf_token %}
+        <label for="fileInput" class="absolute bottom-0 right-0 bg-white rounded-full p-1 shadow-md cursor-pointer">
+          <img src="{% static 'images/pen_avatar.png' %}" alt="Edit" class="w-5 h-5">
+        </label>
+        <input id="fileInput" type="file" name="profile_picture" class="hidden" onchange="this.form.submit();">
+      </form>
+    </div>
+
+    <p class="text-sm text-gray-500 mt-2">{{ user.email }}</p>
+    <h2 class="text-lg font-semibold mt-1">Hi, {{ user.first_name|capfirst }}!</h2>
+
+    <button class="mt-2 px-4 py-1 border border-gray-300 rounded-full text-blue-600 text-sm hover:bg-gray-100">
+      Manage your Account
+    </button>
+
+    <form method="POST" action="{% url 'logout' %}" class="mt-4">
+      {% csrf_token %}
+      <button type="submit"
+        class="w-full flex items-center justify-center gap-2 px-4 py-2 bg-gray-100 hover:bg-gray-200 text-black font-medium rounded-lg transition">
+        <img src="{% static 'images/logout_avatar.png' %}" alt="Logout Icon" class="w-6 h-6">
+        Logout
+      </button>
+    </form>
+  </div>
+</div>
+
+    </div>
+  </div>
+</nav>
+
+
+<!-- ✅ Meniu mobil stilizat -->
+<div id="mobile-menu" class="mobile-menu hidden fixed top-0 left-0 w-full h-full bg-gray-900 z-50 overflow-y-auto">
+  <div class="mobile-menu-content text-white px-6 py-4">
+    <div class="flex justify-between items-center mb-6">
+      <span class="text-xl font-semibold">Menu</span>
+      <button id="close-menu-btn" class="text-white text-3xl">&times;</button>
+    </div>
+
+    <ul class="flex flex-col gap-4 text-lg font-semibold">
+      <li><a href="#" class="menu-link-simple block">System</a></li>
+      <li><a href="#" class="menu-link-simple block">Support</a></li>
+      <li><a href="{% url 'user_chat_redirect' %}" class="menu-link-simple block">ChatMe</a></li>
+      <li>
+        <form method="POST" action="{% url 'logout' %}">
+          {% csrf_token %}
+          <button type="submit" class="menu-link-simple text-left w-full">Logout</button>
+        </form>
+      </li>
+    </ul>
+  </div>
+</div>
+
+
+
+{% endblock %}
+
+{% block after_header %}
+<nav class="customer-secondary-nav" aria-label="Customer dashboard navigation">
+  <ul>
+    <li><a href="{% url 'customer_discounts' %}"{% if customer_active_page == 'discounts' %} aria-current="page"{% endif %}>Discounts</a></li>
+    <li><a href="{% url 'customer_how_points_work' %}"{% if customer_active_page == 'how_points_work' %} aria-current="page"{% endif %}>How Points Work</a></li>
+    <li><a role="link" aria-disabled="true" tabindex="0">Rewards</a></li>
+    <li class="customer-secondary-offers"><a href="{% url 'customer_offers' %}"{% if customer_active_page == 'offers' %} aria-current="page"{% endif %}>Offers</a><span class="customer-secondary-new" aria-hidden="true">NEW</span></li>
+    <li><a href="{% url 'customer_news' %}"{% if customer_active_page == 'news' %} aria-current="page"{% endif %}>News</a></li>
+    <li><a href="{% url 'customer_weather' %}"{% if customer_active_page == 'weather' %} aria-current="page"{% endif %}>Weather</a></li>
+  </ul>
+</nav>
+<aside id="customer-music-control" data-expanded="true" aria-label="Music player"
+       data-track-url="{% url 'customer_music_track' %}">
+  <button type="button" class="customer-music-toggle" aria-label="Hide music controls"
+          aria-controls="customer-music-bar" aria-expanded="true" title="Hide music controls">
+    <span aria-hidden="true">🎵</span>
+  </button>
+  <div id="customer-music-bar" class="customer-music-bar" role="group" aria-label="Music controls">
+    <button type="button" class="customer-music-previous" aria-label="Previous track" title="Previous track" disabled><span aria-hidden="true">‹</span></button>
+    <button type="button" class="customer-music-play" aria-label="Play music" title="Play music"><span aria-hidden="true">▶</span></button>
+    <button type="button" class="customer-music-close" aria-label="Close music controls" title="Close music controls"><span aria-hidden="true">✕</span></button>
+    <button type="button" class="customer-music-next" aria-label="Next random track" title="Next random track"><span aria-hidden="true">›</span></button>
+  </div>
+  <div class="customer-music-info" aria-live="polite" aria-atomic="true" hidden>
+    <span class="customer-music-name"></span>
+    <span class="customer-music-artist"></span>
+    <span class="customer-music-status"></span>
+  </div>
+  <audio class="customer-music-audio" preload="none" hidden></audio>
+</aside>
+{% endblock %}
+
+{% block content %}
+<div class="customer-info-page">
+  <div class="customer-info-inner">
+    <a class="customer-info-back" href="{% url 'customer_dashboard' %}">Back to dashboard</a>
+    {% block customer_page_content %}{% endblock %}
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script id="customer-music-script">
+(() => {
+  const control = document.getElementById('customer-music-control');
+  if (!control) return;
+  const toggle = control.querySelector('.customer-music-toggle');
+  const bar = control.querySelector('.customer-music-bar');
+  const close = control.querySelector('.customer-music-close');
+  const play = control.querySelector('.customer-music-play');
+  const previous = control.querySelector('.customer-music-previous');
+  const next = control.querySelector('.customer-music-next');
+  const audio = control.querySelector('.customer-music-audio');
+  const info = control.querySelector('.customer-music-info');
+  const name = control.querySelector('.customer-music-name');
+  const artist = control.querySelector('.customer-music-artist');
+  const status = control.querySelector('.customer-music-status');
+  const history = [];
+  const failedIds = new Set();
+  let historyIndex = -1;
+  let current = null;
+  let currentHistoryIndex = null;
+  let busy = false;
+  let wantsPlayback = false;
+  let operation = 0;
+  let controller = null;
+  let timer = null;
+  let recoveriesLeft = 2;
+
+  function previousIndex() {
+    return currentHistoryIndex === null ? historyIndex : historyIndex - 1;
+  }
+
+  function sync() {
+    const playing = !audio.paused && !audio.ended;
+    play.querySelector('span').textContent = playing ? '❚❚' : '▶';
+    play.setAttribute('aria-label', playing ? 'Pause music' : 'Play music');
+    play.title = playing ? 'Pause music' : 'Play music';
+    play.disabled = busy;
+    previous.disabled = busy || previousIndex() < 0;
+    next.disabled = busy;
+    bar.setAttribute('aria-busy', String(busy));
+    name.textContent = current ? current.name : '';
+    artist.textContent = current ? current.artist_name : '';
+    name.title = name.textContent;
+    artist.title = artist.textContent;
+    info.hidden = bar.hidden || (!current && !status.textContent);
+  }
+
+  function cancelPending() {
+    operation += 1;
+    if (controller) controller.abort();
+    controller = null;
+    window.clearTimeout(timer);
+    timer = null;
+  }
+
+  function unloadAudio() {
+    audio.pause();
+    audio.removeAttribute('src');
+    audio.load();
+  }
+
+  function stopAudio() {
+    cancelPending();
+    wantsPlayback = false;
+    busy = false;
+    unloadAudio();
+    status.textContent = '';
+    sync();
+  }
+
+  function markFailed() {
+    if (current) failedIds.add(current.id);
+    if (failedIds.size > 19) failedIds.delete(failedIds.values().next().value);
+    current = null;
+    currentHistoryIndex = null;
+    unloadAudio();
+  }
+
+  async function randomTrack(token) {
+    const url = new URL(control.dataset.trackUrl, window.location.origin);
+    const excluded = [...new Set([current && current.id, ...failedIds].filter(Boolean))];
+    if (excluded.length) url.searchParams.set('exclude', excluded.slice(0, 20).join(','));
+    controller = new AbortController();
+    timer = window.setTimeout(() => controller && controller.abort(), 15000);
+    try {
+      const response = await fetch(url, {credentials: 'same-origin', cache: 'no-store', signal: controller.signal});
+      if (!response.ok) throw new Error('Music unavailable');
+      const payload = await response.json();
+      const track = payload.track;
+      if (!track || typeof track.id !== 'string' || typeof track.name !== 'string'
+          || typeof track.artist_name !== 'string' || typeof track.audio_url !== 'string') {
+        throw new Error('Invalid track');
+      }
+      return track;
+    } finally {
+      if (token === operation) {
+        window.clearTimeout(timer);
+        timer = null;
+        controller = null;
+      }
+    }
+  }
+
+  function rememberCurrent() {
+    if (currentHistoryIndex !== null) {
+      historyIndex = currentHistoryIndex;
+      return;
+    }
+    // A new random choice after Previous starts a new branch of the history.
+    history.splice(historyIndex + 1);
+    history.push(current);
+    if (history.length > 20) history.shift();
+    historyIndex = history.length - 1;
+    currentHistoryIndex = historyIndex;
+  }
+
+  async function start(mode, index = null) {
+    if (busy) return;
+    cancelPending();
+    const token = operation;
+    busy = true;
+    wantsPlayback = true;
+    audio.pause();
+    status.textContent = 'Loading…';
+    sync();
+    try {
+      while (token === operation && wantsPlayback) {
+        if (mode === 'random') {
+          const track = await randomTrack(token);
+          if (token !== operation || !wantsPlayback) return;
+          current = track;
+          currentHistoryIndex = null;
+          audio.src = current.audio_url;
+        } else if (mode === 'previous') {
+          current = history[index];
+          currentHistoryIndex = index;
+          audio.src = current.audio_url;
+        } else if (!audio.getAttribute('src')) {
+          audio.src = current.audio_url;
+        }
+        sync();
+        try {
+          await Promise.race([
+            audio.play(),
+            new Promise((_, reject) => {
+              timer = window.setTimeout(() => reject(new Error('Playback timeout')), 20000);
+            }),
+          ]);
+          if (token !== operation) return;
+          window.clearTimeout(timer);
+          timer = null;
+          rememberCurrent();
+          status.textContent = '';
+          return;
+        } catch (error) {
+          if (token !== operation) return;
+          window.clearTimeout(timer);
+          timer = null;
+          if (error.name === 'NotAllowedError') {
+            wantsPlayback = false;
+            status.textContent = 'Press play to start.';
+            return;
+          }
+          markFailed();
+          if (mode === 'previous' || recoveriesLeft <= 0) throw error;
+          recoveriesLeft -= 1;
+          mode = 'random';
+        }
+      }
+    } catch (error) {
+      if (token !== operation) return;
+      wantsPlayback = false;
+      unloadAudio();
+      status.textContent = 'Music is unavailable. Try again.';
+    } finally {
+      if (token === operation) {
+        busy = false;
+        sync();
+      }
+    }
+  }
+
+  function setExpanded(expanded) {
+    bar.hidden = !expanded;
+    control.dataset.expanded = String(expanded);
+    toggle.setAttribute('aria-expanded', String(expanded));
+    const label = expanded ? 'Hide music controls' : 'Show music controls';
+    toggle.setAttribute('aria-label', label);
+    toggle.title = label;
+    sync();
+  }
+
+  // Keep the narrow-screen reading area clear until the customer opens the bar.
+  const smallScreen = window.matchMedia('(max-width: 600px)');
+  setExpanded(!smallScreen.matches);
+  smallScreen.addEventListener('change', () => setExpanded(!smallScreen.matches));
+
+  toggle.addEventListener('click', () => setExpanded(bar.hidden));
+  close.addEventListener('click', () => {
+    stopAudio();
+    setExpanded(false);
+    toggle.focus({ preventScroll: true });
+  });
+  control.addEventListener('keydown', event => {
+    if (event.key === 'Escape' && !bar.hidden) {
+      stopAudio();
+      setExpanded(false);
+      toggle.focus({ preventScroll: true });
+      event.stopPropagation();
+    }
+  });
+  play.addEventListener('click', () => {
+    if (busy) return;
+    if (!audio.paused && !audio.ended) {
+      wantsPlayback = false;
+      audio.pause();
+      sync();
+      return;
+    }
+    recoveriesLeft = 2;
+    start(current ? 'current' : 'random');
+  });
+  next.addEventListener('click', () => {
+    recoveriesLeft = 2;
+    start('random');
+  });
+  previous.addEventListener('click', () => {
+    const index = previousIndex();
+    if (index < 0) return;
+    recoveriesLeft = 2;
+    start('previous', index);
+  });
+  audio.addEventListener('play', sync);
+  audio.addEventListener('pause', sync);
+  audio.addEventListener('ended', () => {
+    if (wantsPlayback && !busy) {
+      recoveriesLeft = 2;
+      start('random');
+    }
+  });
+  audio.addEventListener('error', () => {
+    // Startup errors are handled by the play promise; handle later stream errors here.
+    if (!wantsPlayback || busy || !current) return;
+    markFailed();
+    if (recoveriesLeft > 0) {
+      recoveriesLeft -= 1;
+      start('random');
+    } else {
+      wantsPlayback = false;
+      status.textContent = 'Music is unavailable. Try again.';
+      sync();
+    }
+  });
+  window.addEventListener('pagehide', stopAudio);
+})();
+</script>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+  const openBtn = document.getElementById('hamburger-btn');
+  const closeBtn = document.getElementById('close-menu-btn');
+  const menu = document.getElementById('mobile-menu');
+
+  openBtn.addEventListener('click', () => {
+    menu.classList.add('show');
+    menu.classList.remove('hidden');
+  });
+
+  closeBtn.addEventListener('click', () => {
+    menu.classList.remove('show');
+    menu.classList.add('hidden');
+  });
+});
+</script>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    const avatarBtn = document.getElementById('avatarBtn');
+    const profileCard = document.getElementById('profileCard');
+
+    avatarBtn.addEventListener('click', function (e) {
+      e.stopPropagation();
+      profileCard.classList.toggle('hidden');
+    });
+
+    document.addEventListener('click', function (e) {
+      if (!profileCard.contains(e.target) && e.target !== avatarBtn) {
+        profileCard.classList.add('hidden');
+      }
+    });
+  });
+</script>
+
+<script>
+  let notifCount = 0;
+  let hasMessageNotification = false;
+
+  const username = "{{ request.user.username }}";
+  const protocol = window.location.protocol === "https:" ? "wss://" : "ws://";
+
+  const notifSocket = new WebSocket(
+    protocol + window.location.host + "/ws/notifications/" + username + "/"
+  );
+
+    notifSocket.onmessage = function (e) {
+        const data = JSON.parse(e.data);
+
+        // 🟢 doar incrementăm badge-ul, nu adăugăm direct în listă
+        notifCount += 1;
+        const badge = document.getElementById("notificationBadge");
+        badge.innerText = notifCount;
+        badge.classList.remove("hidden");
+
+        hasMessageNotification = true;
+    };
+
+
+  function getCookie(name) {
+  let cookieValue = null;
+  if (document.cookie && document.cookie !== "") {
+    const cookies = document.cookie.split(";");
+    for (let i = 0; i < cookies.length; i++) {
+      const cookie = cookies[i].trim();
+      // Verifică dacă cookie-ul începe cu numele dorit
+      if (cookie.substring(0, name.length + 1) === (name + "=")) {
+        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+        break;
+      }
+    }
+  }
+  return cookieValue;
+}
+
+
+function toggleNotifications() {
+  const dropdown = document.getElementById("notificationDropdown");
+  dropdown.classList.toggle("hidden");
+
+  const badge = document.getElementById("notificationBadge");
+  const list = document.getElementById("notificationList");
+  const loading = document.getElementById("notificationLoading");
+
+  if (!dropdown.classList.contains("hidden")) {
+    // 🔄 Arată "Loading..." și ascunde lista
+    loading.style.display = "block";
+    list.classList.add("hidden");
+    list.innerHTML = "";
+
+    // 🔄 Marchează ca citite în backend PRIMA OARĂ
+    fetch("{% url 'mark_notifications_as_read' %}", {
+      method: "POST",
+      headers: {
+        "X-CSRFToken": getCookie("csrftoken"),
+        "Content-Type": "application/json"
+      }
+    })
+    .then(() => {
+      // 🔄 După ce s-au marcat ca citite, abia acum facem fetch notificări
+      fetch("{% url 'load_notifications' %}")
+        .then(response => response.json())
+        .then(data => {
+          // 🔄 Ascunde "Loading...", arată lista
+          loading.style.display = "none";
+          list.classList.remove("hidden");
+
+          // 🔄 Resetează badge
+          notifCount = 0;
+          badge.innerText = "";
+          badge.classList.add("hidden");
+          hasMessageNotification = false;
+
+          // 🔄 Populează lista notificări
+          data.notifications.forEach(n => {
+            const div = document.createElement("div");
+            div.className = "bg-gray-100 rounded-lg px-3 py-2 text-sm cursor-pointer hover:bg-gray-200";
+            div.innerHTML = `
+              <div class="flex items-start justify-between">
+                <div class="flex items-center space-x-2">
+                  <span class="text-xl">📨</span>
+                  <span class="font-medium text-sm text-black">${n.message}</span>
+                </div>
+                <span class="text-xs text-gray-400">${n.created_at}</span>
+              </div>
+            `;
+            console.log("📩 Notification:", n.message);
+            list.appendChild(div);
+          });
+        });
+    });
+  }
+}
+
+
+
+
+// 🟢 Închide dropdown când apeși pe restul paginii
+document.addEventListener("click", function (e) {
+    const dropdown = document.getElementById("notificationDropdown");
+    const bellBtn = document.getElementById("bellBtn");
+
+    if (!dropdown.contains(e.target) && !bellBtn.contains(e.target)) {
+        dropdown.classList.add("hidden");
+    }
+});
+
+</script>
+{% endblock %}

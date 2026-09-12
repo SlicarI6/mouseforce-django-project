@@ -1,9 +1,12 @@
 from datetime import date, timedelta
+from dataclasses import asdict
+from django.core.exceptions import PermissionDenied
+from django.db import transaction
 from django.utils.timezone import now
-from django.views.decorators.csrf import csrf_exempt
+from django.views.decorators.csrf import csrf_exempt, csrf_protect
 from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
-from .forms import FeedbackForm
+from .forms import CitySearchForm, FeedbackForm
 from .models import Feedback
 from django.http import JsonResponse
 from django.contrib import messages
@@ -14,17 +17,151 @@ from django.contrib.admin.views.decorators import staff_member_required
 from .models import Message
 from .models import Notification
 import json
-from django.views.decorators.http import require_POST
+from django.views.decorators.http import require_GET, require_POST
+from django.views.decorators.cache import never_cache
 import openai
 import os
 from django.conf import settings
+from .points import claim_daily_points, claim_streak_bonus, get_points_state
+from .news import NEWS_CATEGORIES, get_customer_news, normalise_news_category
+from .weather import get_customer_weather
+from .music import get_random_music_track
+
+
+def _points_claim_response(request, claim):
+    """Accept a claim action only; reward values come exclusively from Django."""
+    if not request.user.is_authenticated:
+        return JsonResponse({'status': 'unauthenticated', 'bonus_awarded': False, 'awarded_amount': 0}, status=401)
+
+    invalid_payload = bool(request.GET)
+    if request.content_type == 'application/json':
+        try:
+            payload = json.loads(request.body) if request.body else {}
+        except (ValueError, UnicodeDecodeError):
+            invalid_payload = True
+        else:
+            invalid_payload |= not isinstance(payload, dict) or bool(payload)
+    elif request.content_type in ('application/x-www-form-urlencoded', 'multipart/form-data'):
+        invalid_payload |= bool(set(request.POST) - {'csrfmiddlewaretoken'}) or bool(request.FILES)
+    else:
+        invalid_payload |= bool(request.body)
+
+    if invalid_payload:
+        return JsonResponse({'status': 'invalid_request', 'bonus_awarded': False, 'awarded_amount': 0}, status=400)
+    try:
+        # Keep the service's user lock until the response state is read, so a
+        # competing claim cannot change it between the award and this snapshot.
+        with transaction.atomic():
+            result = claim(request.user)
+            payload = asdict(result)
+            payload['state'] = get_points_state(request.user)
+    except PermissionDenied:
+        return JsonResponse({'status': 'forbidden', 'bonus_awarded': False, 'awarded_amount': 0}, status=403)
+    return JsonResponse(payload)
+
+
+@require_POST
+@csrf_protect
+def claim_bonus(request):
+    return _points_claim_response(request, claim_streak_bonus)
+
+
+@require_POST
+@csrf_protect
+def claim_daily(request):
+    return _points_claim_response(request, claim_daily_points)
 
 
 @login_required
 def customer_dashboard(request):
     return render(request, 'customer_dashboard.html', {
-        'room_name': request.user.username  # ✅ Adăugăm asta!
+        'room_name': request.user.username,
+        'points_state': get_points_state(request.user)
+        if request.user.is_active and request.user.role == 'customer' else None,
     })
+
+
+@login_required(login_url='login_account_customer')
+def customer_how_points_work(request):
+    if not request.user.is_active or request.user.role != 'customer':
+        raise PermissionDenied
+    return render(request, 'customer_how_points_work.html', {
+        'customer_active_page': 'how_points_work',
+    })
+
+
+@login_required(login_url='login_account_customer')
+def customer_discounts(request):
+    if not request.user.is_active or request.user.role != 'customer':
+        raise PermissionDenied
+    return render(request, 'customer_discounts.html', {
+        'customer_active_page': 'discounts',
+    })
+
+
+@login_required(login_url='login_account_customer')
+def customer_offers(request):
+    if not request.user.is_active or request.user.role != 'customer':
+        raise PermissionDenied
+    return render(request, 'customer_offers.html', {
+        'customer_active_page': 'offers',
+    })
+
+
+@login_required(login_url='login_account_customer')
+def customer_news(request):
+    if not request.user.is_active or request.user.role != 'customer':
+        raise PermissionDenied
+    category = normalise_news_category(request.GET.get('category', 'all'))
+    news = get_customer_news(category)
+    return render(request, 'customer_news.html', {
+        'customer_active_page': 'news',
+        'news': news,
+        'news_categories': [
+            {'slug': slug, 'label': config['label']}
+            for slug, config in NEWS_CATEGORIES.items()
+        ],
+        'selected_category': category,
+        'selected_category_label': NEWS_CATEGORIES[category]['label'],
+        'featured_article': news['articles'][0] if news['articles'] else None,
+        'latest_articles': news['articles'][1:],
+    })
+
+
+@login_required(login_url='login_account_customer')
+def customer_weather(request):
+    if not request.user.is_active or request.user.role != 'customer':
+        raise PermissionDenied
+    form = CitySearchForm(request.GET if 'city' in request.GET else None)
+    weather = None
+    if form.is_bound and form.is_valid():
+        weather = get_customer_weather(form.cleaned_data['city'])
+    return render(request, 'customer_weather.html', {
+        'customer_active_page': 'weather',
+        'city_form': form,
+        'weather': weather,
+    })
+
+
+@require_GET
+@never_cache
+def customer_music_track(request):
+    if not request.user.is_authenticated:
+        return JsonResponse({'error': 'Please sign in to play music.'}, status=401)
+    if not request.user.is_active or request.user.role != 'customer':
+        return JsonResponse({'error': 'Music is available to customers only.'}, status=403)
+    exclusions = request.GET.get('exclude', '')
+    excluded_ids = exclusions.split(',') if exclusions else []
+    if (
+        set(request.GET) - {'exclude'} or len(request.GET.getlist('exclude')) > 1
+        or len(exclusions) > 259 or len(excluded_ids) > 20
+        or any(not value.isascii() or not value.isdigit() or not 1 <= len(value) <= 12 for value in excluded_ids)
+    ):
+        return JsonResponse({'error': 'Invalid music request.'}, status=400)
+    track = get_random_music_track(set(excluded_ids))
+    if track is None:
+        return JsonResponse({'error': 'Music is temporarily unavailable. Please try again.'}, status=503)
+    return JsonResponse({'track': track})
 
 
 @login_required

@@ -1,0 +1,221 @@
+{% extends 'customer_base.html' %}
+
+{% block title %}How Points Work | MouseForce{% endblock %}
+
+
+{% block extra_head %}
+{{ block.super }}
+<style>
+  #how-points-introduction p + p { margin-top: 16px; }
+  #points-faq .points-faq-item {
+    margin-top: 12px;
+    border: 1px solid #dcece7;
+    border-radius: 12px;
+    overflow: hidden;
+  }
+  #points-faq h3 { margin: 0; font-size: 16px; font-weight: 600; }
+  #points-faq .points-faq-question {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    width: 100%;
+    min-height: 60px;
+    padding: 16px 20px;
+    border: 0;
+    background: transparent;
+    color: #143d3b;
+    font: inherit;
+    line-height: 1.5;
+    text-align: left;
+    cursor: pointer;
+    transition: background-color 180ms ease;
+  }
+  #points-faq .points-faq-question:hover { background: #eef7f4; }
+  #points-faq .points-faq-question:focus-visible {
+    outline: 2px solid #08776b;
+    outline-offset: -4px;
+  }
+  #points-faq .points-faq-icon {
+    flex: 0 0 20px;
+    color: #08776b;
+    font-size: 24px;
+    font-weight: 400;
+    line-height: 1;
+    text-align: center;
+  }
+  #points-faq .points-faq-answer {
+    display: grid;
+    grid-template-rows: 0fr;
+    visibility: hidden;
+    transition: grid-template-rows 220ms ease, visibility 220ms;
+  }
+  #points-faq .points-faq-answer[aria-hidden="false"] {
+    grid-template-rows: 1fr;
+    visibility: visible;
+  }
+  #points-faq .points-faq-answer-inner { min-height: 0; overflow: hidden; }
+  #points-faq .points-faq-answer p { padding: 0 20px 18px; }
+  @media (prefers-reduced-motion: reduce) {
+    #points-faq .points-faq-question,
+    #points-faq .points-faq-answer { transition: none; }
+  }
+</style>
+{% endblock %}
+
+{% block customer_page_content %}
+<section id="how-points-introduction" class="customer-info-intro" aria-labelledby="how-points-title">
+  <h1 id="how-points-title">How Points Work</h1>
+  <p>MouseForce Points are simple: collect them, save them, and spend them on rewards and offers you choose. From time to time, special offers may also become available, giving you more ways to use your points.</p>
+  <p>The longer you stay with MouseForce and the more active you are, the more opportunities you may unlock. We value loyal and active customers and aim to reward genuine engagement with more benefits over time.</p>
+</section>
+
+<section class="customer-info-section" aria-labelledby="daily-points-title">
+  <h2 id="daily-points-title">Daily Points</h2>
+  <p>Claim 10 points every day and keep track of your total balance. When you use your points, you’ll always be able to see how many you have left.</p>
+</section>
+
+<section class="customer-info-section" aria-labelledby="seven-day-title">
+  <h2 id="seven-day-title">7 Day Streak</h2>
+  <p>A 7-day streak always leads to something good. Stay consistent, claim your points every day, and earn an extra 35 points as a reward for your commitment.</p>
+</section>
+
+<section class="customer-info-section" aria-labelledby="fourteen-day-title">
+  <h2 id="fourteen-day-title">14 Day Streak</h2>
+  <p>Complete a full 14-day streak and earn up to 225 points in total.</p>
+  <p>
+    14 daily claims × 10 points = 140 points<br>
+    7 Day Streak bonus = +35 points<br>
+    14 Day Streak bonus = +50 points<br>
+    Total = 225 points
+  </p>
+</section>
+
+<section class="customer-info-section" aria-labelledby="missed-day-title">
+  <h2 id="missed-day-title">What happens if you miss a day?</h2>
+  <p>Nothing bad happens if you miss a day — your total points stay safe. Your streak will reset, and any unclaimed streak bonus may be lost, but you can start building a new streak with your next daily claim.</p>
+</section>
+
+<section id="points-faq" class="customer-info-section" aria-labelledby="points-faq-title">
+  <h2 id="points-faq-title">Points FAQ</h2>
+  <div class="points-faq-item">
+    <h3>
+      <button type="button" class="points-faq-question" id="points-faq-question-1"
+              aria-expanded="false" aria-controls="points-faq-answer-1">
+        <span>What are MouseForce Points?</span>
+        <span class="points-faq-icon" aria-hidden="true">+</span>
+      </button>
+    </h3>
+    <div class="points-faq-answer" id="points-faq-answer-1" aria-hidden="true" inert>
+      <div class="points-faq-answer-inner">
+        <p>MouseForce Points are a reward balance you can collect and use to unlock selected rewards, discounts and special offers available on MouseForce. You choose which available opportunity you want to use your points for.</p>
+      </div>
+    </div>
+  </div>
+  <div class="points-faq-item">
+    <h3>
+      <button type="button" class="points-faq-question" id="points-faq-question-2"
+              aria-expanded="false" aria-controls="points-faq-answer-2">
+        <span>What can I use my points for?</span>
+        <span class="points-faq-icon" aria-hidden="true">+</span>
+      </button>
+    </h3>
+    <div class="points-faq-answer" id="points-faq-answer-2" aria-hidden="true" inert>
+      <div class="points-faq-answer-inner">
+        <p>You can redeem your points for rewards, discounts, products and special offers available at the time. As MouseForce grows, we aim to expand these opportunities through partnerships with local and international businesses across different industries.</p>
+      </div>
+    </div>
+  </div>
+  <div class="points-faq-item">
+    <h3>
+      <button type="button" class="points-faq-question" id="points-faq-question-3"
+              aria-expanded="false" aria-controls="points-faq-answer-3">
+        <span>Can I exchange my points for cash?</span>
+        <span class="points-faq-icon" aria-hidden="true">+</span>
+      </button>
+    </h3>
+    <div class="points-faq-answer" id="points-faq-answer-3" aria-hidden="true" inert>
+      <div class="points-faq-answer-inner">
+        <p>No. MouseForce Points cannot be exchanged for cash. They can only be used for eligible rewards, discounts, products and offers available through MouseForce.</p>
+      </div>
+    </div>
+  </div>
+  <div class="points-faq-item">
+    <h3>
+      <button type="button" class="points-faq-question" id="points-faq-question-4"
+              aria-expanded="false" aria-controls="points-faq-answer-4">
+        <span>How many points does a reward cost?</span>
+        <span class="points-faq-icon" aria-hidden="true">+</span>
+      </button>
+    </h3>
+    <div class="points-faq-answer" id="points-faq-answer-4" aria-hidden="true" inert>
+      <div class="points-faq-answer-inner">
+        <p>It depends on the reward or offer. Each available reward will clearly show how many points are required before you redeem it.</p>
+      </div>
+    </div>
+  </div>
+  <div class="points-faq-item">
+    <h3>
+      <button type="button" class="points-faq-question" id="points-faq-question-5"
+              aria-expanded="false" aria-controls="points-faq-answer-5">
+        <span>What can I do if my points are not working?</span>
+        <span class="points-faq-icon" aria-hidden="true">+</span>
+      </button>
+    </h3>
+    <div class="points-faq-answer" id="points-faq-answer-5" aria-hidden="true" inert>
+      <div class="points-faq-answer-inner">
+        <p>If you experience a problem with your points or balance, contact us through ChatMe and we’ll help you as soon as possible.</p>
+      </div>
+    </div>
+  </div>
+  <div class="points-faq-item">
+    <h3>
+      <button type="button" class="points-faq-question" id="points-faq-question-6"
+              aria-expanded="false" aria-controls="points-faq-answer-6">
+        <span>Can I buy more points?</span>
+        <span class="points-faq-icon" aria-hidden="true">+</span>
+      </button>
+    </h3>
+    <div class="points-faq-answer" id="points-faq-answer-6" aria-hidden="true" inert>
+      <div class="points-faq-answer-inner">
+        <p>At the moment, MouseForce Points cannot be purchased. They are earned through eligible activity and opportunities available on MouseForce.</p>
+      </div>
+    </div>
+  </div>
+  <div class="points-faq-item">
+    <h3>
+      <button type="button" class="points-faq-question" id="points-faq-question-7"
+              aria-expanded="false" aria-controls="points-faq-answer-7">
+        <span>Can I use multiple accounts to collect points?</span>
+        <span class="points-faq-icon" aria-hidden="true">+</span>
+      </button>
+    </h3>
+    <div class="points-faq-answer" id="points-faq-answer-7" aria-hidden="true" inert>
+      <div class="points-faq-answer-inner">
+        <p>To keep the system fair for everyone, points should be collected using one account per customer. Multiple accounts should not be used to gain additional points or rewards.</p>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+{{ block.super }}
+<script>
+(() => {
+  const faq = document.getElementById('points-faq');
+  if (!faq) return;
+
+  faq.querySelectorAll('.points-faq-question').forEach(button => {
+    const answer = document.getElementById(button.getAttribute('aria-controls'));
+    button.addEventListener('click', () => {
+      const expanded = button.getAttribute('aria-expanded') !== 'true';
+      button.setAttribute('aria-expanded', String(expanded));
+      answer.setAttribute('aria-hidden', String(!expanded));
+      answer.inert = !expanded;
+      button.querySelector('.points-faq-icon').textContent = expanded ? '−' : '+';
+    });
+  });
+})();
+</script>
+{% endblock %}

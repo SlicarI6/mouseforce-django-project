@@ -7,6 +7,14 @@ from .views import ask_openai
 
 urlpatterns = [
     path('dashboard/', customer_dashboard, name='customer_dashboard'),
+    path('how-points-work/', views.customer_how_points_work, name='customer_how_points_work'),
+    path('discounts/', views.customer_discounts, name='customer_discounts'),
+    path('offers/', views.customer_offers, name='customer_offers'),
+    path('news/', views.customer_news, name='customer_news'),
+    path('weather/', views.customer_weather, name='customer_weather'),
+    path('music/track/', views.customer_music_track, name='customer_music_track'),
+    path('points/claim-bonus/', views.claim_bonus, name='claim_streak_bonus'),
+    path('points/claim-daily/', views.claim_daily, name='claim_daily_points'),
     path('dashboard/feedback/', views.customer_dashboard_feedback, name='customer_dashboard_feedback'),
     path('save-feedback/', views.save_feedback, name='save_feedback'),
     path('update-profile-picture/', views.update_profile_picture, name='update_profile_picture'),

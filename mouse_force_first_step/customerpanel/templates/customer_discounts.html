@@ -1,0 +1,979 @@
+{% extends 'customer_base.html' %}
+
+{% block title %}Discounts | MouseForce{% endblock %}
+
+{% block extra_head %}
+{{ block.super }}
+<style>
+  .mf-discounts-illustration {
+    position: relative;
+    container-type: inline-size;
+    isolation: isolate;
+    width: 100%;
+    max-width: 640px;
+    aspect-ratio: 640 / 460;
+    margin: 24px auto 8px;
+  }
+  .mf-discounts-illustration *,
+  .mf-discounts-illustration *::before,
+  .mf-discounts-illustration *::after { box-sizing: border-box; }
+  .mf-discounts-illustration .mf-discounts-stage { position: absolute; inset: 0; }
+  .mf-discounts-illustration .mf-discounts-card {
+    position: absolute;
+    width: 52%;
+    height: 42%;
+    border: 0.2cqi solid rgba(255, 255, 255, 0.7);
+    border-radius: 3.4cqi;
+    box-shadow: 0 1.6cqi 4cqi rgba(39, 87, 93, 0.11),
+                inset 0 0.3cqi 0 rgba(255, 255, 255, 0.4);
+    overflow: hidden;
+  }
+  .mf-discounts-illustration .mf-discounts-card--blue {
+    --mf-ribbon-ink: rgba(50, 120, 165, 0.68);
+    --mf-bow-fill: #b4e0fa;
+    left: 12%;
+    top: 20%;
+    z-index: 1;
+    background: linear-gradient(140deg, #c4e7ff, #9dd3f7);
+    transform: rotate(-13deg);
+  }
+  .mf-discounts-illustration .mf-discounts-card--mint {
+    --mf-ribbon-ink: rgba(27, 124, 103, 0.64);
+    --mf-bow-fill: #a0e9d3;
+    left: 34%;
+    top: 40%;
+    z-index: 2;
+    background: linear-gradient(140deg, #b2f1dd, #86dfc7);
+    transform: rotate(11deg);
+  }
+  .mf-discounts-illustration .mf-discounts-card::before,
+  .mf-discounts-illustration .mf-discounts-card::after {
+    content: '';
+    position: absolute;
+    background: rgba(255, 255, 255, 0.24);
+  }
+  .mf-discounts-illustration .mf-discounts-card::before {
+    top: 0;
+    bottom: 0;
+    left: 33%;
+    width: 7%;
+    border-inline: 0.32cqi solid var(--mf-ribbon-ink);
+  }
+  .mf-discounts-illustration .mf-discounts-card::after {
+    left: 0;
+    right: 0;
+    top: 45%;
+    height: 9%;
+    border-block: 0.32cqi solid var(--mf-ribbon-ink);
+  }
+  .mf-discounts-illustration .mf-discounts-bow {
+    position: absolute;
+    left: 36.5%;
+    top: 49.5%;
+    z-index: 1;
+    width: 2.2cqi;
+    height: 1.8cqi;
+    border: 0.32cqi solid var(--mf-ribbon-ink);
+    border-radius: 0.55cqi;
+    background: var(--mf-bow-fill);
+    transform: translate(-50%, -50%);
+  }
+  .mf-discounts-illustration .mf-discounts-bow::before,
+  .mf-discounts-illustration .mf-discounts-bow::after {
+    content: '';
+    position: absolute;
+    bottom: calc(50% - 0.35cqi);
+    width: 8.2cqi;
+    height: 5.6cqi;
+    border: 0.32cqi solid var(--mf-ribbon-ink);
+  }
+  .mf-discounts-illustration .mf-discounts-bow::before {
+    right: calc(100% - 0.32cqi);
+    border-radius: 70% 75% 8% 70%;
+    transform-origin: bottom right;
+    transform: rotate(12deg);
+  }
+  .mf-discounts-illustration .mf-discounts-bow::after {
+    left: calc(100% - 0.32cqi);
+    border-radius: 75% 70% 70% 8%;
+    transform-origin: bottom left;
+    transform: rotate(-12deg);
+  }
+  .mf-discounts-illustration .mf-discounts-badge {
+    position: absolute;
+    left: 48%;
+    top: 53%;
+    z-index: 3;
+    display: grid;
+    place-items: center;
+    width: 11.5%;
+    aspect-ratio: 1;
+    border: 0.35cqi solid #fff;
+    border-radius: 50%;
+    background: #f4fffa;
+    box-shadow: 0 0.7cqi 1.8cqi rgba(24, 89, 72, 0.15),
+                inset 0 0 0 0.2cqi #a4d7c5;
+    color: #246458;
+    font-family: system-ui, sans-serif;
+    font-size: 3.8cqi;
+    font-weight: 800;
+    line-height: 1;
+    letter-spacing: -0.2cqi;
+    transform: rotate(11deg);
+  }
+  .mf-discounts-illustration .mf-discounts-coin {
+    position: absolute;
+    z-index: 3;
+    aspect-ratio: 1;
+    border: 0.25cqi solid #f6dda0;
+    border-radius: 50%;
+    background: linear-gradient(140deg, #ffe9ac, #ddb052);
+    box-shadow: 0.45cqi 0.6cqi 0 #c69a45,
+                0.8cqi 1.2cqi 2cqi rgba(174, 121, 24, 0.14);
+  }
+  .mf-discounts-illustration .mf-discounts-coin::before {
+    content: '';
+    position: absolute;
+    inset: 12%;
+    border: 0.24cqi solid rgba(153, 110, 35, 0.35);
+    border-radius: 50%;
+  }
+  .mf-discounts-illustration .mf-discounts-coin::after {
+    content: '';
+    position: absolute;
+    inset: 32%;
+    background: #be9243;
+    clip-path: polygon(50% 0, 62% 38%, 100% 50%, 62% 62%, 50% 100%, 38% 62%, 0 50%, 38% 38%);
+  }
+  .mf-discounts-illustration .mf-discounts-coin--upper {
+    left: 80%; top: 16%; width: 9.5%; transform: rotate(18deg) scaleX(0.85);
+  }
+  .mf-discounts-illustration .mf-discounts-coin--left {
+    left: 7%; top: 70%; width: 8.8%; transform: rotate(-20deg) scaleX(0.9);
+  }
+  .mf-discounts-illustration .mf-discounts-coin--right {
+    left: 83%; top: 76%; width: 7.5%; transform: rotate(12deg) scaleX(0.9);
+  }
+  .mf-discounts-illustration .mf-discounts-sparkle {
+    position: absolute;
+    z-index: 4;
+    aspect-ratio: 1;
+    background: #f3cf6b;
+    clip-path: polygon(50% 0, 61% 38%, 100% 50%, 61% 62%, 50% 100%, 39% 62%, 0 50%, 39% 38%);
+    animation: mf-discounts-twinkle var(--mf-duration) ease-in-out var(--mf-delay) infinite;
+  }
+  .mf-discounts-illustration .mf-discounts-sparkle--one {
+    left: 14%; top: 10%; width: 4.6%; --mf-duration: 3.8s; --mf-delay: -1.3s;
+  }
+  .mf-discounts-illustration .mf-discounts-sparkle--two {
+    left: 62%; top: 6%; width: 3.4%; --mf-duration: 4.5s; --mf-delay: -4.2s;
+  }
+  .mf-discounts-illustration .mf-discounts-sparkle--three {
+    left: 92%; top: 38%; width: 4.2%; --mf-duration: 3.3s; --mf-delay: -0.4s;
+  }
+  .mf-discounts-illustration .mf-discounts-sparkle--four {
+    left: 76%; top: 91%; width: 3.5%; --mf-duration: 5s; --mf-delay: -2.8s;
+  }
+  .mf-discounts-illustration .mf-discounts-sparkle--five {
+    left: 34%; top: 89%; width: 3.2%; --mf-duration: 4.2s; --mf-delay: -0.9s;
+  }
+  .mf-discounts-illustration .mf-discounts-sparkle--six {
+    left: 3%; top: 46%; width: 3.8%; --mf-duration: 3.6s; --mf-delay: -3.1s;
+  }
+  @keyframes mf-discounts-twinkle {
+    0%, 100% { opacity: 0.22; transform: scale(0.78); }
+    45% { opacity: 0.95; transform: scale(1.1); }
+    70% { opacity: 0.5; transform: scale(0.92); }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .mf-discounts-illustration .mf-discounts-sparkle {
+      animation: none;
+      opacity: 0.75;
+      transform: none;
+    }
+  }
+</style>
+<style>
+  #discounts-information {
+    max-width: 760px;
+    margin: clamp(32px, 5vw, 56px) auto 0;
+  }
+  #discounts-information > h2 {
+    margin-bottom: 16px;
+    font-size: clamp(24px, 2.8vw, 30px);
+    font-weight: 700;
+  }
+  #discounts-faq { margin-top: 32px; }
+  #discounts-faq .discounts-faq-item {
+    margin-top: 12px;
+    border: 1px solid #dcece7;
+    border-radius: 12px;
+    overflow: hidden;
+  }
+  #discounts-faq h3 { margin: 0; font-size: 16px; font-weight: 600; }
+  #discounts-faq .discounts-faq-question {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    width: 100%;
+    min-height: 60px;
+    padding: 16px 20px;
+    border: 0;
+    background: transparent;
+    color: #143d3b;
+    font: inherit;
+    line-height: 1.5;
+    text-align: left;
+    cursor: pointer;
+    transition: background-color 180ms ease;
+  }
+  #discounts-faq .discounts-faq-question:hover { background: #eef7f4; }
+  #discounts-faq .discounts-faq-question:focus-visible {
+    outline: 2px solid #08776b;
+    outline-offset: -4px;
+  }
+  #discounts-faq .discounts-faq-icon {
+    flex: 0 0 20px;
+    color: #08776b;
+    font-size: 24px;
+    font-weight: 400;
+    line-height: 1;
+    text-align: center;
+  }
+  #discounts-faq .discounts-faq-answer {
+    display: grid;
+    grid-template-rows: 0fr;
+    visibility: hidden;
+    transition: grid-template-rows 220ms ease, visibility 220ms;
+  }
+  #discounts-faq .discounts-faq-answer[aria-hidden="false"] {
+    grid-template-rows: 1fr;
+    visibility: visible;
+  }
+  #discounts-faq .discounts-faq-answer-inner { min-height: 0; overflow: hidden; }
+  #discounts-faq .discounts-faq-answer p { padding: 0 20px 18px; }
+  @media (prefers-reduced-motion: reduce) {
+    #discounts-faq .discounts-faq-question,
+    #discounts-faq .discounts-faq-answer { transition: none; }
+  }
+</style>
+<style>
+  #discounts-everyone {
+    padding: clamp(56px, 8vw, 88px) 0 clamp(24px, 4vw, 48px);
+    text-align: center;
+  }
+  #discounts-everyone h2 {
+    max-width: 760px;
+    margin: 28px auto 0;
+    color: #143d3b;
+    font-size: clamp(28px, 3.4vw, 40px);
+    font-weight: 700;
+    line-height: 1.2;
+    letter-spacing: -0.025em;
+    text-wrap: balance;
+  }
+  #discounts-everyone .mf-shopping-bag {
+    position: relative;
+    container-type: inline-size;
+    isolation: isolate;
+    width: 100%;
+    max-width: 300px;
+    aspect-ratio: 300 / 250;
+    margin: 0 auto;
+  }
+  #discounts-everyone .mf-shopping-bag *,
+  #discounts-everyone .mf-shopping-bag *::before,
+  #discounts-everyone .mf-shopping-bag *::after { box-sizing: border-box; }
+  #discounts-everyone .mf-bag-stage { position: absolute; inset: 0; }
+  #discounts-everyone .mf-bag-shape {
+    position: absolute;
+    left: 27%;
+    top: 33%;
+    width: 47%;
+    height: 54%;
+    transform: rotate(-6deg);
+  }
+  #discounts-everyone .mf-bag-body {
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    overflow: hidden;
+    border: 0.6cqi solid #ad704e;
+    border-radius: 1.2cqi 1.2cqi 3.8cqi 3.8cqi;
+    background: linear-gradient(150deg, #fbe2ce, #f4cab0);
+    box-shadow: 0.8cqi 2.5cqi 4.8cqi rgba(123, 73, 43, 0.08);
+  }
+  #discounts-everyone .mf-bag-body::before {
+    content: '';
+    position: absolute;
+    inset: 0 0 auto;
+    height: 4.5cqi;
+    border-bottom: 0.45cqi solid rgba(173, 112, 78, 0.5);
+    background: rgba(255, 255, 255, 0.18);
+  }
+  #discounts-everyone .mf-bag-body::after {
+    content: '';
+    position: absolute;
+    inset: 0 0 0 auto;
+    width: 12%;
+    border-left: 0.45cqi solid rgba(173, 112, 78, 0.5);
+    background: rgba(173, 112, 78, 0.06);
+  }
+  #discounts-everyone .mf-bag-handle {
+    position: absolute;
+    border: 0.6cqi solid #ad704e;
+    border-bottom: 0;
+    border-radius: 50% 50% 0 0;
+  }
+  #discounts-everyone .mf-bag-handle--back {
+    left: 28%;
+    top: -27%;
+    width: 46%;
+    height: 49%;
+    opacity: 0.7;
+  }
+  #discounts-everyone .mf-bag-handle--front {
+    left: 21%;
+    top: -23%;
+    z-index: 2;
+    width: 43%;
+    height: 42%;
+  }
+  #discounts-everyone .mf-bag-handle--front::before,
+  #discounts-everyone .mf-bag-handle--front::after {
+    content: '';
+    position: absolute;
+    bottom: -0.6cqi;
+    width: 1.4cqi;
+    height: 1.4cqi;
+    border-radius: 50%;
+    background: #ad704e;
+  }
+  #discounts-everyone .mf-bag-handle--front::before { left: -1cqi; }
+  #discounts-everyone .mf-bag-handle--front::after { right: -1cqi; }
+  #discounts-everyone .mf-bag-badge {
+    position: absolute;
+    right: -8%;
+    top: 47%;
+    z-index: 3;
+    display: grid;
+    place-items: center;
+    width: 11cqi;
+    aspect-ratio: 1;
+    border: 0.5cqi solid #ad704e;
+    border-radius: 50%;
+    background: #fffaf5;
+    color: #7d563b;
+    font-family: system-ui, sans-serif;
+    font-size: 3.8cqi;
+    font-weight: 750;
+    line-height: 1;
+    letter-spacing: -0.1cqi;
+    transform: rotate(10deg);
+  }
+  #discounts-everyone .mf-bag-badge::before {
+    content: '';
+    position: absolute;
+    left: -4cqi;
+    top: 15%;
+    z-index: -1;
+    width: 4cqi;
+    height: 0.45cqi;
+    border-radius: 1cqi;
+    background: #ad704e;
+    transform: rotate(25deg);
+    transform-origin: right center;
+  }
+  #discounts-everyone .mf-bag-accent {
+    position: absolute;
+    height: 0.55cqi;
+    border-radius: 1cqi;
+    background: #76a88b;
+  }
+  #discounts-everyone .mf-bag-accent::after {
+    content: '';
+    position: absolute;
+    left: 10%;
+    top: 2cqi;
+    width: 65%;
+    height: 100%;
+    border-radius: inherit;
+    background: inherit;
+  }
+  #discounts-everyone .mf-bag-accent--left { left: 12%; top: 57%; width: 8%; transform: rotate(20deg); }
+  #discounts-everyone .mf-bag-accent--right { left: 78%; top: 79%; width: 7%; transform: rotate(-25deg); }
+  #discounts-everyone .mf-bag-sparkle {
+    position: absolute;
+    aspect-ratio: 1;
+    background: #d9a35c;
+    clip-path: polygon(50% 0, 61% 38%, 100% 50%, 61% 62%, 50% 100%, 39% 62%, 0 50%, 39% 38%);
+    animation: mf-shopping-bag-twinkle var(--mf-bag-duration) ease-in-out var(--mf-bag-delay) infinite;
+  }
+  #discounts-everyone .mf-bag-sparkle--one { left: 15%; top: 29%; width: 5%; --mf-bag-duration: 5.5s; --mf-bag-delay: -1.2s; }
+  #discounts-everyone .mf-bag-sparkle--two { left: 82%; top: 40%; width: 3.8%; --mf-bag-duration: 6.2s; --mf-bag-delay: -3.4s; }
+  #discounts-everyone .mf-bag-sparkle--three { left: 69%; top: 8%; width: 4.5%; --mf-bag-duration: 4.8s; --mf-bag-delay: -0.4s; }
+  @keyframes mf-shopping-bag-twinkle {
+    0%, 100% { opacity: 0.3; transform: scale(0.86); }
+    50% { opacity: 0.8; transform: scale(1.04); }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    #discounts-everyone .mf-bag-sparkle { animation: none; opacity: 0.65; transform: none; }
+  }
+</style>
+<style>
+  #discounts-unlock {
+    padding: clamp(48px, 7vw, 72px) 0 clamp(40px, 5vw, 64px);
+    text-align: center;
+  }
+  #discounts-unlock h2 {
+    max-width: 760px;
+    margin: clamp(20px, 3vw, 28px) auto 0;
+    color: #143d3b;
+    font-size: clamp(28px, 3.4vw, 40px);
+    font-weight: 700;
+    line-height: 1.2;
+    letter-spacing: -0.025em;
+    text-wrap: balance;
+  }
+  #discounts-unlock .mf-voucher-illustration {
+    position: relative;
+    container-type: inline-size;
+    isolation: isolate;
+    width: 100%;
+    max-width: 480px;
+    aspect-ratio: 480 / 360;
+    margin: 0 auto;
+  }
+  #discounts-unlock .mf-voucher-illustration *,
+  #discounts-unlock .mf-voucher-illustration *::before,
+  #discounts-unlock .mf-voucher-illustration *::after { box-sizing: border-box; }
+  #discounts-unlock .mf-voucher-scene { position: absolute; inset: 0; }
+  #discounts-unlock .mf-voucher-ground {
+    position: absolute;
+    left: 8%; top: 88%; width: 65%; height: 3%;
+    border-radius: 50%;
+    background: #e8f0ec;
+  }
+  #discounts-unlock .mf-voucher-leg {
+    position: absolute;
+    top: 61%; width: 8%; height: 25%;
+    border-radius: 2cqi 1cqi 0.9cqi 0.9cqi;
+    background: #2e515b;
+  }
+  #discounts-unlock .mf-voucher-leg--left { left: 32%; transform: rotate(5deg); }
+  #discounts-unlock .mf-voucher-leg--right { left: 43%; transform: rotate(-7deg); }
+  #discounts-unlock .mf-voucher-shoe {
+    position: absolute;
+    top: 84.5%; width: 11%; height: 4.5%;
+    border-radius: 1.8cqi 0.7cqi 0.5cqi 0.5cqi;
+    background: #203e47;
+  }
+  #discounts-unlock .mf-voucher-shoe--left { left: 30%; }
+  #discounts-unlock .mf-voucher-shoe--right { left: 45%; }
+  #discounts-unlock .mf-voucher-neck {
+    position: absolute;
+    left: 39%; top: 29%; width: 5%; height: 10%;
+    background: #dda77f;
+  }
+  #discounts-unlock .mf-voucher-body {
+    position: absolute;
+    left: 29%; top: 34%; width: 27%; height: 32%;
+    z-index: 2;
+    border-radius: 6cqi 6cqi 2cqi 2cqi;
+    background: #57cdae;
+    transform: rotate(-4deg);
+  }
+  #discounts-unlock .mf-voucher-body::before {
+    content: '';
+    position: absolute;
+    left: 39%; top: 0; width: 21%; height: 12%;
+    border-radius: 0 0 50% 50%;
+    background: #dda77f;
+  }
+  #discounts-unlock .mf-voucher-head {
+    position: absolute;
+    left: 34%; top: 14%; width: 13%; height: 19%;
+    z-index: 3;
+    border-radius: 44% 40% 42% 46%;
+    background: #e7b18b;
+    transform: rotate(-8deg);
+  }
+  #discounts-unlock .mf-voucher-head::before {
+    content: '';
+    position: absolute;
+    left: -4%; top: -5%; width: 100%; height: 43%;
+    border-radius: 65% 60% 25% 0;
+    background: #2c434a;
+    transform: rotate(-8deg);
+  }
+  #discounts-unlock .mf-voucher-head::after {
+    content: '';
+    position: absolute;
+    left: -9%; top: 48%; width: 24%; height: 26%;
+    border-radius: 50%;
+    background: #e7b18b;
+  }
+  #discounts-unlock .mf-voucher-hairline {
+    position: absolute;
+    left: 0; top: 28%; width: 11%; height: 27%;
+    border-radius: 0 0 0.8cqi 0.3cqi;
+    background: #2c434a;
+  }
+  #discounts-unlock .mf-voucher-ear-detail {
+    position: absolute;
+    left: -3%; top: 55%; width: 11%; height: 13%;
+    z-index: 1;
+    border-top: 0.25cqi solid #b97d5c;
+    border-left: 0.25cqi solid #b97d5c;
+    border-radius: 60% 50% 0 50%;
+  }
+  #discounts-unlock .mf-voucher-eye {
+    position: absolute;
+    left: 69%; top: 47%;
+    width: 0.65cqi; height: 0.8cqi;
+    border-radius: 50%;
+    background: #2c434a;
+  }
+  #discounts-unlock .mf-voucher-eye::before {
+    content: '';
+    position: absolute;
+    left: -0.5cqi; top: -1cqi; width: 2cqi; height: 0.35cqi;
+    border-radius: 1cqi;
+    background: #2c434a;
+    transform: rotate(5deg);
+  }
+  #discounts-unlock .mf-voucher-nose {
+    position: absolute;
+    right: -7%; top: 43%; width: 20%; height: 24%;
+    border-radius: 0.5cqi;
+    background: #e7b18b;
+    clip-path: polygon(0 0, 28% 0, 100% 63%, 96% 76%, 78% 88%, 0 88%);
+  }
+  #discounts-unlock .mf-voucher-smile {
+    position: absolute;
+    left: 73%; top: 70%; width: 19%; height: 8%;
+    border-bottom: 0.3cqi solid #955e49;
+    border-radius: 0 0 65% 45%;
+    transform: rotate(-8deg);
+  }
+  #discounts-unlock .mf-voucher-arm {
+    position: absolute;
+    z-index: 3;
+    border-radius: 5cqi;
+    background: #57cdae;
+    transform-origin: 50% 15%;
+  }
+  #discounts-unlock .mf-voucher-arm--left {
+    left: 24%; top: 40%; width: 9%; height: 24%;
+    transform: rotate(-32deg);
+  }
+  #discounts-unlock .mf-voucher-arm--right {
+    left: 50%; top: 37%; width: 8%; height: 26%;
+    transform: rotate(-50deg);
+  }
+  #discounts-unlock .mf-voucher-ticket {
+    position: absolute;
+    left: 39%; top: 39%; width: 51%; height: 32%;
+    z-index: 4;
+    transform: rotate(-7deg);
+    filter: drop-shadow(0 1cqi 1.8cqi rgba(82, 65, 131, 0.1));
+  }
+  #discounts-unlock .mf-voucher-ticket::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: 2.2cqi;
+    background: #825be6;
+    box-shadow: inset 0 0 0 0.2cqi rgba(255, 255, 255, 0.18);
+    mask-image: radial-gradient(circle at 0 50%, transparent 1.65cqi, #000 1.8cqi),
+                radial-gradient(circle at 100% 50%, transparent 1.65cqi, #000 1.8cqi);
+    mask-composite: intersect;
+  }
+  #discounts-unlock .mf-voucher-percent {
+    position: absolute;
+    left: 12%; top: 10%; width: 50%; height: 80%;
+    display: grid;
+    place-items: center;
+    color: #fff;
+    font-family: system-ui, sans-serif;
+    font-size: 14cqi;
+    font-weight: 700;
+    line-height: 1;
+  }
+  #discounts-unlock .mf-voucher-perforation {
+    position: absolute;
+    left: 73%; top: 12%; height: 76%;
+    border-left: 0.35cqi dashed #ded7f4;
+  }
+  #discounts-unlock .mf-voucher-stub {
+    position: absolute;
+    left: 81%; top: 23%; width: 8%; height: 54%;
+    background: repeating-linear-gradient(to bottom, #ded7f4 0 0.35cqi, transparent 0.35cqi 1.5cqi);
+  }
+  #discounts-unlock .mf-voucher-grip {
+    position: absolute;
+    background: #e7b18b;
+    border-radius: 2cqi;
+  }
+  #discounts-unlock .mf-voucher-grip--left { left: -4%; top: 42%; width: 7%; height: 24%; }
+  #discounts-unlock .mf-voucher-grip--bottom {
+    left: 46%; bottom: -7%; width: 14%; height: 18%;
+    border-radius: 40% 35% 45% 40%;
+  }
+  #discounts-unlock .mf-voucher-grip::before,
+  #discounts-unlock .mf-voucher-grip::after {
+    content: '';
+    position: absolute;
+  }
+  #discounts-unlock .mf-voucher-grip--left::before {
+    right: -12%; top: 9%; width: 50%; height: 40%;
+    border-radius: 50%;
+    background: #e7b18b;
+  }
+  #discounts-unlock .mf-voucher-grip--left::after {
+    left: 34%; top: 57%; width: 40%; height: 12%;
+    border-top: 0.2cqi solid #c58a68;
+    border-radius: 50%;
+  }
+  #discounts-unlock .mf-voucher-grip--bottom::before {
+    left: 8%; top: -22%; width: 32%; height: 60%;
+    border-radius: 50% 50% 30% 30%;
+    background: #e7b18b;
+    transform: rotate(-35deg);
+  }
+  #discounts-unlock .mf-voucher-grip--bottom::after {
+    left: 46%; top: 27%; width: 20%; height: 50%;
+    border-left: 0.2cqi solid #c58a68;
+    border-radius: 50%;
+  }
+  #discounts-unlock .mf-voucher-promo {
+    position: absolute;
+    left: 5%; top: 46%; width: 25%; height: 10%;
+    z-index: 5;
+    display: grid;
+    place-items: center;
+    border: 0.3cqi solid #a8d9c7;
+    border-radius: 1.5cqi;
+    background: #fff;
+    color: #316e5d;
+    font-family: system-ui, sans-serif;
+    font-size: 1.9cqi;
+    font-weight: 700;
+    line-height: 1;
+    letter-spacing: 0.15cqi;
+    transform: rotate(-6deg);
+  }
+  #discounts-unlock .mf-voucher-gift {
+    position: absolute;
+    left: 10%; top: 72%; width: 19%; height: 17%;
+    z-index: 3;
+    border-radius: 0.7cqi;
+    background: #f2a66f;
+  }
+  #discounts-unlock .mf-voucher-gift::before {
+    content: '';
+    position: absolute;
+    left: -4%; top: 0; width: 108%; height: 24%;
+    border-radius: 0.5cqi;
+    background: #f6b984;
+    box-shadow: 0 0.4cqi 0 rgba(164, 104, 63, 0.12);
+  }
+  #discounts-unlock .mf-voucher-gift::after {
+    content: '';
+    position: absolute;
+    left: 42%; top: 0; width: 16%; height: 100%;
+    background: #268f77;
+  }
+  #discounts-unlock .mf-voucher-gift-bow {
+    position: absolute;
+    left: 50%; top: 0;
+    z-index: 1;
+    width: 1.2cqi; height: 1cqi;
+    border-radius: 0.4cqi;
+    background: #268f77;
+    transform: translate(-50%, -50%);
+  }
+  #discounts-unlock .mf-voucher-gift-bow::before,
+  #discounts-unlock .mf-voucher-gift-bow::after {
+    content: '';
+    position: absolute;
+    bottom: 50%;
+    width: 3.8cqi; height: 2.7cqi;
+    border: 0.4cqi solid #268f77;
+  }
+  #discounts-unlock .mf-voucher-gift-bow::before { right: 50%; border-radius: 70% 70% 10% 70%; }
+  #discounts-unlock .mf-voucher-gift-bow::after { left: 50%; border-radius: 70% 70% 70% 10%; }
+  #discounts-unlock .mf-voucher-decoration {
+    position: absolute;
+    animation: mf-voucher-glint var(--mf-voucher-duration) ease-in-out var(--mf-voucher-delay) infinite;
+  }
+  #discounts-unlock .mf-voucher-mini-discount {
+    left: 12%; top: 20%; width: 8%; aspect-ratio: 1;
+    display: grid;
+    place-items: center;
+    border-radius: 1.6cqi;
+    background: #c8efe0;
+    color: #27765f;
+    font-family: system-ui, sans-serif;
+    font-size: 4cqi;
+    font-weight: 650;
+    --mf-voucher-duration: 5.4s;
+    --mf-voucher-delay: -1.3s;
+  }
+  #discounts-unlock .mf-voucher-sparkle {
+    aspect-ratio: 1;
+    clip-path: polygon(50% 0, 61% 38%, 100% 50%, 61% 62%, 50% 100%, 39% 62%, 0 50%, 39% 38%);
+  }
+  #discounts-unlock .mf-voucher-sparkle--gold {
+    left: 78%; top: 13%; width: 4.5%;
+    background: #f2c64b;
+    --mf-voucher-duration: 6.2s;
+    --mf-voucher-delay: -2.8s;
+  }
+  #discounts-unlock .mf-voucher-sparkle--mint {
+    left: 94%; top: 65%; width: 3.5%;
+    background: #4ebd99;
+    --mf-voucher-duration: 4.8s;
+    --mf-voucher-delay: -0.6s;
+  }
+  @keyframes mf-voucher-glint {
+    0%, 100% { opacity: 0.65; transform: scale(0.95); }
+    50% { opacity: 1; transform: scale(1.04); }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    #discounts-unlock .mf-voucher-decoration { animation: none; opacity: 1; transform: none; }
+  }
+</style>
+{% endblock %}
+
+{% block customer_page_content %}
+<h1>Discounts</h1>
+<div class="mf-discounts-illustration" role="img"
+     aria-label="Two overlapping MouseForce gift cards with reward coins and gold sparkles.">
+  <div class="mf-discounts-stage" aria-hidden="true">
+    <div class="mf-discounts-card mf-discounts-card--blue"><span class="mf-discounts-bow"></span></div>
+    <div class="mf-discounts-card mf-discounts-card--mint"><span class="mf-discounts-bow"></span></div>
+    <span class="mf-discounts-badge">MF</span>
+    <span class="mf-discounts-coin mf-discounts-coin--upper"></span>
+    <span class="mf-discounts-coin mf-discounts-coin--left"></span>
+    <span class="mf-discounts-coin mf-discounts-coin--right"></span>
+    <span class="mf-discounts-sparkle mf-discounts-sparkle--one"></span>
+    <span class="mf-discounts-sparkle mf-discounts-sparkle--two"></span>
+    <span class="mf-discounts-sparkle mf-discounts-sparkle--three"></span>
+    <span class="mf-discounts-sparkle mf-discounts-sparkle--four"></span>
+    <span class="mf-discounts-sparkle mf-discounts-sparkle--five"></span>
+    <span class="mf-discounts-sparkle mf-discounts-sparkle--six"></span>
+  </div>
+</div>
+
+<section id="discounts-information" aria-labelledby="discounts-information-title">
+  <h2 id="discounts-information-title">Discounts made for more</h2>
+  <p>We work to bring you useful discounts from different categories and, as MouseForce grows, build partnerships with local and international businesses. Our goal is simple: give you more ways to save and more value from the points you collect.</p>
+
+  <section id="discounts-faq" aria-label="Discounts frequently asked questions">
+    <div class="discounts-faq-item">
+      <h3>
+        <button type="button" class="discounts-faq-question" id="discounts-faq-question-1"
+                aria-expanded="false" aria-controls="discounts-faq-answer-1">
+          <span>What discounts can I find?</span>
+          <span class="discounts-faq-icon" aria-hidden="true">+</span>
+        </button>
+      </h3>
+      <div class="discounts-faq-answer" id="discounts-faq-answer-1" aria-hidden="true" inert>
+        <div class="discounts-faq-answer-inner">
+          <p>MouseForce may offer many types of discounts, including food delivery, travel, tickets, games, digital tools, technology, subscriptions, entertainment and local services. Some offers may even give you access to free products or services. We aim to keep expanding the range of discounts available.</p>
+        </div>
+      </div>
+    </div>
+    <div class="discounts-faq-item">
+      <h3>
+        <button type="button" class="discounts-faq-question" id="discounts-faq-question-2"
+                aria-expanded="false" aria-controls="discounts-faq-answer-2">
+          <span>How do I unlock a discount?</span>
+          <span class="discounts-faq-icon" aria-hidden="true">+</span>
+        </button>
+      </h3>
+      <div class="discounts-faq-answer" id="discounts-faq-answer-2" aria-hidden="true" inert>
+        <div class="discounts-faq-answer-inner">
+          <p>Use your MouseForce Points to unlock the discount or offer you want. Once you redeem your points, the transaction is final and the points used for that offer cannot normally be returned.</p>
+        </div>
+      </div>
+    </div>
+    <div class="discounts-faq-item">
+      <h3>
+        <button type="button" class="discounts-faq-question" id="discounts-faq-question-3"
+                aria-expanded="false" aria-controls="discounts-faq-answer-3">
+          <span>How many points do discounts cost?</span>
+          <span class="discounts-faq-icon" aria-hidden="true">+</span>
+        </button>
+      </h3>
+      <div class="discounts-faq-answer" id="discounts-faq-answer-3" aria-hidden="true" inert>
+        <div class="discounts-faq-answer-inner">
+          <p>It depends on the offer. We always aim to provide good value for your points. Some discounts may require only a few hundred points, while more valuable offers may require several thousand.</p>
+        </div>
+      </div>
+    </div>
+    <div class="discounts-faq-item">
+      <h3>
+        <button type="button" class="discounts-faq-question" id="discounts-faq-question-4"
+                aria-expanded="false" aria-controls="discounts-faq-answer-4">
+          <span>What kind of discounts can I get?</span>
+          <span class="discounts-faq-icon" aria-hidden="true">+</span>
+        </button>
+      </h3>
+      <div class="discounts-faq-answer" id="discounts-faq-answer-4" aria-hidden="true" inert>
+        <div class="discounts-faq-answer-inner">
+          <p>You may find offers such as 10% off, 20% off, reduced prices or even 100% discounts and free rewards, depending on what is available.</p>
+        </div>
+      </div>
+    </div>
+    <div class="discounts-faq-item">
+      <h3>
+        <button type="button" class="discounts-faq-question" id="discounts-faq-question-5"
+                aria-expanded="false" aria-controls="discounts-faq-answer-5">
+          <span>Do discounts expire?</span>
+          <span class="discounts-faq-icon" aria-hidden="true">+</span>
+        </button>
+      </h3>
+      <div class="discounts-faq-answer" id="discounts-faq-answer-5" aria-hidden="true" inert>
+        <div class="discounts-faq-answer-inner">
+          <p>Yes. Many discounts and special offers will only be available for a limited time. The expiry date and important conditions will be shown before you redeem an offer.</p>
+        </div>
+      </div>
+    </div>
+    <div class="discounts-faq-item">
+      <h3>
+        <button type="button" class="discounts-faq-question" id="discounts-faq-question-6"
+                aria-expanded="false" aria-controls="discounts-faq-answer-6">
+          <span>Can I use the same discount more than once?</span>
+          <span class="discounts-faq-icon" aria-hidden="true">+</span>
+        </button>
+      </h3>
+      <div class="discounts-faq-answer" id="discounts-faq-answer-6" aria-hidden="true" inert>
+        <div class="discounts-faq-answer-inner">
+          <p>Some offers may only be used once. Each discount will clearly show its individual rules before you redeem it.</p>
+        </div>
+      </div>
+    </div>
+    <div class="discounts-faq-item">
+      <h3>
+        <button type="button" class="discounts-faq-question" id="discounts-faq-question-7"
+                aria-expanded="false" aria-controls="discounts-faq-answer-7">
+          <span>Where can I see my available discounts?</span>
+          <span class="discounts-faq-icon" aria-hidden="true">+</span>
+        </button>
+      </h3>
+      <div class="discounts-faq-answer" id="discounts-faq-answer-7" aria-hidden="true" inert>
+        <div class="discounts-faq-answer-inner">
+          <p>All currently available discounts will be shown on the Discounts page. Availability may vary depending on the offer, location and partner.</p>
+        </div>
+      </div>
+    </div>
+    <div class="discounts-faq-item">
+      <h3>
+        <button type="button" class="discounts-faq-question" id="discounts-faq-question-8"
+                aria-expanded="false" aria-controls="discounts-faq-answer-8">
+          <span>Will loyal customers receive special discounts?</span>
+          <span class="discounts-faq-icon" aria-hidden="true">+</span>
+        </button>
+      </h3>
+      <div class="discounts-faq-answer" id="discounts-faq-answer-8" aria-hidden="true" inert>
+        <div class="discounts-faq-answer-inner">
+          <p>As MouseForce grows, active and long-term customers may receive access to selected offers or opportunities that are not available to everyone.</p>
+        </div>
+      </div>
+    </div>
+    <div class="discounts-faq-item">
+      <h3>
+        <button type="button" class="discounts-faq-question" id="discounts-faq-question-9"
+                aria-expanded="false" aria-controls="discounts-faq-answer-9">
+          <span>Can I suggest a discount?</span>
+          <span class="discounts-faq-icon" aria-hidden="true">+</span>
+        </button>
+      </h3>
+      <div class="discounts-faq-answer" id="discounts-faq-answer-9" aria-hidden="true" inert>
+        <div class="discounts-faq-answer-inner">
+          <p>Yes. If there is a product, service or type of discount you would like to see, send us your idea through Feedback or ChatMe. We want our future offers to reflect what our customers actually want.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+</section>
+
+<section id="discounts-everyone" aria-labelledby="discounts-everyone-title">
+  <div class="mf-shopping-bag" role="img" aria-label="A peach MouseForce shopping bag with an MF badge, green accents and small sparkles.">
+    <div class="mf-bag-stage" aria-hidden="true">
+      <div class="mf-bag-shape">
+        <span class="mf-bag-handle mf-bag-handle--back"></span>
+        <span class="mf-bag-body"></span>
+        <span class="mf-bag-handle mf-bag-handle--front"></span>
+        <span class="mf-bag-badge">MF</span>
+      </div>
+      <span class="mf-bag-accent mf-bag-accent--left"></span>
+      <span class="mf-bag-accent mf-bag-accent--right"></span>
+      <span class="mf-bag-sparkle mf-bag-sparkle--one"></span>
+      <span class="mf-bag-sparkle mf-bag-sparkle--two"></span>
+      <span class="mf-bag-sparkle mf-bag-sparkle--three"></span>
+    </div>
+  </div>
+  <h2 id="discounts-everyone-title">Discounts for everyone, at every age!</h2>
+</section>
+
+<section id="discounts-unlock" aria-labelledby="discounts-unlock-title">
+  <div class="mf-voucher-illustration" role="img" aria-label="A MouseForce customer holding a purple discount voucher, with a promo-code label and a gift box.">
+    <div class="mf-voucher-scene" aria-hidden="true">
+      <span class="mf-voucher-ground"></span>
+      <span class="mf-voucher-leg mf-voucher-leg--left"></span>
+      <span class="mf-voucher-leg mf-voucher-leg--right"></span>
+      <span class="mf-voucher-shoe mf-voucher-shoe--left"></span>
+      <span class="mf-voucher-shoe mf-voucher-shoe--right"></span>
+      <span class="mf-voucher-neck"></span>
+      <span class="mf-voucher-body"></span>
+      <span class="mf-voucher-head">
+        <span class="mf-voucher-hairline"></span>
+        <span class="mf-voucher-ear-detail"></span>
+        <span class="mf-voucher-eye"></span>
+        <span class="mf-voucher-nose"></span>
+        <span class="mf-voucher-smile"></span>
+      </span>
+      <span class="mf-voucher-arm mf-voucher-arm--left"></span>
+      <span class="mf-voucher-arm mf-voucher-arm--right"></span>
+      <div class="mf-voucher-ticket">
+        <span class="mf-voucher-percent">%</span>
+        <span class="mf-voucher-perforation"></span>
+        <span class="mf-voucher-stub"></span>
+        <span class="mf-voucher-grip mf-voucher-grip--left"></span>
+        <span class="mf-voucher-grip mf-voucher-grip--bottom"></span>
+      </div>
+      <span class="mf-voucher-promo">PROMO CODE</span>
+      <span class="mf-voucher-gift"><span class="mf-voucher-gift-bow"></span></span>
+      <span class="mf-voucher-decoration mf-voucher-mini-discount">%</span>
+      <span class="mf-voucher-decoration mf-voucher-sparkle mf-voucher-sparkle--gold"></span>
+      <span class="mf-voucher-decoration mf-voucher-sparkle mf-voucher-sparkle--mint"></span>
+    </div>
+  </div>
+  <h2 id="discounts-unlock-title">Unlock Your Exclusive Discount</h2>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+{{ block.super }}
+<script>
+(() => {
+  const faq = document.getElementById('discounts-faq');
+  if (!faq) return;
+
+  faq.querySelectorAll('.discounts-faq-question').forEach(button => {
+    const answer = document.getElementById(button.getAttribute('aria-controls'));
+    button.addEventListener('click', () => {
+      const expanded = button.getAttribute('aria-expanded') !== 'true';
+      button.setAttribute('aria-expanded', String(expanded));
+      answer.setAttribute('aria-hidden', String(!expanded));
+      answer.inert = !expanded;
+      button.querySelector('.discounts-faq-icon').textContent = expanded ? '−' : '+';
+    });
+  });
+})();
+</script>
+{% endblock %}

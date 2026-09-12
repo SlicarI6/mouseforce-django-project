@@ -5,6 +5,42 @@ from django.utils import timezone
 
 User = get_user_model()
 
+class CustomerPoints(models.Model):
+    user = models.OneToOneField(
+        settings.AUTH_USER_MODEL,
+        primary_key=True,
+        on_delete=models.CASCADE,
+    )
+    total_points = models.PositiveBigIntegerField(default=0)
+    last_daily_claim_date = models.DateField(null=True, blank=True)
+    streak_days = models.PositiveSmallIntegerField(default=0)
+    day_7_bonus_awarded = models.BooleanField(default=False)
+    day_14_bonus_awarded = models.BooleanField(default=False)
+
+    class Meta:
+        constraints = [
+            models.CheckConstraint(
+                condition=models.Q(streak_days__gte=0, streak_days__lte=14),
+                name='customerpoints_streak_range',
+            ),
+            models.CheckConstraint(
+                condition=(
+                    models.Q(streak_days=0, last_daily_claim_date__isnull=True)
+                    | models.Q(streak_days__gte=1, last_daily_claim_date__isnull=False)
+                ),
+                name='customerpoints_claim_date',
+            ),
+            models.CheckConstraint(
+                condition=models.Q(day_7_bonus_awarded=False) | models.Q(streak_days__gte=7),
+                name='customerpoints_day7_eligible',
+            ),
+            models.CheckConstraint(
+                condition=models.Q(day_14_bonus_awarded=False) | models.Q(streak_days=14),
+                name='customerpoints_day14_eligible',
+            ),
+        ]
+
+
 class Feedback(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     rating = models.IntegerField(choices=[(i, str(i)) for i in range(1, 6)], null=True, blank=True)

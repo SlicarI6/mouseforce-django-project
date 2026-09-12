@@ -1,0 +1,49 @@
+{% extends 'customer_base.html' %}
+
+{% block title %}Offers | MouseForce{% endblock %}
+
+{% block extra_head %}
+{{ block.super }}
+<style>
+  #customer-offers {
+    max-width: 760px;
+    margin: 0 auto;
+    padding: clamp(12px, 2vw, 24px) 0 48px;
+    text-align: center;
+  }
+  #customer-offers p { margin: 0 auto; }
+  #customer-offers .customer-offers-request {
+    max-width: 720px;
+    margin: clamp(36px, 5vw, 56px) auto 0;
+  }
+  #customer-offers .customer-offers-request h2 {
+    margin: 0 0 14px;
+    color: #143d3b;
+    font-size: clamp(20px, 2.5vw, 22px);
+    font-weight: 650;
+  }
+  #customer-offers .customer-offers-request p {
+    color: #143d3b;
+    font-style: italic;
+  }
+  #customer-offers .customer-offers-empty {
+    margin-top: clamp(40px, 6vw, 64px);
+    color: #b13e46;
+    font-size: clamp(20px, 2.5vw, 24px);
+    font-weight: 600;
+    line-height: 1.4;
+  }
+</style>
+{% endblock %}
+
+{% block customer_page_content %}
+<section id="customer-offers" aria-labelledby="customer-offers-title">
+  <h1 id="customer-offers-title">Offers</h1>
+  <p>Discover limited-time deals, partner offers and special opportunities available through MouseForce. Some offers may be available to everyone, while others may be unlocked through your activity, points or account history.</p>
+  <section class="customer-offers-request" aria-labelledby="customer-offers-request-title">
+    <h2 id="customer-offers-request-title">Looking for a specific offer?</h2>
+    <p>Send us a request through ChatMe and tell us what you’re looking for. We’ll review your request and, where possible, help you use your MouseForce Points towards a discount, special deal or the best available offer we can find for you.</p>
+  </section>
+  <p class="customer-offers-empty">No offers at the moment...</p>
+</section>
+{% endblock %}
