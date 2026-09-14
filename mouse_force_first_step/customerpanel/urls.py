@@ -6,6 +6,7 @@ from .views import ask_openai
 
 
 urlpatterns = [
+    path('session/', views.customer_session, name='customer_session'),
     path('dashboard/', customer_dashboard, name='customer_dashboard'),
     path('how-points-work/', views.customer_how_points_work, name='customer_how_points_work'),
     path('discounts/', views.customer_discounts, name='customer_discounts'),

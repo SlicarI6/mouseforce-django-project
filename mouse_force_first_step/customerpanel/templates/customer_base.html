@@ -1,6 +1,8 @@
 {% extends 'base.html' %}
 {% load static %}
 
+{% block main_attributes %}id="customer-page-main"{% endblock %}
+
 {% block extra_head %}
 <link rel="stylesheet" href="{% static 'css/style_customerpanel_css.css' %}">
 <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
@@ -360,6 +362,13 @@
 {% endblock %}
 
 {% block after_header %}
+<template id="customer-shell-config"
+ data-dashboard="{% url 'customer_dashboard' %}" data-discounts="{% url 'customer_discounts' %}"
+ data-how_points_work="{% url 'customer_how_points_work' %}" data-offers="{% url 'customer_offers' %}"
+ data-news="{% url 'customer_news' %}" data-weather="{% url 'customer_weather' %}"
+ data-session-url="{% url 'customer_session' %}" data-logout-url="{% url 'logout' %}"
+ data-three-url="https://cdnjs.cloudflare.com/ajax/libs/three.js/r134/three.min.js"
+ data-vanta-url="https://cdn.jsdelivr.net/npm/vanta@latest/dist/vanta.clouds.min.js"></template>
 <nav class="customer-secondary-nav" aria-label="Customer dashboard navigation">
   <ul>
     <li><a href="{% url 'customer_discounts' %}"{% if customer_active_page == 'discounts' %} aria-current="page"{% endif %}>Discounts</a></li>
@@ -389,6 +398,13 @@
   </div>
   <audio class="customer-music-audio" preload="none" hidden></audio>
 </aside>
+<div id="customer-page-top" style="display: contents"
+     data-page="{{ request.customer_shell_page }}" data-session="{{ request.customer_shell_session }}">
+  {% block customer_page_top %}{% endblock %}
+</div>
+<div id="customer-navigation-error" role="alert" hidden style="padding: 12px 24px; background: #fff8ee; color: #653b20;">
+  This page could not be loaded. <button type="button">Try again</button>
+</div>
 {% endblock %}
 
 {% block content %}
@@ -654,6 +670,15 @@
       sync();
     }
   });
+  window.addEventListener('customer:session-ended', () => {
+    stopAudio();
+    history.length = 0;
+    failedIds.clear();
+    current = null;
+    historyIndex = -1;
+    currentHistoryIndex = null;
+    sync();
+  });
   window.addEventListener('pagehide', stopAudio);
 })();
 </script>
@@ -806,4 +831,8 @@ document.addEventListener("click", function (e) {
 });
 
 </script>
+<script src="{% static 'js/customer_dashboard_assistant.js' %}" defer></script>
+<script src="{% static 'js/customer_dashboard.js' %}" defer></script>
+<script src="{% static 'js/customer_page_lifecycle.js' %}" defer></script>
+<script src="{% static 'js/customer_navigation.js' %}" defer></script>
 {% endblock %}

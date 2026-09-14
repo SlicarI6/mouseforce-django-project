@@ -4,7 +4,7 @@
 
 {% block extra_head %}
 {{ block.super }}
-<style>
+<style data-customer-page-style>
   .mf-discounts-illustration {
     position: relative;
     container-type: inline-size;
@@ -193,7 +193,7 @@
     }
   }
 </style>
-<style>
+<style data-customer-page-style>
   #discounts-information {
     max-width: 760px;
     margin: clamp(32px, 5vw, 56px) auto 0;
@@ -258,7 +258,7 @@
     #discounts-faq .discounts-faq-answer { transition: none; }
   }
 </style>
-<style>
+<style data-customer-page-style>
   #discounts-everyone {
     padding: clamp(56px, 8vw, 88px) 0 clamp(24px, 4vw, 48px);
     text-align: center;
@@ -421,7 +421,7 @@
     #discounts-everyone .mf-bag-sparkle { animation: none; opacity: 0.65; transform: none; }
   }
 </style>
-<style>
+<style data-customer-page-style>
   #discounts-unlock {
     padding: clamp(48px, 7vw, 72px) 0 clamp(40px, 5vw, 64px);
     text-align: center;
@@ -955,25 +955,4 @@
   </div>
   <h2 id="discounts-unlock-title">Unlock Your Exclusive Discount</h2>
 </section>
-{% endblock %}
-
-{% block extra_js %}
-{{ block.super }}
-<script>
-(() => {
-  const faq = document.getElementById('discounts-faq');
-  if (!faq) return;
-
-  faq.querySelectorAll('.discounts-faq-question').forEach(button => {
-    const answer = document.getElementById(button.getAttribute('aria-controls'));
-    button.addEventListener('click', () => {
-      const expanded = button.getAttribute('aria-expanded') !== 'true';
-      button.setAttribute('aria-expanded', String(expanded));
-      answer.setAttribute('aria-hidden', String(!expanded));
-      answer.inert = !expanded;
-      button.querySelector('.discounts-faq-icon').textContent = expanded ? '−' : '+';
-    });
-  });
-})();
-</script>
 {% endblock %}

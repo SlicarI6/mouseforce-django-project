@@ -1,3 +1,4 @@
+from .navigation import active_customer, customer_session_token, customer_shell
 from datetime import date, timedelta
 from dataclasses import asdict
 from django.core.exceptions import PermissionDenied
@@ -73,6 +74,7 @@ def claim_daily(request):
 
 
 @login_required
+@customer_shell('dashboard')
 def customer_dashboard(request):
     return render(request, 'customer_dashboard.html', {
         'room_name': request.user.username,
@@ -82,6 +84,7 @@ def customer_dashboard(request):
 
 
 @login_required(login_url='login_account_customer')
+@customer_shell('how_points_work')
 def customer_how_points_work(request):
     if not request.user.is_active or request.user.role != 'customer':
         raise PermissionDenied
@@ -91,6 +94,7 @@ def customer_how_points_work(request):
 
 
 @login_required(login_url='login_account_customer')
+@customer_shell('discounts')
 def customer_discounts(request):
     if not request.user.is_active or request.user.role != 'customer':
         raise PermissionDenied
@@ -100,6 +104,7 @@ def customer_discounts(request):
 
 
 @login_required(login_url='login_account_customer')
+@customer_shell('offers')
 def customer_offers(request):
     if not request.user.is_active or request.user.role != 'customer':
         raise PermissionDenied
@@ -109,6 +114,7 @@ def customer_offers(request):
 
 
 @login_required(login_url='login_account_customer')
+@customer_shell('news')
 def customer_news(request):
     if not request.user.is_active or request.user.role != 'customer':
         raise PermissionDenied
@@ -129,6 +135,7 @@ def customer_news(request):
 
 
 @login_required(login_url='login_account_customer')
+@customer_shell('weather')
 def customer_weather(request):
     if not request.user.is_active or request.user.role != 'customer':
         raise PermissionDenied
@@ -352,3 +359,12 @@ def ask_openai(request):
         )
         answer = response.choices[0].message.content
         return JsonResponse({"response": answer})
+
+
+@require_GET
+@never_cache
+def customer_session(request):
+    if not active_customer(request):
+        return JsonResponse({'error': 'Customer session unavailable.'},
+                            status=403 if request.user.is_authenticated else 401)
+    return JsonResponse({'session': customer_session_token(request)})

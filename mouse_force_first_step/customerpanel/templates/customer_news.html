@@ -4,7 +4,7 @@
 
 {% block extra_head %}
 {{ block.super }}
-<style>
+<style data-customer-page-style>
   #customer-news .customer-news-intro { margin-bottom: 32px; }
   #customer-news .customer-news-categories {
     position: relative;
@@ -226,22 +226,4 @@
     <p class="customer-news-notice">No news articles are available right now. Please check back soon.</p>
   {% endif %}
 </section>
-{% endblock %}
-
-{% block extra_js %}
-{{ block.super }}
-<script>
-(() => {
-  const bar = document.querySelector('#customer-news .customer-news-categories');
-  if (!bar) return;
-  const reveal = link => {
-    bar.scrollLeft = Math.max(0, link.offsetLeft - (bar.clientWidth - link.offsetWidth) / 2);
-  };
-  const selected = bar.querySelector('[aria-current="page"]');
-  if (selected) reveal(selected);
-  bar.addEventListener('focusin', event => {
-    if (event.target.matches('a')) reveal(event.target);
-  });
-})();
-</script>
 {% endblock %}

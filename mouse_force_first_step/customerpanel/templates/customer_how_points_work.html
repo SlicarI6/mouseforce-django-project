@@ -5,7 +5,7 @@
 
 {% block extra_head %}
 {{ block.super }}
-<style>
+<style data-customer-page-style>
   #how-points-introduction p + p { margin-top: 16px; }
   #points-faq .points-faq-item {
     margin-top: 12px;
@@ -197,25 +197,4 @@
     </div>
   </div>
 </section>
-{% endblock %}
-
-{% block extra_js %}
-{{ block.super }}
-<script>
-(() => {
-  const faq = document.getElementById('points-faq');
-  if (!faq) return;
-
-  faq.querySelectorAll('.points-faq-question').forEach(button => {
-    const answer = document.getElementById(button.getAttribute('aria-controls'));
-    button.addEventListener('click', () => {
-      const expanded = button.getAttribute('aria-expanded') !== 'true';
-      button.setAttribute('aria-expanded', String(expanded));
-      answer.setAttribute('aria-hidden', String(!expanded));
-      answer.inert = !expanded;
-      button.querySelector('.points-faq-icon').textContent = expanded ? '−' : '+';
-    });
-  });
-})();
-</script>
 {% endblock %}

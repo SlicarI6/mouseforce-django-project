@@ -600,7 +600,7 @@ class DashboardPointsTests(BonusFixtures, TestCase):
         self.assertContains(response, 'Next: Day 7 (+35 Points)')
         self.assertContains(response, 'data-daily-url="/customer/points/claim-daily/"')
         self.assertContains(response, 'data-bonus-url="/customer/points/claim-bonus/"')
-        self.assertContains(response, 'id="points-script"')
+        self.assertContains(response, 'id="points-initial-state"')
         self.assertFalse(CustomerPoints.objects.filter(user=self.user).exists())
 
     def test_daily_endpoint_claims_once_and_returns_renderable_state(self):

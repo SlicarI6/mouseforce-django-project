@@ -8,8 +8,8 @@
 {% block extra_head %}
 {{ block.super }}
 {% if points_state %}
-<link rel="stylesheet" href="{% static 'css/customer_points.css' %}">
-<style>
+<link data-customer-page-style rel="stylesheet" href="{% static 'css/customer_points.css' %}">
+<style data-customer-page-style>
   .rewards-intro {
     display: grid;
     grid-template-columns: minmax(0, 1fr) 400px;
@@ -44,6 +44,16 @@
   }
 </style>
 {% endif %}
+<style data-customer-page-style>
+#vanta-background {
+  position: relative;
+  z-index: 1;
+  padding-top: 80px;
+  min-height: 380vh;
+  width: 100%;
+  overflow: hidden;
+}
+</style>
 {% endblock %}
 
 
@@ -53,8 +63,7 @@
 
 
 
-{% block after_header %}
-{{ block.super }}
+{% block customer_page_top %}
 {% if points_state %}
 <section class="rewards-intro" aria-labelledby="rewards-intro-title">
   <div class="rewards-intro-copy">
@@ -96,7 +105,7 @@
 {% endblock %}
 
 {% block content %}
-<section class="dashboard">
+<section class="dashboard" data-chat-room="{{ room_name }}">
   <h2>Exclusive Features</h2>
   <p>This content is available only for YOU — earn and save your points to be among the first to unlock the best offers and exchange your points for rewards.</p>
 
@@ -344,410 +353,4 @@
   </div>
 
   
-{% endblock %}
-
-{% block extra_js %}
-{{ block.super }}
-{% if points_state %}
-<script id="points-script">
-(() => {
-  const controls = document.getElementById('points-controls');
-  if (!controls) return;
-
-  const dailyButton = document.getElementById('points-daily');
-  const bonusButton = document.getElementById('points-bonus');
-  const message = document.getElementById('points-message');
-  const csrfToken = controls.querySelector('[name="csrfmiddlewaretoken"]').value;
-  let state = JSON.parse(document.getElementById('points-initial-state').textContent);
-  let pending = false;
-
-  function render() {
-    document.getElementById('points-total').textContent = `${state.total_points} Points`;
-    document.getElementById('points-streak').textContent = state.streak_label;
-    const dailyCompleted = !state.daily_claimable && state.daily_label === 'Claimed today';
-    document.getElementById('points-daily-label').textContent = dailyCompleted
-      ? 'Claimed today ✓' : (state.daily_claimable ? 'Ready to claim' : state.daily_label);
-    dailyButton.dataset.state = dailyCompleted ? 'completed' : (state.daily_claimable ? 'available' : 'unavailable');
-
-    // Presentation only: eligibility still comes from the unchanged server flags.
-    const streak = state.displayed_streak;
-    const bonusAvailable = state.day_7_bonus_claimable || state.day_14_bonus_claimable;
-    const bonusCompleted = !state.streak_broken && (
-      (streak === 7 && state.day_7_bonus_awarded) || (streak === 14 && state.day_14_bonus_awarded)
-    );
-    const goal = streak > 7 || (streak === 7 && state.day_7_bonus_awarded) ? 14 : 7;
-    const goalLabel = `${goal} Day Streak → +${goal === 7 ? 35 : 50} Points`;
-    document.getElementById('points-next-milestone').textContent = goalLabel;
-    const progress = document.getElementById('points-progress');
-    progress.max = goal;
-    progress.value = streak;
-    progress.setAttribute('aria-label', goalLabel);
-    document.getElementById('points-progress-text').textContent = `${streak} / ${goal}`;
-    const bonusLabel = document.getElementById('points-bonus-label');
-    bonusLabel.hidden = !bonusAvailable && !bonusCompleted;
-    bonusLabel.textContent = bonusAvailable ? state.bonus_label : (bonusCompleted ? 'Bonus claimed ✓' : '');
-    bonusButton.dataset.state = bonusAvailable ? 'available' : (bonusCompleted ? 'completed' : 'status');
-    document.getElementById('points-streak-status').textContent = state.streak_broken
-      ? 'Streak broken. A fresh start is one daily claim away.' : '';
-    dailyButton.disabled = pending || !state.daily_claimable;
-    bonusButton.disabled = pending || !(state.day_7_bonus_claimable || state.day_14_bonus_claimable);
-    controls.setAttribute('aria-busy', String(pending));
-  }
-
-  async function claim(url) {
-    if (pending) return;
-    pending = true;
-    message.textContent = 'Claiming…';
-    render();
-    try {
-      const response = await fetch(url, {
-        method: 'POST',
-        credentials: 'same-origin',
-        headers: { 'X-CSRFToken': csrfToken },
-      });
-      const data = await response.json();
-      if (!response.ok || !data.state) throw new Error('Claim not confirmed');
-      state = data.state;
-      message.textContent = '';
-    } catch (error) {
-      message.textContent = 'Unable to confirm the claim. Refresh the page to check your points before trying again.';
-    } finally {
-      pending = false;
-      render();
-    }
-  }
-
-  dailyButton.addEventListener('click', () => {
-    if (!dailyButton.disabled) claim(controls.dataset.dailyUrl);
-  });
-  bonusButton.addEventListener('click', () => {
-    if (!bonusButton.disabled) claim(controls.dataset.bonusUrl);
-  });
-  render();
-})();
-</script>
-{% endif %}
-
-
-
-
-
-
-<script>
-  const today = new Date().toISOString().split('T')[0];
-  document.getElementById('dateInput').value = today;
-</script>
-
-
-<!-- pentru ca chatme sa lucreze s isa trimita mesaje intre ele  -->
-<script>
-const chatRoom = "{{ room_name }}";  // înlocuiește cu logica reală
-
-const wsProtocol = window.location.protocol === "https:" ? "wss://" : "ws://";
-const chatSocket = new WebSocket(
-  wsProtocol + window.location.host + "/ws/chat/" + chatRoom + "/"
-);
-
-chatSocket.onopen = function () {
-  console.log("🟢 Chat WebSocket connected");
-};
-
-chatSocket.onmessage = function (e) {
-  const data = JSON.parse(e.data);
-  console.log("📩 New chat message:", data);
-};
-
-chatSocket.onclose = function (e) {
-  console.log("❌ Chat socket closed");
-};
-
-function sendChatMessage(msg) {
-  chatSocket.send(JSON.stringify({ message: msg }));
-}
-</script>
-
-<!-- asta e pentru notificare ca sa mearga -->
-
-
-
-
-
-
-
-
-<script>
-function expandFeedback() {
-  document.getElementById('expandedFeedback').style.display = 'flex';
-  document.getElementById('feedbackOverlay').style.display = 'block';
-  document.querySelector('.feedback-bar').style.display = 'none';
-  document.body.style.overflow = 'hidden'; // 🚫 blocăm scroll-ul
-}
-
-function collapseFeedback() {
-  document.getElementById('expandedFeedback').style.display = 'none';
-  document.getElementById('feedbackOverlay').style.display = 'none';
-  document.querySelector('.feedback-bar').style.display = 'flex';
-  document.body.style.overflow = 'auto'; // ✅ readucem scroll-ul
-}
-
-
-
-let mediaRecorder;
-let audioChunks = [];
-
-document.getElementById('startRecord').onclick = async () => {
-  const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-  mediaRecorder = new MediaRecorder(stream);
-  mediaRecorder.start();
-  document.getElementById('recordingStatus').textContent = '🎙️ Înregistrare...';
-
-  audioChunks = [];
-  mediaRecorder.ondataavailable = e => audioChunks.push(e.data);
-
-  mediaRecorder.onstop = () => {
-    const blob = new Blob(audioChunks, { type: 'audio/webm' });
-    const audioURL = URL.createObjectURL(blob);
-    document.getElementById('audioPlayer').src = audioURL;
-    document.getElementById('audioPlayer').style.display = 'block';
-
-    const file = new File([blob], 'voice_feedback.webm', { type: 'audio/webm' });
-    const dataTransfer = new DataTransfer();
-    dataTransfer.items.add(file);
-    document.getElementById('audioInput').files = dataTransfer.files;
-    document.getElementById('recordingStatus').textContent = '✅ Înregistrare completă';
-  };
-};
-
-document.getElementById('stopRecord').onclick = () => {
-  mediaRecorder.stop();
-};
-</script>
-
-
-
-<!-- JS pentru  bara să stea fix deasupra footerului -->
-<script>
-document.addEventListener("DOMContentLoaded", function () {
-  const feedbackBar = document.querySelector(".feedback-bar");
-  const footer = document.getElementById("footer");
-
-  const observer = new IntersectionObserver(
-    function (entries) {
-      const entry = entries[0];
-      if (entry.isIntersecting) {
-        // Footerul e în vizibilitate – treci la absolute
-        const overlap = entry.boundingClientRect.height;
-        feedbackBar.style.position = 'absolute';
-        feedbackBar.style.bottom = `${overlap}px`;
-      } else {
-        // Footerul NU e vizibil – stă fix jos
-        feedbackBar.style.position = 'fixed';
-        feedbackBar.style.bottom = '0';
-      }
-    },
-    {
-      root: null,
-      threshold: 0.01 // detectează chiar și o atingere minimă
-    }
-  );
-
-  observer.observe(footer);
-});
-
-  </script>
-  
-
-<script>
-  document.addEventListener("DOMContentLoaded", function () {
-    const input = document.getElementById("quickMessage");
-    const sendBtn = document.getElementById("sendButton");
-
-    console.log("Buton găsit?", sendBtn); // Verificare la început
-
-    input.addEventListener("input", () => {
-      console.log("Valoare introdusă:", input.value); // Verificare la fiecare scriere
-
-      const text = input.value.toLowerCase();
-      const hasLetter = /[a-zăâîșț]/.test(text);
-
-      if (hasLetter) {
-        sendBtn.classList.add("enabled");
-        sendBtn.disabled = false;
-      } else {
-        sendBtn.classList.remove("enabled");
-        sendBtn.disabled = true;
-      }
-    });
-  });
-
-
-
-
-
-
-</script>
-
-<!-- Bara mica - pentru feedback sa fie trimis la backend -->
-<script>
-function submitQuickFeedback() {
-  const msg = document.getElementById('quickMessage').value.trim();
-
-  if (!msg) {
-    alert('Scrie un mesaj înainte de a trimite.');
-    return;
-  }
-
-  fetch('/customer/save-feedback/', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/x-www-form-urlencoded',
-      'X-CSRFToken': getCookie('csrftoken')
-    },
-    body: new URLSearchParams({ message: msg })
-  })
-  .then(response => response.json())
-  .then(data => {
-    if (data.status === 'ok') {
-      alert('Feedback sent successfully!');
-      document.getElementById('quickMessage').value = '';
-    } else {
-      alert('You sent 2 attemps. Wait please');
-    }
-  });
-}
-</script>
-
-
-<!-- pentru bara cea mare backend fetch -->
-<script>
-  function submitFeedback() {
-  const message = document.getElementById('feedbackInput').value.trim();
-  const rating = document.getElementById('ratingValue').value || null;
-  const country = document.getElementById('countryInput')?.value || '';
-  const audioInput = document.getElementById('audioInput');
-  const audioFile = audioInput?.files?.[0];
-
-  if (!message) {
-    alert('Scrie un mesaj înainte de a trimite.');
-    return;
-  }
-
-  const formData = new FormData();
-  formData.append('message', message);
-  if (rating) formData.append('rating', rating);
-  if (country) formData.append('country', country);
-  if (audioFile) formData.append('audio', audioFile);
-
-  fetch('/customer/save-feedback/', {
-    method: 'POST',
-    headers: {
-      'X-CSRFToken': getCookie('csrftoken')
-    },
-    body: formData
-  })
-  .then(response => response.json())
-  .then(data => {
-    if (data.status === 'ok') {
-      alert('Feedback sent successfully!');
-      document.getElementById('feedbackInput').value = '';
-    } else if (data.status === 'limit') {
-      alert('You send 3 times wait 24 hours. Thanks');
-    } else {
-      alert('Error,please try again.');
-    }
-  });
-}
-
-function getCookie(name) {
-  let cookieValue = null;
-  if (document.cookie && document.cookie !== '') {
-    const cookies = document.cookie.split(';');
-    for (let cookie of cookies) {
-      cookie = cookie.trim();
-      if (cookie.startsWith(name + '=')) {
-        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-        break;
-      }
-    }
-  }
-  return cookieValue;
-}
-
-  </script>
-  
-
-  <!-- script pentru stele sa fie de culoare -->
-<script>
-  const stars = document.querySelectorAll('.star');
-  const ratingInput = document.getElementById('ratingValue');
-  let currentRating = 0;
-
-  stars.forEach((star, index) => {
-    star.addEventListener('mouseover', () => {
-      highlightStars(index + 1);
-    });
-
-    star.addEventListener('click', () => {
-      currentRating = index + 1;
-      ratingInput.value = currentRating;
-    });
-
-    star.addEventListener('mouseleave', () => {
-      highlightStars(currentRating);
-    });
-  });
-
-  function highlightStars(rating) {
-    stars.forEach((star, index) => {
-      const svg = star.querySelector('path');
-      svg.setAttribute('fill', index < rating ? 'gold' : 'gray');
-    });
-  }
-</script>
-
-
-<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r134/three.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/vanta@latest/dist/vanta.clouds.min.js"></script>
-<script>
-  VANTA.CLOUDS({
-    el: "#vanta-background",
-    mouseControls: true,
-    touchControls: true,
-    gyroControls: false,
-    minHeight: 200.00,
-    minWidth: 200.00,
-    skyColor: 0xa2deff
-  });
-</script>
-<style>
-#vanta-background {
-  position: relative;
-  z-index: 1;
-  padding-top: 80px;
-  min-height: 380vh;
-  width: 100%;
-  overflow: hidden;
-}
-</style>
-<script>
-const tabs = document.querySelectorAll('.tab-btn');
-const contents = document.querySelectorAll('.tab-content');
-
-tabs.forEach(tab => {
-  tab.addEventListener('click', () => {
-    tabs.forEach(t => t.classList.remove('active'));
-    contents.forEach(c => c.classList.remove('active'));
-
-    tab.classList.add('active');
-    document.getElementById(tab.dataset.tab).classList.add('active');
-  });
-});
-</script>
-
-<!-- pentru clopotel sa arata notificare -->
-
-
-
-
-
 {% endblock %}

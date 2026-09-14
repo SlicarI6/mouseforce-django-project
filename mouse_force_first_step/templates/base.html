@@ -48,7 +48,7 @@
     
     {% block after_header %}{% endblock %}
 
-    <main>
+    <main {% block main_attributes %}{% endblock %}>
         {% block content %}{% endblock %}
     </main>
 
