@@ -1,0 +1,31 @@
+{% extends 'admin/base_site.html' %}
+{% load static %}
+{% block extrastyle %}
+{{ block.super }}
+<link rel="stylesheet" href="{% static 'admin/css/forms.css' %}">
+{% endblock %}
+{% block breadcrumbs %}
+<div class="breadcrumbs">
+  <a href="{% url 'admin:index' %}">Home</a> &rsaquo;
+  <a href="{% url 'admin:customerpanel_rewardcode_changelist' %}">Reward codes</a> &rsaquo; Import
+</div>
+{% endblock %}
+{% block content %}
+<p>Paste voucher codes or unique partner claim links, one per line. The reward determines the inventory type.</p>
+<p>The entire batch is checked before saving. Private values are not displayed again, including when validation fails.</p>
+<form method="post" autocomplete="off">
+  {% csrf_token %}
+  {{ form.non_field_errors }}
+  <fieldset class="module aligned">
+  {% for field in form %}
+  <div class="form-row">
+    {{ field.errors }}
+    {{ field.label_tag }}
+    {{ field }}
+    {% if field.help_text %}<p class="help">{{ field.help_text }}</p>{% endif %}
+  </div>
+  {% endfor %}
+  </fieldset>
+  <div class="submit-row"><input type="submit" value="Import private inventory" class="default"></div>
+</form>
+{% endblock %}

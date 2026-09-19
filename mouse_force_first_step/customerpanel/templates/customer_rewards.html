@@ -1,0 +1,121 @@
+{% extends 'customer_base.html' %}
+
+{% block title %}Rewards | MouseForce{% endblock %}
+
+{% block extra_head %}
+{{ block.super }}
+<style data-customer-page-style>
+  #customer-rewards { padding: 8px 0 24px; }
+  #customer-rewards [hidden] { display: none; }
+  #customer-rewards .rewards-heading { display: flex; align-items: center; justify-content: space-between; gap: 24px; }
+  #customer-rewards h1 { margin-bottom: 12px; }
+  #customer-rewards .rewards-balance { flex-shrink: 0; padding: 12px 18px; border: 1px solid #c8e4de; border-radius: 16px; background: #eaf6f2; color: #17564e; font-size: 14px; line-height: 1.5; }
+  #customer-rewards .rewards-balance strong { display: block; font-size: 20px; font-weight: 700; }
+  #customer-rewards [data-rewards-filters] { margin-top: 28px; }
+  #customer-rewards .rewards-categories { position: relative; display: flex; gap: 8px; max-width: 100%; overflow-x: auto; padding: 4px 2px 12px; scrollbar-width: thin; scrollbar-color: #abcfc6 transparent; }
+  #customer-rewards .rewards-categories button,
+  #customer-rewards .rewards-availability button { flex-shrink: 0; min-height: 44px; padding: 9px 15px; border: 1px solid #d2e3dd; border-radius: 999px; background: #fff; color: #385b54; font: inherit; font-size: 14px; font-weight: 600; line-height: 1.3; white-space: nowrap; cursor: pointer; transition: background-color .15s, border-color .15s; }
+  #customer-rewards button:hover { border-color: #7eafa3; background: #e8f5f0; }
+  #customer-rewards button[aria-pressed="true"] { border-color: #165c52; background: #165c52; color: #fff; }
+  #customer-rewards button:focus-visible { outline: 3px solid #287f70; outline-offset: 3px; }
+  #customer-rewards .rewards-toolbar { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 14px; margin: 12px 0 24px; }
+  #customer-rewards .rewards-availability { display: flex; gap: 8px; }
+  #customer-rewards .rewards-count { color: #526e67; font-size: 13px; }
+  #customer-rewards .rewards-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 22px; }
+  #customer-rewards .reward-card { min-width: 0; overflow: hidden; display: flex; flex-direction: column; border: 1px solid #dce8e3; border-radius: 20px; background: #fff; box-shadow: 0 5px 18px rgba(22, 70, 60, .04); }
+  #customer-rewards .reward-visual { --reward-tint: #e6eee9; --reward-ink: #3d6559; position: relative; display: grid; place-items: center; aspect-ratio: 1.65; padding: 38px; background: var(--reward-tint); color: var(--reward-ink); }
+  #customer-rewards [data-category="beauty"] .reward-visual { --reward-tint: #f3e5ed; --reward-ink: #875476; }
+  #customer-rewards [data-category="food-drink"] .reward-visual { --reward-tint: #f8ead8; --reward-ink: #89633f; }
+  #customer-rewards [data-category="travel"] .reward-visual { --reward-tint: #e0edf7; --reward-ink: #466d90; }
+  #customer-rewards [data-category="entertainment"] .reward-visual { --reward-tint: #e9e4f7; --reward-ink: #66528d; }
+  #customer-rewards [data-category="tech-gaming"] .reward-visual { --reward-tint: #ddeeea; --reward-ink: #356e64; }
+  #customer-rewards [data-category="shopping"] .reward-visual { --reward-tint: #f8e6df; --reward-ink: #946452; }
+  #customer-rewards [data-category="experiences"] .reward-visual { --reward-tint: #e7efda; --reward-ink: #627344; }
+  #customer-rewards .reward-image { width: 100%; aspect-ratio: 1.65; object-fit: cover; background: #e6eee9; }
+  #customer-rewards .reward-partner { margin: 0 0 12px; color: #526e67; font-size: 13px; }
+  #customer-rewards .reward-badges { display: flex; flex-wrap: wrap; gap: 8px; }
+  #customer-rewards .reward-body { overflow-wrap: anywhere; }
+  #customer-rewards .reward-link { display: inline-flex; align-items: center; min-height: 44px; margin-top: 18px; color: #165c52; font-size: 14px; font-weight: 650; text-decoration: underline; text-underline-offset: 4px; }
+  #customer-rewards .reward-link:focus-visible { outline: 3px solid #287f70; outline-offset: 3px; border-radius: 4px; }
+  #customer-rewards .reward-visual-token { display: grid; place-items: center; width: 120px; max-width: 100%; height: 76px; border: 1px solid currentColor; border-radius: 14px; background: rgba(255, 255, 255, .45); box-shadow: 7px 7px 0 rgba(255, 255, 255, .35); font-size: 28px; font-weight: 750; letter-spacing: -.06em; }
+  #customer-rewards .reward-body { display: flex; flex: 1; flex-direction: column; align-items: flex-start; padding: 22px; }
+  #customer-rewards .reward-category { margin-bottom: 8px; color: #526e67; font-size: 12px; font-weight: 600; }
+  #customer-rewards h2 { margin: 0 0 12px; color: #143d3b; font-size: 20px; font-weight: 650; line-height: 1.35; }
+  #customer-rewards .reward-badge { margin: 0 0 16px; padding: 4px 8px; border-radius: 6px; background: #f5eee2; color: #7b5b29; font-size: 11px; font-weight: 600; }
+  #customer-rewards .reward-points { width: 100%; margin-top: auto; padding-top: 16px; border-top: 1px solid #edf2ef; color: #1b5147; font-size: 18px; font-weight: 700; }
+  #customer-rewards .reward-state { margin: 8px 0 0; color: #536860; font-size: 13px; line-height: 1.5; }
+  #customer-rewards .reward-card[data-available="true"] .reward-state { color: #1b6850; font-weight: 650; }
+  #customer-rewards .reward-card[data-available="true"] .reward-state::before { content: '\2713'; margin-right: 6px; }
+  #customer-rewards .rewards-empty { max-width: none; padding: 36px 20px; border: 1px dashed #c9dfd6; border-radius: 16px; text-align: center; background: #f0f7f4; }
+  @media (max-width: 1000px) {
+    #customer-rewards .rewards-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  }
+  @media (max-width: 600px) {
+    #customer-rewards .rewards-heading { align-items: flex-start; flex-direction: column; gap: 18px; }
+    #customer-rewards .rewards-balance strong { display: inline; margin-left: 6px; font-size: 17px; }
+    #customer-rewards .rewards-grid { grid-template-columns: minmax(0, 1fr); gap: 20px; }
+    #customer-rewards .rewards-availability button { padding: 9px 12px; font-size: 13px; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    #customer-rewards button { transition: none; }
+  }
+</style>
+{% endblock %}
+
+{% block customer_page_content %}
+<section id="customer-rewards" aria-labelledby="customer-rewards-title">
+  <div class="rewards-heading">
+    <div>
+      <h1 id="customer-rewards-title">Rewards</h1>
+      <p>Turn your MouseForce Points into rewards you’ll actually enjoy. Explore what’s available, save your points and choose when you’re ready to redeem.</p>
+    </div>
+    <div class="rewards-balance">Your balance<strong>{{ rewards_balance }} Points</strong></div>
+  </div>
+
+  <nav aria-label="Your rewards"><a class="reward-link" href="{% url 'customer_reward_request_new' %}">Request a reward</a> &nbsp; <a class="reward-link" href="{% url 'customer_reward_requests' %}">My reward requests</a> &nbsp; <a class="reward-link" href="{% url 'customer_redemption_history' %}">Redemption history</a></nav>
+  <div data-rewards-filters hidden>
+    <div class="rewards-categories" role="group" aria-label="Reward category">
+      {% for slug, label in reward_categories %}
+      <button type="button" data-category="{{ slug }}" aria-pressed="{% if slug == 'all' %}true{% else %}false{% endif %}" aria-controls="rewards-grid">{{ label }}</button>
+      {% endfor %}
+    </div>
+    <div class="rewards-toolbar">
+      <div class="rewards-availability" role="group" aria-label="Reward availability">
+        <button type="button" data-availability="all" aria-pressed="true" aria-controls="rewards-grid">All rewards</button>
+        <button type="button" data-availability="available" aria-pressed="false" aria-controls="rewards-grid">Available for me</button>
+      </div>
+      <span class="rewards-count" data-rewards-count role="status" aria-live="polite" aria-atomic="true">{{ rewards|length }} reward{{ rewards|length|pluralize }}</span>
+    </div>
+  </div>
+  <noscript><p>All rewards are shown below. Enable JavaScript to filter them.</p></noscript>
+
+  <div id="rewards-grid" class="rewards-grid">
+    {% for reward in rewards %}
+    <article class="reward-card" data-reward-card data-category="{{ reward.category }}" data-available="{{ reward.available|yesno:'true,false' }}" aria-labelledby="reward-title-{{ forloop.counter }}">
+      {% if reward.image_url %}
+      <img class="reward-image" src="{{ reward.image_url }}" alt="{{ reward.image_alt|default:reward.title }}" loading="lazy" referrerpolicy="no-referrer">
+      {% else %}
+      <div class="reward-visual" aria-hidden="true">
+        <span class="reward-visual-token" aria-hidden="true">MF</span>
+      </div>
+      {% endif %}
+      <div class="reward-body">
+        <span class="reward-category">{{ reward.category_label }}</span>
+        <h2 id="reward-title-{{ forloop.counter }}">{{ reward.title }}</h2>
+        {% if reward.partner_name %}<p class="reward-partner">{{ reward.partner_name }}</p>{% endif %}
+        <div class="reward-badges">
+          {% if reward.is_limited_time %}<span class="reward-badge">Limited time</span>{% endif %}
+          {% if reward.is_exclusive %}<span class="reward-badge">Exclusive</span>{% endif %}
+        </div>
+        <p class="reward-points">{{ reward.points_required }} Points</p>
+        <p class="reward-state">{{ reward.status }}</p>
+        {% if reward.points_needed %}<p class="reward-state">You need {{ reward.points_needed }} more points</p>{% endif %}
+        <a class="reward-link" href="{% url 'customer_reward_detail' reward.id %}" aria-label="View reward: {{ reward.title }}">View reward</a>
+      </div>
+    </article>
+    {% endfor %}
+  </div>
+  {% if not rewards %}<p class="rewards-empty">New rewards are on the way. Keep collecting your points and check back soon.</p>{% endif %}
+  <p class="rewards-empty" data-rewards-empty hidden>No rewards match these filters. Try another category or choose All rewards.</p>
+</section>
+{% endblock %}

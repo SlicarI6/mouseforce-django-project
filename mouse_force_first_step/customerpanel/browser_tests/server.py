@@ -6,6 +6,7 @@ Uses temporary SQLite, real Django auth/CSRF/Points/Feedback, deterministic
 News/Weather fixtures, and the existing real Jamendo service. No live user writes.
 """
 import atexit
+import base64
 import contextlib
 import io
 import logging
@@ -17,6 +18,7 @@ from datetime import timedelta
 from pathlib import Path
 from socketserver import ThreadingMixIn
 from wsgiref.simple_server import WSGIRequestHandler, WSGIServer, make_server
+from cryptography.fernet import Fernet
 
 os.environ['DJANGO_SETTINGS_MODULE'] = 'project_name.settings'
 os.environ['DEBUG'] = 'False'
@@ -35,6 +37,10 @@ with contextlib.redirect_stdout(io.StringIO()), contextlib.redirect_stderr(io.St
     settings.STORAGES = {'default': {'BACKEND': 'django.core.files.storage.FileSystemStorage'},
                          'staticfiles': {'BACKEND': 'django.contrib.staticfiles.storage.StaticFilesStorage'}}
     settings.PASSWORD_HASHERS = ['django.contrib.auth.hashers.MD5PasswordHasher']
+    # Ephemeral keys and digital inventory exist only in this temporary database.
+    settings.REWARDS_CODE_ENCRYPTION_KEY = Fernet.generate_key().decode()
+    settings.REWARDS_CODE_FINGERPRINT_KEY = base64.urlsafe_b64encode(os.urandom(32)).decode()
+    settings.REWARDS_CODE_KEY_ID = 'isolated-browser-test'
     import django
     django.setup()
 logging.disable(logging.CRITICAL)
@@ -48,7 +54,7 @@ from django.urls import include, path
 from django.utils import timezone
 from django.views.decorators.csrf import csrf_exempt
 from .. import views
-from ..models import CustomerPoints, Feedback, Notification
+from ..models import CustomerPoints, Feedback, Notification, Reward, Redemption, RewardFulfillment, RewardRequest, RewardCode, RedemptionEvent
 
 
 def news_fixture(category='all'):
@@ -80,6 +86,8 @@ def fixture(request):
     user = get_user_model().objects.get(username='shell-customer')
     if request.GET.get('login') == '1':
         login(request, user, backend='django.contrib.auth.backends.ModelBackend')
+    if request.GET.get('login') == 'staff' and os.environ.get('CUSTOMER_BROWSER_REQUEST_FIXTURE') == '1':
+        login(request, get_user_model().objects.get(username='browser-inventory-staff'), backend='django.contrib.auth.backends.ModelBackend')
     if request.method == 'POST':
         day = int(request.POST.get('day', '0'))
         CustomerPoints.objects.update_or_create(user=user, defaults={
@@ -90,7 +98,22 @@ def fixture(request):
         })
         if request.POST.get('feedback_reset') == '1':
             Feedback.objects.filter(user=user).delete()
-    return JsonResponse({'feedback': list(Feedback.objects.filter(user=user).values('message', 'rating', 'country'))})
+        if 'rewards_active' in request.POST:
+            Reward.objects.update(is_active=request.POST['rewards_active'] == '1')
+        if request.POST.get('reward_change') == 'price':
+            Reward.objects.filter(title='Browser test voucher').update(points_required=120)
+    return JsonResponse({
+        'feedback': list(Feedback.objects.filter(user=user).values('message', 'rating', 'country')),
+        'digital_rewards': list(Reward.objects.filter(fulfillment_type__in=['voucher', 'external']).values('id', 'fulfillment_type')),
+        'fulfillment_rewards': list(Reward.objects.filter(title__startswith='Browser fulfillment').values('id', 'fulfillment_type', 'stock_remaining')),
+        'fulfillments': RewardFulfillment.objects.filter(redemption__user=user).count(),
+        'redemptions': Redemption.objects.filter(user=user).count(),
+        'refunds': list(Redemption.objects.filter(user=user, refunded_at__isnull=False).values('id', 'refunded_points', 'stock_reserved_quantity', 'stock_restored_at', 'balance_after')),
+        'refund_events': RedemptionEvent.objects.filter(redemption__user=user, event_type='refunded').count(),
+        'assigned_codes': RewardCode.objects.filter(redemption__user=user).count(),
+        'reward_requests': list(RewardRequest.objects.filter(user=user).values('id', 'status', 'approved_reward_id', 'redemption_id')),
+        'points': CustomerPoints.objects.filter(user=user).values_list('total_points', flat=True).first(),
+    })
 
 
 urlpatterns = [path('__fixture__/', fixture), path('', include('project_name.urls'))]
@@ -116,9 +139,50 @@ if __name__ == '__main__':
         cache.set('customerpanel:jamendo:v1:' + sha256(credential.encode()).hexdigest(), tracks, 1800)
     call_command('migrate', verbosity=0, interactive=False)
     user = get_user_model().objects.create_user(username='shell-customer', role='customer', is_active=True)
+    # Stage 1 examples remain useful only as isolated browser-test seed data.
+    # Customer views never import the demo helper or fall back to these records.
+    from ..reward_demos import DEMO_REWARDS
+    for item in DEMO_REWARDS:
+        Reward.objects.create(title=item['title'], category=item['category'], points_required=item['points'],
+            short_description='A public test reward.', full_description='Full reward information for browser verification.',
+            terms='Test terms and conditions.', fulfillment_type='physical', stock_remaining=4, is_active=True,
+            partner_name='Test Partner', information_url='https://example.com/reward-info',
+            image_url='https://example.com/reward.png' if item['category'] == 'beauty' else '', image_alt='Reward selection',
+            is_exclusive=item['badge'] == 'Exclusive', is_limited_time=item['badge'] == 'Limited time',
+            valid_until=timezone.now() + timedelta(days=30))
     Notification.objects.create(user=user, message='Your account notification')
-    server = make_server('127.0.0.1', 8766, StaticFilesHandler(get_wsgi_application()), ThreadedServer, QuietHandler)
-    print('Browser fixture server ready at http://127.0.0.1:8766', flush=True)
+    if os.environ.get('CUSTOMER_BROWSER_FULFILLMENT_FIXTURE') == '1':
+        for kind in ('physical', 'manual'):
+            Reward.objects.create(title='Browser fulfillment ' + kind, category='shopping', points_required=100,
+                short_description='An isolated fulfillment test reward.',
+                full_description='Test the existing confirmation and fulfillment flow with fictional delivery details.',
+                terms='Isolated test only. No real delivery or purchase.', fulfillment_type=kind,
+                stock_remaining=2, max_redemptions_per_customer=None, is_active=True,
+                requires_contact_details=kind == 'manual', requires_phone=kind == 'manual',
+                fulfillment_instructions='We review and process your request manually. No delivery date is guaranteed.',
+                country_code='GB' if kind == 'physical' else '')
+        if os.environ.get('CUSTOMER_BROWSER_REQUEST_FIXTURE') == '1':
+            manual = Reward.objects.get(title='Browser fulfillment manual')
+            manual.access_scope = 'selected_customers'
+            manual.save(update_fields=['access_scope'])
+            manual.eligible_users.add(user)
+    if os.environ.get('CUSTOMER_BROWSER_REDEMPTION_FIXTURE') == '1':
+        from ..reward_inventory import import_private_inventory
+        staff = get_user_model().objects.create_user(username='browser-inventory-staff', role='customer', is_staff=True, is_superuser=True)
+        for kind in ('voucher', 'external'):
+            reward = Reward.objects.create(title='Browser test ' + kind, category='shopping', points_required=100,
+                short_description='Test-only reward for reviewing the customer flow.',
+                full_description='Receive a private test voucher or partner benefit. This is isolated demonstration inventory.',
+                terms='Test inventory only. One benefit per redemption. No real purchases or partner offers.',
+                fulfillment_type=kind, is_active=True, max_redemptions_per_customer=None,
+                partner_name='Demo Partner', city='London', country_code='GB',
+                fulfillment_instructions='Reveal your private benefit after confirming your redemption.',
+                valid_until=timezone.now() + timedelta(days=30))
+            values = [f'BROWSER-TEST-VOUCHER-{i}' if kind == 'voucher' else f'https://partner.example/test-only-claim/{i}' for i in range(1, 5)]
+            import_private_inventory(staff, reward.pk, values, expires_at=timezone.now() + timedelta(days=45))
+    port = int(os.environ.get('CUSTOMER_BROWSER_PORT', '8766'))
+    server = make_server('127.0.0.1', port, StaticFilesHandler(get_wsgi_application()), ThreadedServer, QuietHandler)
+    print(f'Browser fixture server ready at http://127.0.0.1:{port}', flush=True)
     try:
         server.serve_forever()
     except KeyboardInterrupt:

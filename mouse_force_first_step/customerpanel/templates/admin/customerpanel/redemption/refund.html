@@ -1,0 +1,17 @@
+{% extends 'admin/base_site.html' %}
+{% block content %}
+<h2>{{ record.snapshot_title }}</h2>
+<p>Customer: {{ record.user }} · Redemption: {{ record.pk }}</p>
+<p>Original cost: <strong>{{ record.points_spent }} Points</strong>. Only this full original amount can be refunded.</p>
+<p>Redemption status: {{ record.get_status_display }}{% if fulfillment %} · Fulfillment: {{ fulfillment.get_status_display }}{% endif %}</p>
+{% if record.refunded_at %}
+<p><strong>Refunded: {{ record.refunded_points }} Points on {{ record.refunded_at }}.</strong> Repeating this action will not credit Points again.</p>
+<p>{% if record.stock_restored_at %}One reserved stock unit was restored on {{ record.stock_restored_at }}.{% else %}No stock was restored.{% endif %}</p>
+{% else %}
+<p>A browser timeout, missing email or lost response is not a refund reason. Retrieve the existing redemption instead.</p>
+<p>Private voucher codes and claim links remain assigned permanently, even after a refund. They must never be recycled.</p>
+<p>Stock restoration is optional and requires a verified finite reservation. Dispatched, lost, consumed or unverified returns must not be restocked. Any change to the Reward revision or inventory configuration blocks restoration for manual review.</p>
+<form method="post" autocomplete="off">{% csrf_token %}{{ form.as_p }}<input type="submit" value="Approve full refund"></form>
+{% endif %}
+<p><a href="{% url 'admin:customerpanel_redemption_changelist' %}">Back to redemptions</a></p>
+{% endblock %}

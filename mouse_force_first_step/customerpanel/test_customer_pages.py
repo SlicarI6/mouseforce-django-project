@@ -5,7 +5,7 @@ from django.contrib.auth.models import AnonymousUser
 from django.core.exceptions import PermissionDenied
 from django.template.loader import render_to_string
 from django.test import RequestFactory, SimpleTestCase
-from django.urls import Resolver404, resolve, reverse
+from django.urls import resolve, reverse
 
 from .views import customer_discounts, customer_how_points_work, customer_offers
 
@@ -68,15 +68,7 @@ class CustomerInformationPageTests(SimpleTestCase):
         self.assertIn(f'<a href="{reverse("customer_discounts")}">Discounts</a>', html)
         self.assertIn(f'<a href="{reverse("customer_offers")}">Offers</a>', html)
         self.assertIn(f'<a href="{reverse("customer_news")}">News</a>', html)
-        for label in ('Rewards',):
-            self.assertIn(
-                f'<a role="link" aria-disabled="true" tabindex="0">{label}</a>', html,
-            )
-
-    def test_other_information_pages_are_not_created(self):
-        for slug in ('rewards',):
-            with self.subTest(slug=slug), self.assertRaises(Resolver404):
-                resolve(f'/customer/{slug}/')
+        self.assertIn(f'<a href="{reverse("customer_rewards")}">Rewards</a>', html)
 
 
 class CustomerDiscountsPageTests(SimpleTestCase):

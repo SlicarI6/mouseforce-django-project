@@ -1,0 +1,29 @@
+{% extends 'customer_base.html' %}
+{% load static %}
+{% block title %}Redemption history | MouseForce{% endblock %}
+{% block extra_head %}{{ block.super }}<meta name="referrer" content="no-referrer"><link rel="stylesheet" href="{% static 'css/customer_reward_actions.css' %}" data-customer-page-style>{% endblock %}
+{% block customer_page_content %}
+<article class="customer-reward-action" id="customer-redemption-history" aria-labelledby="history-title">
+  <a class="reward-action-back" href="{% url 'customer_rewards' %}">Back to rewards</a>
+  <h1 id="history-title">Redemption history</h1>
+  <p class="reward-action-intro">Your rewards, their current status and any Points returned to you.</p>
+  <div data-fulfillment-private>
+    {% for item in history_page %}
+    <section class="reward-action-card reward-request-item">
+      <p class="reward-action-eyebrow">{{ item.type_label }} · {{ item.created_at|date:'j M Y, H:i T' }}</p>
+      <h2>{{ item.snapshot_title }}</h2>
+      <dl><dt>Points spent</dt><dd>{{ item.points_spent }} Points</dd>
+        <dt>Status</dt><dd>{{ item.status_label }}{% if item.fulfillment_label and item.fulfillment_label != item.status_label %} · {{ item.fulfillment_label }}{% endif %}</dd>
+        <dt>Refund</dt><dd>{% if item.refunded_at %}Refunded · +{{ item.refunded_points }} Points{% else %}Not refunded{% endif %}</dd>
+        <dt>Reference</dt><dd class="reward-action-reference">{{ item.id }}</dd>
+      </dl>
+      <a class="reward-action-back" href="{% url 'customer_redemption_result' item.id %}">View redemption</a>
+    </section>
+    {% empty %}<p class="reward-action-notice">Your redeemed rewards will appear here. Explore Rewards to find something you enjoy.</p>{% endfor %}
+  </div>
+  <nav aria-label="Redemption history pages">
+    {% if history_page.has_previous %}<a class="reward-action-back" href="?page={{ history_page.previous_page_number }}">Previous</a>{% endif %}
+    {% if history_page.has_next %}<a class="reward-action-back" href="?page={{ history_page.next_page_number }}">Next</a>{% endif %}
+  </nav>
+</article>
+{% endblock %}

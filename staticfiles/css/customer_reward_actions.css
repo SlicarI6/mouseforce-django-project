@@ -1,0 +1,56 @@
+/* Only the confirmation and owned redemption result pages. */
+.customer-reward-action { color: #163f39; padding: 8px 0 40px; overflow-wrap: anywhere; }
+.customer-reward-action h1 { margin: 8px 0 16px; font-size: clamp(28px, 4vw, 42px); line-height: 1.18; font-weight: 700; }
+.customer-reward-action h2 { margin: 8px 0 18px; font-size: 25px; line-height: 1.3; font-weight: 650; color: #163f39; }
+.customer-reward-action h3 { margin: 26px 0 10px; font-size: 17px; font-weight: 650; }
+.customer-reward-action p { max-width: none; margin: 0 0 16px; color: #45645d; line-height: 1.7; }
+.customer-reward-action .reward-action-back { display: inline-flex; align-items: center; min-height: 44px; margin-bottom: 16px; color: #176153; font-weight: 600; }
+.customer-reward-action .reward-action-eyebrow { font-size: 12px; font-weight: 650; letter-spacing: .06em; text-transform: uppercase; color: #276a5c; }
+.customer-reward-action .reward-action-intro { margin-bottom: 32px; max-width: 720px; }
+.customer-reward-action .reward-action-grid { display: grid; grid-template-columns: minmax(0, 1.5fr) minmax(280px, 1fr); gap: 24px; align-items: start; }
+.customer-reward-action .reward-action-card { padding: clamp(20px, 3vw, 32px); border: 1px solid #d9e7e1; border-radius: 20px; background: #fff; box-shadow: 0 8px 28px rgba(22, 75, 62, .04); }
+.customer-reward-action .reward-action-summary { background: #edf7f3; }
+.customer-reward-action dl { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 14px 18px; margin: 24px 0; font-size: 14px; line-height: 1.6; }
+.customer-reward-action dt { color: #4c6860; }
+.customer-reward-action dd { margin: 0; font-weight: 600; }
+.customer-reward-action .reward-action-total { font-size: 20px; color: #16604f; }
+.customer-reward-action .reward-action-button { display: block; width: 100%; min-height: 48px; padding: 13px 18px; border: 1px solid #17675b; border-radius: 12px; background: #17675b; color: #fff; font: inherit; font-weight: 650; line-height: 1.5; text-align: center; cursor: pointer; text-decoration: none; }
+.customer-reward-action .reward-action-button:hover { background: #124f47; }
+.customer-reward-action .reward-action-button:disabled { opacity: .65; cursor: wait; }
+.customer-reward-action .reward-action-secondary { background: #fff; color: #17574e; }
+.customer-reward-action .reward-action-secondary:hover { background: #e2f0ea; }
+.customer-reward-action .reward-action-caution { border-top: 1px solid #cce0d7; padding-top: 18px; font-size: 14px; }
+.customer-reward-action .reward-action-small { font-size: 13px; margin-top: 14px; }
+.customer-reward-action .reward-action-notice { padding: 18px 22px; margin: 24px 0; border: 1px solid #e7d6b8; border-radius: 14px; background: #fffbf3; color: #684a26; }
+.customer-reward-action .reward-action-error { color: #8c322b; margin-top: 16px; font-size: 14px; }
+.customer-reward-action .reward-action-review { display: inline-block; min-height: 44px; padding: 10px 0; color: #176153; text-decoration: underline; }
+.customer-reward-action .reward-action-benefit { border-top: 1px solid #d9e7e1; margin-top: 26px; padding-top: 2px; }
+.customer-reward-action .reward-private-benefit { margin-top: 18px; padding: 20px; background: #edf7f3; border: 1px solid #b5d7c9; border-radius: 12px; }
+.customer-reward-action .reward-private-benefit code { font-size: 20px; color: #174d40; user-select: all; white-space: pre-wrap; overflow-wrap: anywhere; }
+.customer-reward-action .reward-private-benefit a { color: #155b4b; font-weight: 650; text-decoration: underline; }
+.customer-reward-action .reward-action-reference { font-size: 12px; }
+.customer-reward-action [hidden] { display: none !important; }
+.customer-reward-action .reward-fulfillment-fields { border: 0; padding: 0; margin: 24px 0; min-width: 0; }
+.customer-reward-action .reward-fulfillment-fields legend { font-weight: 650; margin-bottom: 16px; }
+.customer-reward-action .reward-fulfillment-field { margin-bottom: 18px; }
+.customer-reward-action .reward-fulfillment-field label { display: block; font-size: 14px; margin-bottom: 6px; }
+.customer-reward-action .reward-fulfillment-field input,
+.customer-reward-action .reward-fulfillment-field select,
+.customer-reward-action .reward-fulfillment-field textarea { box-sizing: border-box; width: 100%; min-width: 0; min-height: 44px; padding: 10px 12px; border: 1px solid #adcac0; border-radius: 9px; background: #fff; color: #163f39; font: inherit; font-size: 16px; }
+.customer-reward-action .reward-fulfillment-field textarea { resize: vertical; }
+.customer-reward-action .reward-request-form { max-width: 760px; }
+.customer-reward-action .reward-request-item { margin-bottom: 18px; }
+.customer-reward-action .reward-request-item a { color: #176153; text-decoration: underline; }
+.customer-reward-action select:focus-visible { outline: 2px solid #268270; outline-offset: 2px; }
+.customer-reward-action .reward-fulfillment-field :is(input, textarea):focus-visible { outline: 2px solid #268270; outline-offset: 2px; }
+.customer-reward-action .reward-fulfillment-field [aria-invalid="true"] { border-color: #8c322b; }
+.customer-reward-action .reward-fulfillment-field .reward-action-error { margin-top: 6px; }
+.customer-reward-action .errorlist { padding-left: 18px; color: #8c322b; font-size: 14px; }
+.customer-reward-action :is(a, button):focus-visible { outline: 3px solid #268270; outline-offset: 4px; border-radius: 5px; }
+@media (max-width: 780px) {
+  .customer-reward-action .reward-action-grid { grid-template-columns: minmax(0, 1fr); }
+}
+@media (max-width: 380px) {
+  .customer-reward-action dl { grid-template-columns: minmax(0, 1fr); gap: 4px; }
+  .customer-reward-action dd { margin-bottom: 12px; }
+}

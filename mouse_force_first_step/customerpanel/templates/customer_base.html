@@ -7,6 +7,56 @@
 <link rel="stylesheet" href="{% static 'css/style_customerpanel_css.css' %}">
 <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
 <style>
+  #notificationDropdown {
+    top: calc(100% + 8px);
+    right: 16px;
+    width: min(272px, calc(100vw - 32px));
+    margin-top: 0;
+    padding: 12px !important;
+    max-height: 360px !important;
+    max-height: min(360px, calc(100dvh - 160px)) !important;
+    background: rgba(255, 255, 255, 0.75);
+    -webkit-backdrop-filter: blur(14px);
+    backdrop-filter: blur(14px);
+    border: 1px solid rgba(113, 153, 146, 0.28);
+    border-radius: 16px;
+    box-shadow: 0 10px 30px rgba(20, 61, 59, 0.13);
+    color: #315f59;
+    font-size: 13px;
+    line-height: 1.5;
+  }
+  #notificationDropdown #notificationList {
+    margin-top: 0 !important;
+    max-height: none;
+    overflow-y: visible !important;
+  }
+  #notificationDropdown #notificationLoading,
+  #notificationDropdown #notificationEmpty,
+  #notificationDropdown #notificationError {
+    padding: 18px 10px;
+    text-align: center;
+    color: #476560;
+  }
+  #notificationDropdown #notificationEmpty[hidden],
+  #notificationDropdown #notificationError[hidden] { display: none; }
+  #notificationDropdown #notificationEmpty svg {
+    display: block;
+    width: 22px;
+    height: 22px;
+    margin: 0 auto 8px;
+    color: #72958d;
+  }
+  #notificationDropdown #notificationEmpty p { margin: 0; }
+  #notificationDropdown #notificationList > div {
+    padding: 10px;
+    border: 1px solid rgba(113, 153, 146, 0.12);
+    border-radius: 10px;
+    background: rgba(237, 246, 243, 0.72);
+    overflow-wrap: anywhere;
+  }
+  #notificationDropdown #notificationList > div:hover { background: #e6f2ee; }
+</style>
+<style>
   .customer-secondary-nav {
     width: 100%;
     background: #f5fbfa;
@@ -270,12 +320,22 @@
 
       <!-- Dropdown notificări -->
           <div id="notificationDropdown"
-              class="absolute right-4 mt-2 w-72 bg-white shadow-xl rounded-xl p-3 z-50 hidden">
+              class="absolute z-50 hidden">
             
             
             <!-- Loading text -->
-            <div id="notificationLoading" class="text-center text-gray-500 py-4 hidden">
+            <div id="notificationLoading" role="status" style="display: none;">
               Loading notifications...
+            </div>
+
+            <div id="notificationEmpty" role="status" hidden>
+              <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9M10 21h4" />
+              </svg>
+              <p>No notifications yet</p>
+            </div>
+            <div id="notificationError" role="status" hidden>
+              Unable to load notifications. Please try again.
             </div>
 
             <!-- Lista de notificări -->
@@ -365,6 +425,8 @@
 <template id="customer-shell-config"
  data-dashboard="{% url 'customer_dashboard' %}" data-discounts="{% url 'customer_discounts' %}"
  data-how_points_work="{% url 'customer_how_points_work' %}" data-offers="{% url 'customer_offers' %}"
+ data-rewards="{% url 'customer_rewards' %}"
+ data-redemptions="{% url 'customer_redemption_result' '00000000-0000-0000-0000-000000000000' %}"
  data-news="{% url 'customer_news' %}" data-weather="{% url 'customer_weather' %}"
  data-session-url="{% url 'customer_session' %}" data-logout-url="{% url 'logout' %}"
  data-three-url="https://cdnjs.cloudflare.com/ajax/libs/three.js/r134/three.min.js"
@@ -373,7 +435,7 @@
   <ul>
     <li><a href="{% url 'customer_discounts' %}"{% if customer_active_page == 'discounts' %} aria-current="page"{% endif %}>Discounts</a></li>
     <li><a href="{% url 'customer_how_points_work' %}"{% if customer_active_page == 'how_points_work' %} aria-current="page"{% endif %}>How Points Work</a></li>
-    <li><a role="link" aria-disabled="true" tabindex="0">Rewards</a></li>
+    <li><a href="{% url 'customer_rewards' %}"{% if customer_active_page == 'rewards' %} aria-current="page"{% endif %}>Rewards</a></li>
     <li class="customer-secondary-offers"><a href="{% url 'customer_offers' %}"{% if customer_active_page == 'offers' %} aria-current="page"{% endif %}>Offers</a><span class="customer-secondary-new" aria-hidden="true">NEW</span></li>
     <li><a href="{% url 'customer_news' %}"{% if customer_active_page == 'news' %} aria-current="page"{% endif %}>News</a></li>
     <li><a href="{% url 'customer_weather' %}"{% if customer_active_page == 'weather' %} aria-current="page"{% endif %}>Weather</a></li>
@@ -759,6 +821,8 @@ document.addEventListener('DOMContentLoaded', function () {
 }
 
 
+let notificationPanelLoad = 0;
+
 function toggleNotifications() {
   const dropdown = document.getElementById("notificationDropdown");
   dropdown.classList.toggle("hidden");
@@ -766,8 +830,13 @@ function toggleNotifications() {
   const badge = document.getElementById("notificationBadge");
   const list = document.getElementById("notificationList");
   const loading = document.getElementById("notificationLoading");
+  const empty = document.getElementById("notificationEmpty");
+  const error = document.getElementById("notificationError");
 
   if (!dropdown.classList.contains("hidden")) {
+    const load = ++notificationPanelLoad;
+    empty.hidden = true;
+    error.hidden = true;
     // 🔄 Arată "Loading..." și ascunde lista
     loading.style.display = "block";
     list.classList.add("hidden");
@@ -783,12 +852,14 @@ function toggleNotifications() {
     })
     .then(() => {
       // 🔄 După ce s-au marcat ca citite, abia acum facem fetch notificări
-      fetch("{% url 'load_notifications' %}")
+      return fetch("{% url 'load_notifications' %}")
         .then(response => response.json())
         .then(data => {
+          if (load !== notificationPanelLoad) return;
           // 🔄 Ascunde "Loading...", arată lista
           loading.style.display = "none";
-          list.classList.remove("hidden");
+          empty.hidden = data.notifications.length !== 0;
+          list.classList.toggle("hidden", data.notifications.length === 0);
 
           // 🔄 Resetează badge
           notifCount = 0;
@@ -813,6 +884,12 @@ function toggleNotifications() {
             list.appendChild(div);
           });
         });
+    }).catch(() => {
+      if (load !== notificationPanelLoad) return;
+      loading.style.display = "none";
+      empty.hidden = true;
+      list.classList.add("hidden");
+      error.hidden = false;
     });
   }
 }
@@ -833,6 +910,7 @@ document.addEventListener("click", function (e) {
 </script>
 <script src="{% static 'js/customer_dashboard_assistant.js' %}" defer></script>
 <script src="{% static 'js/customer_dashboard.js' %}" defer></script>
+<script src="{% static 'js/customer_reward_actions.js' %}" defer></script>
 <script src="{% static 'js/customer_page_lifecycle.js' %}" defer></script>
 <script src="{% static 'js/customer_navigation.js' %}" defer></script>
 {% endblock %}

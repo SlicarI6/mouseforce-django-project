@@ -1,0 +1,36 @@
+{% extends 'customer_base.html' %}
+{% load static %}
+{% block title %}Your reward request | MouseForce{% endblock %}
+{% block extra_head %}{{ block.super }}<meta name="referrer" content="no-referrer"><link rel="stylesheet" href="{% static 'css/customer_reward_actions.css' %}" data-customer-page-style>{% endblock %}
+{% block customer_page_content %}
+<article class="customer-reward-action" aria-labelledby="request-title">
+  <a class="reward-action-back" href="{% url 'customer_reward_requests' %}">My reward requests</a>
+  {% if submitted %}<p class="reward-action-notice" role="status">Your request has been submitted for review.</p>{% endif %}
+  <div data-fulfillment-private>
+    <p class="reward-action-eyebrow">{{ request_status }}</p>
+    <h1 id="request-title">{{ reward_request.title }}</h1>
+    <div class="reward-action-grid">
+      <section class="reward-action-card"><h2>Your request</h2>{{ reward_request.description|linebreaks }}
+        {% if reward_request.country_code or reward_request.city %}<p>{{ reward_request.city }} {{ reward_request.country_code }}</p>{% endif %}
+        {% if reward_request.staff_response %}<h3>Our response</h3>{{ reward_request.staff_response|linebreaks }}{% endif %}
+      </section>
+      <section class="reward-action-card reward-action-summary">
+        {% if reward_request.redemption_id %}<h2>Reward accepted</h2><p>Your request is linked to your redeemed reward.</p><a class="reward-action-button" href="{% url 'customer_redemption_result' reward_request.redemption_id %}">View result</a>
+        {% elif offer %}<p class="reward-action-eyebrow">Offer available · {{ offer.fulfillment_label }}</p><h2>{{ offer.title }}</h2>
+          {% if offer.partner_name %}<p>{{ offer.partner_name }}</p>{% endif %}
+          <p class="reward-action-total">{{ offer.points_required }} Points</p>{{ offer.full_description|linebreaks }}
+          <h3>Terms</h3>{{ offer.terms|linebreaks }}
+          {% if offer.fulfillment_instructions %}<h3>How it works</h3>{{ offer.fulfillment_instructions|linebreaks }}{% endif %}
+          <dl><dt>Redeem before</dt><dd>{{ offer.valid_until|date:'j M Y, H:i T'|default:'No fixed closing date' }}</dd>
+            <dt>Benefit expires</dt><dd>{{ offer.benefit_valid_until|date:'j M Y, H:i T'|default:'Check final confirmation' }}</dd></dl>
+          <p>No Points have been spent. Review the final details before confirming.</p>
+          {% if offer.available %}<a class="reward-action-button" href="{% url 'customer_reward_request_confirm' reward_request.id %}">Review and confirm offer</a>
+          {% elif offer.points_needed %}<p>You need {{ offer.points_needed }} more Points.</p>{% else %}<p>{{ offer.status }}</p>{% endif %}
+        {% elif reward_request.status == 'approved' %}<h2>Offer currently unavailable</h2><p>No Points have been spent. Please check back or contact us.</p>
+        {% elif reward_request.status == 'declined' or reward_request.status == 'closed' %}<h2>{{ request_status }}</h2><p>No Points were spent on this request.</p>
+        {% else %}<h2>Pending review</h2><p>We will review your request. If an offer becomes available, you can choose whether to accept it. No Points have been spent.</p>{% endif %}
+      </section>
+    </div>
+  </div>
+</article>
+{% endblock %}

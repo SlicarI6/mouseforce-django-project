@@ -101,6 +101,50 @@
     });
   }
 
+  function rewards(scope) {
+    const root = scope.document.getElementById('customer-rewards');
+    if (!root) return;
+    const categories = root.querySelector('.rewards-categories');
+    const availability = root.querySelector('.rewards-availability');
+    const cards = [...root.querySelectorAll('[data-reward-card]')];
+    let category = 'all';
+    let availableOnly = false;
+    function update() {
+      let count = 0;
+      cards.forEach(card => {
+        card.hidden = (category !== 'all' && card.dataset.category !== category)
+          || (availableOnly && card.dataset.available !== 'true');
+        if (!card.hidden) count++;
+      });
+      categories.querySelectorAll('button').forEach(button => {
+        button.setAttribute('aria-pressed', String(button.dataset.category === category));
+      });
+      availability.querySelectorAll('button').forEach(button => {
+        button.setAttribute('aria-pressed', String((button.dataset.availability === 'available') === availableOnly));
+      });
+      root.querySelector('[data-rewards-count]').textContent = `${count} reward${count === 1 ? '' : 's'}`;
+      root.querySelector('[data-rewards-empty]').hidden = count !== 0 || cards.length === 0;
+    }
+    scope.on(categories, 'click', event => {
+      const button = event.target.closest('button[data-category]');
+      if (!button) return;
+      category = button.dataset.category;
+      update();
+    });
+    scope.on(availability, 'click', event => {
+      const button = event.target.closest('button[data-availability]');
+      if (!button) return;
+      availableOnly = button.dataset.availability === 'available';
+      update();
+    });
+    scope.on(categories, 'focusin', event => {
+      const button = event.target.closest('button');
+      if (button) categories.scrollLeft = Math.max(0, button.offsetLeft - (categories.clientWidth - button.offsetWidth) / 2);
+    });
+    update();
+    root.querySelector('[data-rewards-filters]').hidden = false;
+  }
+
   window.CustomerPages = {
     async prepare(page) {
       if (page !== 'dashboard') return;
@@ -118,6 +162,8 @@
       if (page === 'dashboard') window.CustomerDashboard(scope, dashboardDraft);
       if (page === 'discounts') faq(scope, 'discounts');
       if (page === 'how_points_work') faq(scope, 'points');
+      if (page === 'rewards') rewards(scope);
+      if (['reward_confirm', 'redemption_result', 'redemption_history', 'reward_requests', 'reward_request_new', 'reward_request_detail'].includes(page)) window.CustomerRewardActions(scope);
       if (page === 'news') {
         const bar = scope.document.querySelector('#customer-news .customer-news-categories');
         if (bar) {

@@ -1,0 +1,20 @@
+{% extends 'customer_base.html' %}
+{% load static %}
+{% block title %}My reward requests | MouseForce{% endblock %}
+{% block extra_head %}{{ block.super }}<meta name="referrer" content="no-referrer"><link rel="stylesheet" href="{% static 'css/customer_reward_actions.css' %}" data-customer-page-style>{% endblock %}
+{% block customer_page_content %}
+<article class="customer-reward-action" aria-labelledby="requests-title">
+  <a class="reward-action-back" href="{% url 'customer_rewards' %}">Back to rewards</a>
+  <h1 id="requests-title">My reward requests</h1>
+  <p><a class="reward-action-back" href="{% url 'customer_reward_request_new' %}">Request a reward</a></p>
+  <div data-fulfillment-private>
+  {% for item in requests_page %}
+    <section class="reward-action-card reward-request-item"><h2><a href="{% url 'customer_reward_request_detail' item.id %}">{{ item.title }}</a></h2>
+      <p>{% if item.redemption_id %}Accepted{% elif item.status == 'approved' %}Offer available{% elif item.status == 'declined' %}Declined{% elif item.status == 'closed' %}Closed{% else %}Pending review{% endif %} · {{ item.created_at|date:'j M Y' }}</p>
+    </section>
+  {% empty %}<p class="reward-action-notice">You have no reward requests yet.</p>{% endfor %}
+  </div>
+  <nav aria-label="Request pages">{% if requests_page.has_previous %}<a class="reward-action-back" href="?page={{ requests_page.previous_page_number }}">Previous</a>{% endif %}
+  {% if requests_page.has_next %}<a class="reward-action-back" href="?page={{ requests_page.next_page_number }}">Next</a>{% endif %}</nav>
+</article>
+{% endblock %}

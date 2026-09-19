@@ -1,0 +1,11 @@
+{% extends 'admin/base_site.html' %}
+{% block content %}
+<h2>{{ record.title }}</h2>
+<p>Customer: {{ record.user }} · {{ record.get_status_display }}</p>
+{{ record.description|linebreaks }}
+<p>{{ record.country_code }} {{ record.city }} {% if record.reference_url %}{{ record.reference_url }}{% endif %}</p>
+<p>Approval offers a reward for the customer to review. It does not spend Points or reserve inventory.</p>
+<p><a href="{% url 'admin:customerpanel_reward_add' %}" target="_blank" rel="noopener">Create a priced reward</a> before linking it here. Configure Selected customers for a private offer.</p>
+{% if record.redemption_id %}<p>This request has already been accepted. It cannot be edited.</p>
+{% else %}<form method="post" autocomplete="off">{% csrf_token %}{{ form.as_p }}<input type="submit" value="Save review"></form>{% endif %}
+{% endblock %}

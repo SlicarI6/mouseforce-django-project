@@ -1,0 +1,80 @@
+{% extends 'customer_base.html' %}
+{% load static %}
+{% block title %}Confirm your reward | MouseForce{% endblock %}
+{% block extra_head %}
+{{ block.super }}
+<meta name="referrer" content="no-referrer">
+<link rel="stylesheet" href="{% static 'css/customer_reward_actions.css' %}" data-customer-page-style>
+{% endblock %}
+{% block customer_page_content %}
+<article class="customer-reward-action" id="customer-reward-confirm" aria-labelledby="reward-confirm-title">
+  <a class="reward-action-back" href="{% url 'customer_rewards' %}">Back to rewards</a>
+  <p class="reward-action-eyebrow">Your next reward</p>
+  <h1 id="reward-confirm-title">Confirm your reward</h1>
+  {% if reward_request_id %}<a class="reward-action-back" href="{% url 'customer_reward_request_detail' reward_request_id %}">Return to your request</a>{% endif %}
+  {% if unavailable %}
+  <div class="reward-action-notice" role="status"><p>{{ unavailable }}</p><p>No Points have been spent on this confirmation.</p></div>
+  {% else %}
+  <p class="reward-action-intro">Review the details below before using your Points.</p>
+  {% if review_message %}<p class="reward-action-notice" role="status">{{ review_message }}</p>{% endif %}
+  <div class="reward-action-grid">
+    <div class="reward-action-details">
+      <section class="reward-action-card">
+        <p class="reward-action-eyebrow">{{ fulfillment_label }}{% if reward.partner_name %} · {{ reward.partner_name }}{% endif %}</p>
+        <h2>{{ reward.title }}</h2>
+        <p>{{ reward.short_description }}</p>
+        <h3>What you receive</h3>
+        {{ reward.full_description|linebreaks }}
+        {% if reward.fulfillment_instructions %}<h3>How it works</h3>{{ reward.fulfillment_instructions|linebreaks }}{% endif %}
+        <dl>
+          {% if reward.valid_from %}<dt>Available from</dt><dd>{{ reward.valid_from|date:'j M Y, H:i T' }}</dd>{% endif %}
+          <dt>Redeem before</dt><dd>{% if reward.valid_until %}{{ reward.valid_until|date:'j M Y, H:i T' }}{% else %}No fixed closing date{% endif %}</dd>
+          <dt>Benefit expires</dt><dd>{% if confirmation.promised_expiry %}{{ confirmation.promised_expiry|date:'j M Y, H:i T' }}{% else %}No fixed expiry{% endif %}</dd>
+          {% if reward.country_code %}<dt>Country</dt><dd>{{ reward.country_code }}</dd>{% endif %}
+          {% if reward.region %}<dt>Region</dt><dd>{{ reward.region }}</dd>{% endif %}
+          {% if reward.city %}<dt>City</dt><dd>{{ reward.city }}</dd>{% endif %}
+          {% if reward.location_details %}<dt>Location restrictions</dt><dd>{{ reward.location_details }}</dd>{% endif %}
+        </dl>
+        <h3>Terms and conditions</h3>
+        {{ reward.terms|linebreaks }}
+      </section>
+    </div>
+    <section class="reward-action-card reward-action-summary" aria-labelledby="reward-cost-title">
+      <h2 id="reward-cost-title">Your Points</h2>
+      <dl>
+        <dt>Current balance</dt><dd>{{ confirmation.balance }} Points</dd>
+        <dt>Reward cost</dt><dd>{{ confirmation.points_required }} Points</dd>
+        <dt>Balance afterwards</dt><dd class="reward-action-total">{{ confirmation.balance_after }} Points</dd>
+      </dl>
+      {% if is_fulfillment %}
+      <p class="reward-action-caution">Your Points will be spent when you confirm. Your request will then await processing according to the fulfillment instructions and terms shown here.</p>
+      {% else %}
+      <p class="reward-action-caution">Once your private code or partner benefit has been issued or revealed, it normally cannot be returned and the Points used normally cannot be refunded.</p>
+      {% endif %}
+      <form method="post" action="{% url 'customer_reward_redeem' reward_id %}" data-reward-redeem autocomplete="off">
+        {% csrf_token %}
+        <input type="hidden" name="confirmation_token" value="{{ confirmation.token }}" autocomplete="off">
+        {% if fulfillment_form.fields %}
+        <fieldset class="reward-fulfillment-fields">
+          <legend>{% if reward.fulfillment_type == 'physical' %}Delivery details{% else %}Details for this reward{% endif %}</legend>
+          {{ fulfillment_form.non_field_errors }}
+          {% for field in fulfillment_form %}
+          <div class="reward-fulfillment-field">
+            {{ field.label_tag }}{{ field }}
+            {% if field.help_text %}<p class="reward-action-small" id="{{ field.auto_id }}_helptext">{{ field.help_text }}</p>{% endif %}
+            <div class="reward-action-error" id="{{ field.auto_id }}_error" data-field-error="{{ field.name }}" role="status">{% for message in field.errors %}<p>{{ message }}</p>{% endfor %}</div>
+          </div>
+          {% endfor %}
+        </fieldset>
+        {% endif %}
+        <button class="reward-action-button" type="submit">Redeem for {{ confirmation.points_required }} Points</button>
+      </form>
+      <p class="reward-action-small">By confirming, you accept the terms above. Review and confirm within 15 minutes.</p>
+      <p class="reward-action-error" data-reward-error role="alert" hidden></p>
+      <a class="reward-action-review" data-reward-review hidden>Review updated confirmation</a>
+      <a class="reward-action-back" href="{% url 'customer_reward_detail' reward_id %}">Return to reward</a>
+    </section>
+  </div>
+  {% endif %}
+</article>
+{% endblock %}

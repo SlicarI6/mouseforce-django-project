@@ -1,0 +1,101 @@
+{% extends 'customer_base.html' %}
+
+{% block title %}{{ reward.title }} | Rewards | MouseForce{% endblock %}
+
+{% block extra_head %}
+{{ block.super }}
+<style data-customer-page-style>
+  #customer-reward-detail { padding: 8px 0 32px; color: #143d3b; overflow-wrap: anywhere; }
+  #customer-reward-detail .reward-back { display: inline-flex; align-items: center; min-height: 44px; margin-bottom: 18px; color: #165c52; font-weight: 600; }
+  #customer-reward-detail .reward-detail-hero { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 36px; align-items: start; }
+  #customer-reward-detail .reward-detail-image, #customer-reward-detail .reward-detail-placeholder { width: 100%; aspect-ratio: 1.2; object-fit: contain; border: 1px solid #dce8e3; border-radius: 22px; background: #edf6f2; }
+  #customer-reward-detail .reward-detail-placeholder { display: grid; place-items: center; color: #39776b; font-size: 64px; font-weight: 750; letter-spacing: -.06em; }
+  #customer-reward-detail h1 { margin: 8px 0 16px; font-size: clamp(28px, 4vw, 42px); line-height: 1.15; }
+  #customer-reward-detail h2 { margin: 0 0 16px; font-size: 22px; font-weight: 650; color: #143d3b; }
+  #customer-reward-detail p { max-width: none; margin: 0 0 16px; color: #45645d; line-height: 1.75; }
+  #customer-reward-detail .reward-detail-category { color: #526e67; font-size: 13px; font-weight: 600; }
+  #customer-reward-detail .reward-detail-badges { display: flex; flex-wrap: wrap; gap: 8px; margin: 16px 0; }
+  #customer-reward-detail .reward-detail-badges span { padding: 4px 10px; border-radius: 8px; background: #f5eee2; color: #7b5b29; font-size: 12px; }
+  #customer-reward-detail .reward-detail-balance { padding: 22px; border: 1px solid #c8e4de; border-radius: 18px; background: #eaf6f2; }
+  #customer-reward-detail .reward-detail-cost { display: block; margin-bottom: 10px; font-size: 28px; color: #17564e; }
+  #customer-reward-detail .reward-detail-balance p { margin-bottom: 8px; font-size: 14px; }
+  #customer-reward-detail .reward-detail-status { font-weight: 650; }
+  #customer-reward-detail .reward-detail-balance button { display: block; width: 100%; min-height: 46px; margin: 16px 0 8px; padding: 10px 18px; border: 1px solid #bacfc7; border-radius: 12px; background: #dce9e3; color: #4f675e; font: inherit; font-weight: 650; cursor: not-allowed; }
+  #customer-reward-detail .reward-confirm-link { display: block; margin: 16px 0 8px; padding: 13px 18px; border-radius: 12px; background: #17675b; color: #fff; font-weight: 650; text-align: center; text-decoration: none; }
+  #customer-reward-detail .reward-confirm-link:hover { background: #124f47; }
+  #customer-reward-detail .reward-detail-section { margin-top: 36px; padding-top: 28px; border-top: 1px solid #dce8e3; }
+  #customer-reward-detail dl { display: grid; grid-template-columns: minmax(130px, 1fr) minmax(0, 2fr); gap: 14px 24px; font-size: 15px; line-height: 1.7; }
+  #customer-reward-detail dt { color: #526e67; }
+  #customer-reward-detail dd { margin: 0; }
+  #customer-reward-detail .reward-partner-link { display: inline-flex; align-items: center; min-height: 44px; margin-top: 20px; color: #165c52; font-weight: 650; text-decoration: underline; text-underline-offset: 4px; }
+  #customer-reward-detail a:focus-visible { outline: 3px solid #287f70; outline-offset: 3px; border-radius: 4px; }
+  @media (max-width: 700px) {
+    #customer-reward-detail .reward-detail-hero { grid-template-columns: minmax(0, 1fr); gap: 24px; }
+    #customer-reward-detail .reward-detail-image, #customer-reward-detail .reward-detail-placeholder { aspect-ratio: 1.5; }
+    #customer-reward-detail dl { grid-template-columns: minmax(0, 1fr); gap: 4px; }
+    #customer-reward-detail dd { margin-bottom: 14px; }
+  }
+</style>
+{% endblock %}
+
+{% block customer_page_content %}
+<article id="customer-reward-detail" aria-labelledby="reward-detail-title">
+  <a class="reward-back" href="{% url 'customer_rewards' %}">Back to rewards</a>
+  <div class="reward-detail-hero">
+    {% if reward.image_url %}
+    <img class="reward-detail-image" src="{{ reward.image_url }}" alt="{{ reward.image_alt|default:reward.title }}" referrerpolicy="no-referrer">
+    {% else %}<div class="reward-detail-placeholder" aria-hidden="true">MF</div>{% endif %}
+    <div>
+      <span class="reward-detail-category">{{ reward.category_label }}</span>
+      <h1 id="reward-detail-title">{{ reward.title }}</h1>
+      <p>{{ reward.short_description }}</p>
+      {% if reward.partner_name %}<p>{{ reward.partner_name }}</p>{% endif %}
+      <div class="reward-detail-badges">
+        {% if reward.is_limited_time %}<span>Limited time</span>{% endif %}
+        {% if reward.is_exclusive %}<span>Exclusive</span>{% endif %}
+      </div>
+      <div class="reward-detail-balance">
+        <strong class="reward-detail-cost">{{ reward.points_required }} Points</strong>
+        <p>Your balance: <strong>{{ rewards_balance }} Points</strong></p>
+        <p class="reward-detail-status">{{ reward.status }}</p>
+        {% if reward.points_needed %}<p>You need {{ reward.points_needed }} more points</p>{% endif %}
+        {% if reward.available %}
+        <a class="reward-confirm-link" href="{% url 'customer_reward_confirm' reward.id %}">Review and redeem</a>
+        <p>You can review the cost and terms before spending your Points.</p>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+  <section class="reward-detail-section" aria-labelledby="reward-description-title">
+    <h2 id="reward-description-title">About this reward</h2>
+    {{ reward.full_description|linebreaks }}
+  </section>
+  <section class="reward-detail-section" aria-labelledby="reward-information-title">
+    <h2 id="reward-information-title">Reward details</h2>
+    <dl>
+      <dt>What you receive</dt><dd>{{ reward.fulfillment_label }}</dd>
+      {% if reward.partner_name %}<dt>Partner</dt><dd>{{ reward.partner_name }}</dd>{% endif %}
+      {% if reward.country_code %}<dt>Country</dt><dd>{{ reward.country_code }}</dd>{% endif %}
+      {% if reward.region %}<dt>Region</dt><dd>{{ reward.region }}</dd>{% endif %}
+      {% if reward.city %}<dt>City</dt><dd>{{ reward.city }}</dd>{% endif %}
+      {% if reward.location_details %}<dt>Location</dt><dd>{{ reward.location_details }}</dd>{% endif %}
+      {% if reward.valid_from %}<dt>Available from</dt><dd><time datetime="{{ reward.valid_from|date:'c' }}">{{ reward.valid_from|date:'j M Y, H:i' }}</time></dd>{% endif %}
+      {% if reward.valid_until %}<dt>Available until</dt><dd><time datetime="{{ reward.valid_until|date:'c' }}">{{ reward.valid_until|date:'j M Y, H:i' }}</time></dd>{% endif %}
+      {% if reward.benefit_valid_until %}<dt>Benefit expires</dt><dd><time datetime="{{ reward.benefit_valid_until|date:'c' }}">{{ reward.benefit_valid_until|date:'j M Y, H:i' }}</time></dd>{% endif %}
+      <dt>Stock</dt><dd>{% if not reward.in_stock %}Currently unavailable{% elif reward.stock_remaining != None %}{{ reward.stock_remaining }} remaining{% else %}Available{% endif %}</dd>
+      {% if reward.max_redemptions_per_customer %}<dt>Per customer</dt><dd>Up to {{ reward.max_redemptions_per_customer }} redemption{{ reward.max_redemptions_per_customer|pluralize }}</dd>{% endif %}
+    </dl>
+    {% if reward.information_url %}<a class="reward-partner-link" href="{{ reward.information_url }}" target="_blank" rel="noopener noreferrer">Visit partner website</a>{% endif %}
+  </section>
+  <section class="reward-detail-section" aria-labelledby="reward-terms-title">
+    <h2 id="reward-terms-title">Terms and conditions</h2>
+    {{ reward.terms|linebreaks }}
+  </section>
+  {% if reward.fulfillment_instructions %}
+  <section class="reward-detail-section" aria-labelledby="reward-instructions-title">
+    <h2 id="reward-instructions-title">How you receive it</h2>
+    {{ reward.fulfillment_instructions|linebreaks }}
+  </section>
+  {% endif %}
+</article>
+{% endblock %}

@@ -1,0 +1,7 @@
+{% extends 'admin/change_list.html' %}
+{% block object-tools-items %}
+  {% if can_import %}
+  <li><a href="{% url 'admin:customerpanel_rewardcode_import' %}" class="addlink">Import private inventory</a></li>
+  {% endif %}
+  {{ block.super }}
+{% endblock %}

@@ -5,8 +5,24 @@
   const top = document.getElementById('customer-page-top');
   const main = document.getElementById('customer-page-main');
   if (!config || !top || !main || !window.CustomerPages) return;
-  const pageNames = ['dashboard', 'discounts', 'how_points_work', 'offers', 'news', 'weather'];
+  const pageNames = ['dashboard', 'discounts', 'how_points_work', 'rewards', 'offers', 'news', 'weather'];
   const routes = new Map(pageNames.map(name => [new URL(config.dataset[name], location.href).pathname, name]));
+  const rewardsPath = new URL(config.dataset.rewards, location.href).pathname;
+  const redemptionsPath = new URL(config.dataset.redemptions, location.href).pathname.replace(/[^/]+\/$/, '');
+  const uuidPath = '[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}';
+  function pageFor(pathname) {
+    if (routes.has(pathname)) return routes.get(pathname);
+    if (pathname === redemptionsPath) return 'redemption_history';
+    const suffix = pathname.startsWith(rewardsPath) ? pathname.slice(rewardsPath.length) : '';
+    if (suffix === 'requests/') return 'reward_requests';
+    if (suffix === 'requests/new/') return 'reward_request_new';
+    if (new RegExp(`^requests/${uuidPath}/$`).test(suffix)) return 'reward_request_detail';
+    if (new RegExp(`^requests/${uuidPath}/confirm/$`).test(suffix)) return 'reward_confirm';
+    if (new RegExp(`^${uuidPath}/$`).test(suffix)) return 'reward_detail';
+    if (new RegExp(`^${uuidPath}/confirm/$`).test(suffix)) return 'reward_confirm';
+    const result = pathname.startsWith(redemptionsPath) ? pathname.slice(redemptionsPath.length) : '';
+    return new RegExp(`^${uuidPath}/$`).test(result) ? 'redemption_result' : null;
+  }
   const session = top.dataset.session;
   const pages = window.CustomerPages;
   const errorBox = document.getElementById('customer-navigation-error');
@@ -24,11 +40,11 @@
   });
 
   // Legacy non-customer Dashboard rendering stays unchanged; no shell navigation.
-  if (!session || !routes.has(location.pathname)) return;
+  if (!session || !pageFor(location.pathname)) return;
   history.scrollRestoration = 'manual';
   history.replaceState({...history.state, customerShell: entry}, '', location.href);
 
-  function supported(url) { return url.origin === location.origin && routes.has(url.pathname); }
+  function supported(url) { return url.origin === location.origin && !!pageFor(url.pathname); }
   function remember() {
     positions.set(entry.key, [scrollX, scrollY]);
     if (positions.size > 100) positions.delete(positions.keys().next().value);
@@ -148,7 +164,7 @@
       const doc = new DOMParser().parseFromString(await response.text(), 'text/html');
       const nextTop = doc.getElementById('customer-page-top');
       const nextMain = doc.getElementById('customer-page-main');
-      if (!nextTop || !nextMain || nextTop.dataset.page !== routes.get(url.pathname)) throw new Error('Unsupported page');
+      if (!nextTop || !nextMain || nextTop.dataset.page !== pageFor(finalURL.pathname)) throw new Error('Unsupported page');
       if (nextTop.dataset.session !== session) return leaveSession(url.href);
       styles = await stageStyles(doc, request.signal);
       await waitFor(pages.prepare(nextTop.dataset.page), request.signal);
@@ -167,7 +183,8 @@
       top.dataset.page = nextTop.dataset.page;
       document.title = doc.title;
       document.querySelectorAll('.customer-secondary-nav a[href]').forEach(link => {
-        if (new URL(link.href).pathname === url.pathname) link.setAttribute('aria-current', 'page');
+        const activePath = ['reward_detail', 'reward_confirm', 'redemption_result', 'redemption_history', 'reward_requests', 'reward_request_new', 'reward_request_detail'].includes(nextTop.dataset.page) ? rewardsPath : url.pathname;
+        if (new URL(link.href).pathname === activePath) link.setAttribute('aria-current', 'page');
         else link.removeAttribute('aria-current');
       });
       pages.mount(nextTop.dataset.page);
@@ -209,6 +226,10 @@
       }
     }
   }
+
+  // Page actions may navigate to a server-returned GET result. The same route
+  // whitelist applies; this API cannot submit purchases or reveal requests.
+  window.CustomerNavigation = Object.freeze({navigate});
 
   document.addEventListener('click', event => {
     if (stopped || event.defaultPrevented || event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;

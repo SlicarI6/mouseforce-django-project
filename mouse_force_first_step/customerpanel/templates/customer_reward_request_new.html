@@ -1,0 +1,22 @@
+{% extends 'customer_base.html' %}
+{% load static %}
+{% block title %}Request a reward | MouseForce{% endblock %}
+{% block extra_head %}{{ block.super }}<meta name="referrer" content="no-referrer"><link rel="stylesheet" href="{% static 'css/customer_reward_actions.css' %}" data-customer-page-style>{% endblock %}
+{% block customer_page_content %}
+<article class="customer-reward-action" aria-labelledby="request-title">
+  <a class="reward-action-back" href="{% url 'customer_rewards' %}">Back to rewards</a>
+  <h1 id="request-title">Request a reward</h1>
+  <p class="reward-action-intro">Tell us what you would enjoy. Submitting a request is free: no Points are spent and no reward is reserved. If we find an offer, you can review its price and terms before deciding.</p>
+  <div class="reward-action-card reward-request-form">
+    <form method="post" action="{% url 'customer_reward_request_new' %}" data-reward-request autocomplete="off">
+      {% csrf_token %}{{ form.submission_token }}{{ form.non_field_errors }}
+      {% for field in form.visible_fields %}<div class="reward-fulfillment-field">{{ field.label_tag }}{{ field }}
+        {% if field.help_text %}<p class="reward-action-small" id="{{ field.auto_id }}_helptext">{{ field.help_text }}</p>{% endif %}
+        <div class="reward-action-error" id="{{ field.auto_id }}_error" data-field-error="{{ field.name }}" role="status">{{ field.errors }}</div>
+      </div>{% endfor %}
+      <button class="reward-action-button" type="submit">Submit request</button>
+    </form>
+    <p class="reward-action-error" data-reward-error role="alert" hidden></p>
+  </div>
+</article>
+{% endblock %}

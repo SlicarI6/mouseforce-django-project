@@ -1,0 +1,72 @@
+{% extends 'customer_base.html' %}
+{% load static %}
+{% block title %}Your reward | MouseForce{% endblock %}
+{% block extra_head %}
+{{ block.super }}
+<meta name="referrer" content="no-referrer">
+<link rel="stylesheet" href="{% static 'css/customer_reward_actions.css' %}" data-customer-page-style>
+{% endblock %}
+{% block customer_page_content %}
+<article class="customer-reward-action" id="customer-redemption-result" aria-labelledby="redemption-result-title">
+  <a class="reward-action-back" href="{% url 'customer_rewards' %}">Back to rewards</a>
+  <a class="reward-action-back" href="{% url 'customer_redemption_history' %}">Redemption history</a>
+  <p class="reward-action-eyebrow">Your MouseForce reward</p>
+  <h1 id="redemption-result-title">{% if can_reveal %}Your reward is ready{% else %}Your redemption{% endif %}</h1>
+  <p class="reward-action-intro">{% if can_reveal %}Successfully redeemed. Your benefit is reserved for you.{% else %}Check the current status of your reward below.{% endif %}</p>
+  {% if redemption.refunded_at %}<p class="reward-action-notice" role="status">Refunded — {{ redemption.refunded_points }} Points were returned on {{ redemption.refunded_at|date:'j M Y, H:i T' }}.</p>{% endif %}
+  {% if fulfillment.status == 'pending' %}
+  <p class="reward-action-notice" role="status">{% if redemption.snapshot_fulfillment_type == 'physical' %}Request received — awaiting fulfillment.{% else %}Awaiting manual processing.{% endif %}</p>
+  {% endif %}
+  <div class="reward-action-grid">
+    <section class="reward-action-card">
+      <p class="reward-action-eyebrow">{{ fulfillment_label }}{% if redemption.snapshot_partner_name %} · {{ redemption.snapshot_partner_name }}{% endif %}</p>
+      <h2>{{ redemption.snapshot_title }}</h2>
+      <dl>
+        <dt>Status</dt><dd>{{ fulfillment_status }}{% if redemption.refunded_at %} · Refunded{% endif %}</dd>
+        <dt>Reference</dt><dd class="reward-action-reference">{{ redemption.id }}</dd>
+        <dt>Redeemed on</dt><dd>{{ redemption.created_at|date:'j M Y, H:i T' }}</dd>
+        {% if redemption.snapshot_valid_until %}<dt>Redemption window ended / ends</dt><dd>{{ redemption.snapshot_valid_until|date:'j M Y, H:i T' }}</dd>{% endif %}
+        <dt>Benefit expires</dt><dd>{% if redemption.snapshot_benefit_valid_until %}{{ redemption.snapshot_benefit_valid_until|date:'j M Y, H:i T' }}{% else %}No fixed expiry{% endif %}</dd>
+      </dl>
+      {% if redemption.snapshot_fulfillment_instructions %}<h3>How to use your reward</h3>{{ redemption.snapshot_fulfillment_instructions|linebreaks }}{% endif %}
+      {% if fulfillment %}
+      <h3>Fulfillment</h3>
+      <p>{{ fulfillment.status_label }}</p>
+      <div data-fulfillment-private>
+        {% if fulfillment.recipient_name %}<p>{{ fulfillment.recipient_name }}<br>{{ fulfillment.contact_email }}</p>{% endif %}
+        {% if fulfillment.contact_phone %}<p>{{ fulfillment.contact_phone }}</p>{% endif %}
+        {% if fulfillment.address_line_1 %}
+        <p>{{ fulfillment.address_line_1 }}{% if fulfillment.address_line_2 %}<br>{{ fulfillment.address_line_2 }}{% endif %}<br>{{ fulfillment.city }}{% if fulfillment.region %}, {{ fulfillment.region }}{% endif %}<br>{{ fulfillment.postal_code }} · {{ fulfillment.country_code }}</p>
+        {% endif %}
+        {% if fulfillment.request_details %}<h3>Your details</h3>{{ fulfillment.request_details|linebreaks }}{% endif %}
+        {% if fulfillment.customer_update %}{{ fulfillment.customer_update|linebreaks }}{% endif %}
+      </div>
+      {% endif %}
+      {% if can_reveal %}
+      <div class="reward-action-benefit">
+        <h3>Your private benefit</h3>
+        <p>Reveal your {% if redemption.snapshot_fulfillment_type == 'external' %}private partner link{% else %}voucher code{% endif %} when you’re ready. Revealing it again always shows the same benefit and does not spend more Points.</p>
+        <form method="post" action="{% url 'customer_redemption_reveal' redemption.id %}" data-reward-reveal>
+          {% csrf_token %}
+          <button class="reward-action-button" type="submit">{% if redemption.snapshot_fulfillment_type == 'external' %}Reveal partner link{% else %}Reveal voucher code{% endif %}</button>
+        </form>
+        <noscript><p>The reveal button returns your private benefit securely. Use your browser’s Back button to return here.</p></noscript>
+        <div class="reward-private-benefit" data-reward-private role="status" aria-live="polite" hidden></div>
+        <p class="reward-action-error" data-reward-error role="alert" hidden></p>
+      </div>
+      {% endif %}
+    </section>
+    <section class="reward-action-card reward-action-summary" aria-labelledby="redemption-points-title">
+      <h2 id="redemption-points-title">Points summary</h2>
+      <dl>
+        <dt>Points spent</dt><dd>{{ redemption.points_spent }} Points</dd>
+        <dt>Balance after redemption</dt><dd>{{ redemption.balance_after }} Points</dd>
+        {% if redemption.refunded_at %}<dt>Points refunded</dt><dd>+{{ redemption.refunded_points }} Points</dd>{% endif %}
+        <dt>Current balance</dt><dd class="reward-action-total">{{ current_balance }} Points</dd>
+      </dl>
+      <p class="reward-action-small">Keep this reference if you need help with your reward.</p>
+      <a class="reward-action-button reward-action-secondary" href="{% url 'customer_rewards' %}">Explore rewards</a>
+    </section>
+  </div>
+</article>
+{% endblock %}
