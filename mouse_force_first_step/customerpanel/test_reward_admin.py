@@ -138,6 +138,18 @@ class RewardsAdminTests(TestCase):
         self.assertEqual(self.physical.revision, 2)
         self.assertEqual(CustomerPoints.objects.filter(user=self.customer).values().get(), before)
 
+    def test_editing_manual_phone_requirement_saves_implied_contact_requirement(self):
+        reward = make_reward(fulfillment_type='manual')
+        before = CustomerPoints.objects.filter(user=self.customer).values().get()
+        response = self.client.post(admin_url(Reward, 'change', reward),
+            reward_data(reward, requires_phone='on'))
+        self.assertEqual(response.status_code, 302)
+        reward.refresh_from_db()
+        self.assertTrue(reward.requires_phone)
+        self.assertTrue(reward.requires_contact_details)
+        self.assertEqual(reward.revision, 2)
+        self.assertEqual(CustomerPoints.objects.filter(user=self.customer).values().get(), before)
+
     def test_stale_form_cannot_overwrite_concurrently_changed_stock(self):
         data = reward_data(self.physical, title='Stale edit')
         Reward.objects.filter(pk=self.physical.pk).update(stock_remaining=1)

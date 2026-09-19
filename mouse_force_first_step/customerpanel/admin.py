@@ -121,6 +121,10 @@ class RewardAdmin(NoDeleteAdmin):
         # inventory updated elsewhere, even when its field was not displayed.
         names = {field.name for field in obj._meta.concrete_fields if field.editable and not field.primary_key}
         changed = set(form.changed_data) & names
+        # Form cleaning can imply contact details from a phone requirement;
+        # changed_data compares raw input and misses that inferred change.
+        if form.cleaned_data.get('requires_contact_details') != form.initial.get('requires_contact_details'):
+            changed.add('requires_contact_details')
         if changed or 'eligible_users' in form.changed_data:
             obj.revision += 1
             obj.save(update_fields=changed | {'revision', 'updated_at'})
