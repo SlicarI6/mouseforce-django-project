@@ -20,6 +20,7 @@ from .reward_confirmation import (
     verify_limit_and_balance, verify_reward_access,
 )
 from .reward_inventory import import_key_material
+from .reward_emails import send_reward_ready_email
 
 
 class AllocationPlan:
@@ -174,5 +175,10 @@ def redeem_reward(user, reward_id, token, *, session_key, fulfillment_data=None)
     if request_record:
         request_record.redemption = redemption
         request_record.save(update_fields=['redemption', 'updated_at'])
+    if redemption.snapshot_fulfillment_type in ('voucher', 'external'):
+        recipient, title, reference = current.email, redemption.snapshot_title, redemption.pk
+        # Only new purchases reach here. Rollback discards this callback;
+        # idempotent replays return above without scheduling another notice.
+        transaction.on_commit(lambda: send_reward_ready_email(recipient, title, reference), robust=True)
     # Result is private-data-free. Any future reveal must wait for OUTERMOST commit.
     return RedemptionResult(redemption.pk, False, reward.points_required, after, after)
