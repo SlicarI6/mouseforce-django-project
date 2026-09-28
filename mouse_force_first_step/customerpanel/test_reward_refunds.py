@@ -1,3 +1,4 @@
+from .section_test_support import seed_paid_access
 """Full refunds, finite inventory safety and private customer history."""
 from concurrent.futures import ThreadPoolExecutor
 from datetime import timedelta
@@ -274,6 +275,7 @@ class RefundServiceTests(RefundFixtures, TestCase):
 class RefundHistoryTests(RefundFixtures, TestCase):
     def setUp(self):
         super().setUp()
+        seed_paid_access(self.user, self.other)
         self.client.force_login(self.user)
 
     def test_history_is_customer_only_get_only_and_empty(self):

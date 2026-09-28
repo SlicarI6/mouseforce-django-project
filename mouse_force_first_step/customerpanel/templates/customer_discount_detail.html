@@ -1,0 +1,59 @@
+{% extends 'customer_base.html' %}
+{% load static %}
+{% block title %}{{ deal.title }} | MouseForce Discounts{% endblock %}
+{% block extra_head %}{{ block.super }}<link rel="stylesheet" href="{% static 'css/customer_discounts.css' %}" data-customer-page-style>{% endblock %}
+{% block customer_page_content %}
+<article id="customer-discount-detail" data-discounts-page data-deal-detail>
+  <a class="deal-back" href="{% url 'customer_discounts' %}">← All discounts</a>
+  <div class="deal-detail-heading">
+    <div><p class="deal-brand">{{ deal.brand }}</p><h1>{{ deal.title }}</h1><p class="deal-detail-lead">{{ deal.short_description }}</p><span class="deal-detail-value">{{ deal.value_label }}</span></div>
+    {% if deal.image_url %}<img class="deal-detail-image" src="{{ deal.image_url }}" alt="{{ deal.image_alt }}" referrerpolicy="no-referrer">{% endif %}
+  </div>
+  {% if not deal.current %}<p class="deal-archive-notice">This deal is no longer current. Your purchased access is retained, but the retailer may no longer honour the offer.</p>{% endif %}
+  <div class="deal-detail-columns">
+    <div class="deal-detail-information">
+      <dl class="deal-facts">
+        <div><dt>Category</dt><dd>{{ deal.category }}</dd></div>
+        <div><dt>Deal type</dt><dd>{{ deal.deal_type }}</dd></div>
+        {% if deal.country or deal.region %}<div><dt>Location</dt><dd>{{ deal.country }}{% if deal.country and deal.region %} · {% endif %}{{ deal.region }}</dd></div>{% endif %}
+        {% if deal.channels %}<div><dt>Where to use it</dt><dd>{{ deal.channels|join:", " }}</dd></div>{% endif %}
+        {% if deal.valid_from %}<div><dt>Starts</dt><dd>{{ deal.valid_from|date:"j M Y, H:i T" }}</dd></div>{% endif %}
+        <div><dt>Validity</dt><dd>{% if deal.ongoing %}<span class="deal-ongoing-badge">Ongoing</span>{% else %}Until {{ deal.valid_until|date:"j M Y, H:i T" }}{% endif %}</dd></div>
+        {% if deal.last_verified_at %}<div><dt>Last checked</dt><dd>{{ deal.last_verified_at|date:"j M Y" }}</dd></div>{% endif %}
+      </dl>
+      {% if deal.eligibility %}<section><h2>Who can use this deal?</h2><div class="deal-prose">{{ deal.eligibility|linebreaks }}</div></section>{% endif %}
+      {% if deal.details %}<section><h2>About this offer</h2><div class="deal-prose">{{ deal.details|linebreaks }}</div></section>{% endif %}
+      {% if deal.terms_summary %}<section><h2>Terms to know</h2><div class="deal-prose">{{ deal.terms_summary|linebreaks }}</div></section>{% endif %}
+    </div>
+    <aside class="deal-access-panel" aria-labelledby="deal-access-title">
+      <h2 id="deal-access-title">{% if deal.purchased %}Unlocked for you{% elif deal.access_allowed %}Get this deal{% else %}Unlock deal access{% endif %}</h2>
+      {% if deal.access_allowed %}
+      <div data-discount-benefit>
+        {% if deal.promo_code %}<p class="deal-code-label">Retailer promo code</p><code class="deal-promo-code">{{ deal.promo_code }}</code>{% endif %}
+        {% if deal.official_url %}<a class="deal-primary" href="{{ deal.official_url }}" target="_blank" rel="noopener noreferrer" referrerpolicy="no-referrer">Visit official deal <span aria-hidden="true">↗</span></a>{% endif %}
+        {% if not deal.promo_code and not deal.official_url %}<p>The retailer details are being updated. Your access is still saved.</p>{% endif %}
+      </div>
+      <p class="deal-small">{% if deal.purchased %}Your one-time access is saved to your account.{% else %}No additional Points needed for this deal.{% endif %} Retailer eligibility and expiry conditions still apply.</p>
+      {% else %}
+      <p class="deal-cost">{{ deal.points_to_unlock_deal }} <span>Points once</span></p>
+      <p class="deal-small">Read the requirements first. This unlocks the retailer link or code; it does not purchase the product or guarantee retailer eligibility.</p>
+      <p class="deal-balance">Your balance: <strong data-deal-balance>{{ discount_balance }} Points</strong></p>
+      <button class="deal-primary" type="button" data-open-deal-unlock>Unlock this deal</button>
+      <dialog class="deal-dialog" data-deal-dialog aria-labelledby="deal-dialog-title" aria-describedby="deal-dialog-description">
+        <form data-deal-unlock-form data-quote-url="{% url 'customer_discount_confirmation' deal.id %}?offer={{ deal.offer_version }}" action="{% url 'customer_discount_unlock' deal.id %}" method="post">
+          {% csrf_token %}<p class="deal-brand">{{ deal.brand }}</p><h2 id="deal-dialog-title">Unlock this deal?</h2>
+          <p id="deal-dialog-description">One-time access to {{ deal.title }}. Your access stays with your account. Retailer terms and offer expiry still apply.</p>
+          <dl class="deal-quote" data-deal-quote hidden><div><dt>Current balance</dt><dd data-deal-quote-balance></dd></div><div><dt>Deal access cost</dt><dd data-deal-quote-cost></dd></div><div><dt>Balance after unlock</dt><dd data-deal-quote-after></dd></div></dl>
+          <p class="deal-message" data-deal-message role="status" aria-live="polite"></p>
+          <a data-deal-review href="{{ deal.url }}" hidden>Review updated deal</a>
+          <div class="deal-dialog-actions"><button type="button" class="deal-secondary" data-deal-cancel autofocus>Cancel</button><button type="submit" class="deal-primary" data-deal-confirm disabled>Unlock</button></div>
+        </form>
+      </dialog>
+      <noscript><p>Enable JavaScript to review and confirm deal access.</p></noscript>
+      {% endif %}
+      <div class="deal-community"><span>Deal feedback</span>{% include 'includes/customer_discount_vote.html' %}</div>
+      <p class="deal-message" data-discounts-status role="status" aria-live="polite"></p>
+    </aside>
+  </div>
+</article>
+{% endblock %}

@@ -1,0 +1,25 @@
+{% extends 'customer_base.html' %}
+{% block title %}Unlock {{ section_label }} | MouseForce{% endblock %}
+{% block customer_page_content %}
+<section class="customer-section-gate" data-section-gate="{{ locked_section }}" aria-labelledby="section-gate-title">
+  <p class="section-unlock-eyebrow">A little more from MouseForce</p>
+  <h1 id="section-gate-title">Unlock {{ section_label }}?</h1>
+  <p>Unlock {{ section_label }} for 10 Points. This is a one-time payment and you’ll have permanent access.</p>
+  <form method="post" action="{% url 'customer_section_unlock' locked_section %}" data-section-fallback>
+    {% csrf_token %}
+    <input type="hidden" name="confirmation_token" value="{{ unlock_quote.token }}">
+    <input type="hidden" name="next" value="{% firstof unlock_next request.get_full_path %}">
+    <div class="section-unlock-summary"><dl>
+      <div><dt>Current balance</dt><dd>{{ unlock_quote.balance }} Points</dd></div>
+      <div><dt>Unlock cost</dt><dd>10 Points</dd></div>
+      <div class="section-unlock-after"><dt>Balance after unlock</dt><dd>{% if unlock_quote.balance_after is not None %}{{ unlock_quote.balance_after }} Points{% else %}—{% endif %}</dd></div>
+    </dl></div>
+    {% if unlock_error %}<p class="section-unlock-message" role="alert">{{ unlock_error }}</p>{% endif %}
+    {% if not unlock_quote.can_unlock %}<p class="section-unlock-message">You don’t have enough Points. You need 10 Points to unlock this section.</p>{% endif %}
+    <div class="section-unlock-actions">
+      <a class="section-unlock-cancel" href="{% url 'customer_dashboard' %}">Cancel</a>
+      <button class="section-unlock-confirm" type="submit" {% if not unlock_quote.can_unlock %}disabled{% endif %}>Unlock for 10 Points</button>
+    </div>
+  </form>
+</section>
+{% endblock %}

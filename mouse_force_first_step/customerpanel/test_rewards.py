@@ -1,3 +1,4 @@
+from .section_test_support import seed_paid_access
 from datetime import timedelta
 from uuid import uuid4
 
@@ -30,6 +31,7 @@ class CustomerRewardsCatalogueTests(TestCase):
         CustomerPoints.objects.create(user=cls.user, total_points=260, streak_days=7, last_daily_claim_date=timezone.now().date())
 
     def setUp(self):
+        seed_paid_access(self.user, self.other)
         self.client.force_login(self.user)
         self.url = reverse('customer_rewards')
 

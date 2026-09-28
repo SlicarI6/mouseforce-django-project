@@ -1,3 +1,4 @@
+from .section_test_support import seed_paid_access
 """Customer transport, privacy and commit boundaries using test-only inventory."""
 from datetime import timedelta
 from unittest.mock import patch
@@ -20,6 +21,7 @@ from .test_reward_models import make_reward
 class CustomerActionFixtures(DigitalFixtures):
     def setUp(self):
         super().setUp()
+        seed_paid_access(self.user, self.other)
         self.client.force_login(self.user)
         self.code, self.secret = self.inventory(expires_at=NOW + timedelta(days=10))
 

@@ -1,0 +1,28 @@
+.customer-secondary-nav .customer-section-lock { display: inline-flex; align-items: center; gap: 3px; margin-left: 7px; font-size: 10px; font-weight: 500; color: #436961; white-space: nowrap; }
+.customer-section-dialog { width: min(480px, calc(100vw - 32px)); max-height: calc(100dvh - 32px); margin: auto; padding: clamp(24px, 5vw, 36px); overflow-y: auto; border: 1px solid #c6e2dc; border-radius: 24px; color: #173e3b; background: #f9fdfb; box-shadow: 0 24px 80px rgba(11, 55, 50, .22); font-family: inherit; }
+.customer-section-dialog::backdrop { background: rgba(12, 39, 38, .42); backdrop-filter: blur(4px); }
+.customer-section-dialog h2 { margin: 0 0 12px; font-size: clamp(24px, 5vw, 30px); font-weight: 700; line-height: 1.2; }
+.customer-section-dialog p, .customer-section-gate p { line-height: 1.65; }
+.customer-section-dialog #section-unlock-description { margin: 0; color: #47635e; font-size: 15px; }
+.customer-section-dialog .section-unlock-eyebrow, .customer-section-gate .section-unlock-eyebrow { margin: 0 0 12px; color: #286c61; font-size: 12px; font-weight: 650; letter-spacing: .05em; text-transform: uppercase; }
+.customer-section-dialog .section-unlock-summary, .customer-section-gate .section-unlock-summary { margin: 24px 0; padding: 18px 20px; background: #eaf6f2; border: 1px solid #d3e9e2; border-radius: 15px; }
+.customer-section-dialog dl, .customer-section-gate dl { margin: 0; }
+.customer-section-dialog dl > div, .customer-section-gate dl > div { display: flex; justify-content: space-between; gap: 16px; padding: 5px 0; font-size: 14px; }
+.customer-section-dialog dd, .customer-section-gate dd { margin: 0; font-weight: 650; text-align: right; }
+.customer-section-dialog .section-unlock-after, .customer-section-gate .section-unlock-after { margin-top: 12px; padding-top: 14px; border-top: 1px solid #c8ded6; }
+.customer-section-dialog .section-unlock-message, .customer-section-gate .section-unlock-message { color: #70452a; font-size: 14px; margin: 16px 0; }
+.customer-section-dialog .section-unlock-message:empty { display: none; }
+.customer-section-dialog .section-unlock-actions, .customer-section-gate .section-unlock-actions { display: flex; justify-content: flex-end; gap: 12px; margin-top: 24px; }
+.customer-section-dialog button, .customer-section-gate .section-unlock-actions > * { min-height: 46px; padding: 11px 18px; border: 1px solid #bdd9d0; border-radius: 12px; font: inherit; font-size: 14px; font-weight: 650; cursor: pointer; text-align: center; text-decoration: none; }
+.customer-section-dialog .section-unlock-confirm, .customer-section-gate .section-unlock-confirm { background: #176b5d; color: white; border-color: #176b5d; }
+.customer-section-dialog .section-unlock-cancel, .customer-section-gate .section-unlock-cancel { background: #fff; color: #285b50; }
+.customer-section-dialog button:hover:not(:disabled), .customer-section-gate .section-unlock-actions > *:hover:not(:disabled) { box-shadow: 0 3px 10px rgba(16, 65, 54, .12); }
+.customer-section-dialog button:disabled, .customer-section-gate button:disabled { opacity: .5; cursor: not-allowed; }
+.customer-section-dialog button:focus-visible, .customer-section-gate .section-unlock-actions > *:focus-visible { outline: 3px solid #27867a; outline-offset: 3px; }
+.customer-section-gate { max-width: 560px; margin: 16px auto 48px; }
+.customer-section-notice { position: fixed; right: 20px; bottom: 24px; z-index: 1000; max-width: calc(100vw - 40px); padding: 14px 20px; border: 1px solid #9dccbd; border-radius: 14px; background: #e9f7ef; color: #194c3e; box-shadow: 0 8px 24px rgba(16, 65, 54, .12); font-size: 14px; }
+@media (max-width: 420px) {
+  .customer-section-dialog .section-unlock-actions, .customer-section-gate .section-unlock-actions { flex-direction: column-reverse; }
+  .customer-section-dialog button, .customer-section-gate .section-unlock-actions > * { width: 100%; }
+  .customer-section-dialog .section-unlock-summary, .customer-section-gate .section-unlock-summary { padding: 14px; }
+}

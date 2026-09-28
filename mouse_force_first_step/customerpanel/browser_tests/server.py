@@ -13,6 +13,7 @@ import logging
 import json
 from hashlib import sha256
 import os
+import re
 import tempfile
 from datetime import timedelta
 from pathlib import Path
@@ -27,6 +28,13 @@ atexit.register(temporary.cleanup)
 with contextlib.redirect_stdout(io.StringIO()), contextlib.redirect_stderr(io.StringIO()):
     from django.conf import settings
     settings.DATABASES = {'default': {'ENGINE': 'django.db.backends.sqlite3', 'NAME': str(Path(temporary.name) / 'test.sqlite3')}}
+    if os.environ.get('CUSTOMER_BROWSER_PG_DATABASE'):
+        # Explicitly isolated loopback cluster only; never accept a connection URL.
+        browser_database = os.environ['CUSTOMER_BROWSER_PG_DATABASE']
+        if not re.fullmatch(r'test_discounts_browser_[a-f0-9]+', browser_database):
+            raise ValueError('An isolated Discounts browser database is required.')
+        settings.DATABASES = {'default': {'ENGINE': 'django.db.backends.postgresql',
+            'NAME': browser_database, 'HOST': '127.0.0.1', 'PORT': '55439', 'USER': 'section_tests', 'PASSWORD': ''}}
     settings.CACHES = {'default': {'BACKEND': 'django.core.cache.backends.locmem.LocMemCache'}}
     settings.CHANNEL_LAYERS = {'default': {'BACKEND': 'channels.layers.InMemoryChannelLayer'}}
     settings.ROOT_URLCONF = __name__
@@ -37,6 +45,7 @@ with contextlib.redirect_stdout(io.StringIO()), contextlib.redirect_stderr(io.St
     settings.STORAGES = {'default': {'BACKEND': 'django.core.files.storage.FileSystemStorage'},
                          'staticfiles': {'BACKEND': 'django.contrib.staticfiles.storage.StaticFilesStorage'}}
     settings.PASSWORD_HASHERS = ['django.contrib.auth.hashers.MD5PasswordHasher']
+    settings.EMAIL_BACKEND = 'django.core.mail.backends.locmem.EmailBackend'
     # Ephemeral keys and digital inventory exist only in this temporary database.
     settings.REWARDS_CODE_ENCRYPTION_KEY = Fernet.generate_key().decode()
     settings.REWARDS_CODE_FINGERPRINT_KEY = base64.urlsafe_b64encode(os.urandom(32)).decode()
@@ -54,7 +63,8 @@ from django.urls import include, path
 from django.utils import timezone
 from django.views.decorators.csrf import csrf_exempt
 from .. import views
-from ..models import CustomerPoints, Feedback, Notification, Reward, Redemption, RewardFulfillment, RewardRequest, RewardCode, RedemptionEvent
+from ..models import CustomerPoints, Feedback, Notification, Reward, Redemption, RewardFulfillment, RewardRequest, RewardCode, RedemptionEvent, CustomerSectionUnlock
+from ..models import Discount, CustomerDiscountAccess, DiscountVote
 
 
 def news_fixture(category='all'):
@@ -86,6 +96,8 @@ def fixture(request):
     user = get_user_model().objects.get(username='shell-customer')
     if request.GET.get('login') == '1':
         login(request, user, backend='django.contrib.auth.backends.ModelBackend')
+    if request.GET.get('login') in ('discount-other', 'discount-staff') and os.environ.get('CUSTOMER_BROWSER_DISCOUNT_FIXTURE') == '1':
+        login(request, get_user_model().objects.get(username=request.GET['login']), backend='django.contrib.auth.backends.ModelBackend')
     if request.GET.get('login') == 'staff' and os.environ.get('CUSTOMER_BROWSER_REQUEST_FIXTURE') == '1':
         login(request, get_user_model().objects.get(username='browser-inventory-staff'), backend='django.contrib.auth.backends.ModelBackend')
     if request.method == 'POST':
@@ -102,6 +114,14 @@ def fixture(request):
             Reward.objects.update(is_active=request.POST['rewards_active'] == '1')
         if request.POST.get('reward_change') == 'price':
             Reward.objects.filter(title='Browser test voucher').update(points_required=120)
+        if os.environ.get('CUSTOMER_BROWSER_DISCOUNT_FIXTURE') == '1' and request.POST.get('discount_change'):
+            deal = Discount.objects.get(brand=request.POST['discount_brand'])
+            if request.POST['discount_change'] == 'price':
+                deal.points_to_unlock_deal += 1
+            elif request.POST['discount_change'] == 'expire':
+                deal.ongoing = False
+                deal.valid_until = timezone.now() - timedelta(seconds=1)
+            deal.save()
     return JsonResponse({
         'feedback': list(Feedback.objects.filter(user=user).values('message', 'rating', 'country')),
         'digital_rewards': list(Reward.objects.filter(fulfillment_type__in=['voucher', 'external']).values('id', 'fulfillment_type')),
@@ -113,6 +133,10 @@ def fixture(request):
         'assigned_codes': RewardCode.objects.filter(redemption__user=user).count(),
         'reward_requests': list(RewardRequest.objects.filter(user=user).values('id', 'status', 'approved_reward_id', 'redemption_id')),
         'points': CustomerPoints.objects.filter(user=user).values_list('total_points', flat=True).first(),
+        'section_unlocks': list(CustomerSectionUnlock.objects.filter(user=user).values('section', 'points_spent', 'balance_after')),
+        'discounts': list(Discount.objects.values('id', 'brand', 'title', 'points_to_unlock_deal')) if os.environ.get('CUSTOMER_BROWSER_DISCOUNT_FIXTURE') == '1' else [],
+        'discount_access': list(CustomerDiscountAccess.objects.filter(user=user).values('discount_id', 'points_spent')) if os.environ.get('CUSTOMER_BROWSER_DISCOUNT_FIXTURE') == '1' else [],
+        'discount_votes': list(DiscountVote.objects.filter(user=user).values('discount_id', 'value')) if os.environ.get('CUSTOMER_BROWSER_DISCOUNT_FIXTURE') == '1' else [],
     })
 
 
@@ -139,6 +163,11 @@ if __name__ == '__main__':
         cache.set('customerpanel:jamendo:v1:' + sha256(credential.encode()).hexdigest(), tracks, 1800)
     call_command('migrate', verbosity=0, interactive=False)
     user = get_user_model().objects.create_user(username='shell-customer', role='customer', is_active=True)
+    if os.environ.get('CUSTOMER_BROWSER_UNLOCK_FIXTURE') != '1':
+        # Old browser scenarios start with previously paid access, preserving
+        # their existing balance expectations. This is never production data.
+        from ..section_test_support import seed_paid_access
+        seed_paid_access(user, sections=CustomerSectionUnlock.Section.values)
     # Stage 1 examples remain useful only as isolated browser-test seed data.
     # Customer views never import the demo helper or fall back to these records.
     from ..reward_demos import DEMO_REWARDS
@@ -151,6 +180,30 @@ if __name__ == '__main__':
             is_exclusive=item['badge'] == 'Exclusive', is_limited_time=item['badge'] == 'Limited time',
             valid_until=timezone.now() + timedelta(days=30))
     Notification.objects.create(user=user, message='Your account notification')
+    if os.environ.get('CUSTOMER_BROWSER_DISCOUNT_FIXTURE') == '1':
+        from ..section_test_support import seed_paid_access
+        other = get_user_model().objects.create_user(username='discount-other', role='customer')
+        seed_paid_access(other, sections=('discounts',))
+        get_user_model().objects.create_user(username='discount-staff', role='customer', is_staff=True, is_superuser=True)
+        fixtures = [
+            ('Test Bistro', 'Second main for £1', 'food-drink', 'fixed', 5, 'United Kingdom'),
+            ('Test Style', '30% off selected styles', 'fashion', 'percent', 0, 'United Kingdom'),
+            ('Test Journey', '£8 off your first trip', 'travel', 'money', 20, 'France'),
+            ('Test Beauty', '10% student discount', 'beauty', 'percent', 0, 'United Kingdom'),
+            ('Test Games', 'Two games for one', 'tech-gaming', 'bogo', 10, 'United Kingdom'),
+            ('Test Cinema', 'Free cinema upgrade', 'entertainment', 'free', 5, 'United Kingdom'),
+            ('Test Escape', 'Weekend experience', 'travel', 'other', 5, 'Spain'),
+        ]
+        for index, (brand, title, category, kind, cost, country) in enumerate(fixtures):
+            Discount.objects.create(brand=brand, title=title, category=category, deal_type=kind,
+                value_label=title, short_description='A fictional deal for isolated browser testing.',
+                details='Read the complete test offer before unlocking. No real retailer or purchase is involved.',
+                eligibility='Selected items only. Check the retailer conditions.', country=country,
+                usage_channels=['online', 'in-store'], terms_summary='Test data only. Subject to retailer availability.',
+                promo_code=f'BROWSER-DEAL-CODE-{index}', official_url=f'https://example.test/deals/{index}',
+                ongoing=index == 3, valid_until=None if index == 3 else timezone.now() + timedelta(days=10),
+                points_to_unlock_deal=cost, active=True, featured=index == 0,
+                search_keywords='weekend dining' if index == 0 else '', last_verified_at=timezone.now())
     if os.environ.get('CUSTOMER_BROWSER_FULFILLMENT_FIXTURE') == '1':
         for kind in ('physical', 'manual'):
             Reward.objects.create(title='Browser fulfillment ' + kind, category='shopping', points_required=100,

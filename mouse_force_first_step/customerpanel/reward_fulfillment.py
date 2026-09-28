@@ -14,6 +14,9 @@ from .reward_inventory import lock_staff_users
 FULFILLMENT_FIELDS = frozenset(('recipient_name', 'contact_email', 'contact_phone',
     'address_line_1', 'address_line_2', 'city', 'region', 'postal_code', 'country_code', 'request_details'))
 
+# Presentation for the existing manual £5 Shopping Voucher only.
+SHOPPING_VOUCHER_REWARD_ID = 'c1562327-f33b-4a54-b449-1723514a1392'
+
 
 def fulfillment_requirements(reward):
     physical = reward.fulfillment_type == 'physical'
@@ -64,6 +67,12 @@ class FulfillmentForm(forms.Form):
                 self.fields[name].widget.attrs.update({'autocomplete': 'off', 'data-fulfillment-input': ''})
         if 'country_code' in self.fields and reward.country_code:
             self.initial['country_code'] = reward.country_code
+        if reward.fulfillment_type == 'manual' and str(reward.id) == SHOPPING_VOUCHER_REWARD_ID:
+            self.fields['request_details'].label = 'Voucher preference (optional)'
+            self.fields['request_details'].help_text = ''
+            if not self.is_bound:
+                self.initial.setdefault('request_details',
+                    'Any £5 shopping voucher available is fine. For example: Amazon, Tesco, Argos.')
 
     def clean_country_code(self):
         return self.cleaned_data['country_code'].upper()

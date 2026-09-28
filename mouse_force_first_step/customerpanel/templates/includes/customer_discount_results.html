@@ -1,0 +1,26 @@
+<nav class="deal-categories" aria-label="Discount categories">
+  {% for category in discount_categories %}<a href="{{ category.url }}" data-discount-filter {% if discount_category == category.key %}aria-current="page"{% endif %}>{{ category.label }} <span>{{ category.count }}</span></a>{% endfor %}
+</nav>
+<div class="deal-results-heading"><h2>{% if discount_saved %}Your unlocked deals{% else %}Explore deals{% endif %}</h2><span data-deal-count>{{ discount_count }} deal{{ discount_count|pluralize }}</span></div>
+<div class="deal-grid">
+  {% for deal in deals %}
+  <article class="deal-card" data-deal-card="{{ deal.id }}">
+    <div class="deal-card-visual">
+      {% if deal.image_url %}<img src="{{ deal.image_url }}" alt="{{ deal.image_alt }}" width="44" height="44" loading="lazy" referrerpolicy="no-referrer">{% else %}<span class="deal-brand-placeholder" aria-hidden="true"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" focusable="false"><path d="M4 10v10h16V10M3 10l2-6h14l2 6M3 10a3 3 0 0 0 6 0 3 3 0 0 0 6 0 3 3 0 0 0 6 0M9 20v-6h6v6"/></svg></span>{% endif %}
+      <span class="deal-value">{{ deal.value_label }}</span>
+    </div>
+    <div class="deal-card-copy">
+      <p class="deal-brand">{{ deal.brand }}</p>
+      <h3><a href="{{ deal.url }}">{{ deal.title }}</a></h3>
+      <p class="deal-meta">{{ deal.category }}{% if deal.country %} · {{ deal.country }}{% endif %}</p>
+      {% if deal.eligibility %}<p class="deal-eligibility">{{ deal.eligibility }}</p>{% endif %}
+      <p class="deal-expiry">{% if not deal.current %}No longer current{% elif deal.ongoing %}<span class="deal-ongoing-badge">Ongoing</span>{% else %}Until {{ deal.valid_until|date:"j M Y" }}{% endif %}</p>
+      <p class="deal-access-label">{% if deal.purchased %}Unlocked for you{% elif deal.points_to_unlock_deal %}<strong>{{ deal.points_to_unlock_deal }} Points</strong> · one-time deal access{% else %}Free deal access{% endif %}</p>
+    </div>
+    <footer class="deal-card-footer">{% include 'includes/customer_discount_vote.html' with icons_only=True %}<a class="deal-view" href="{{ deal.url }}">View deal <span aria-hidden="true">↗</span></a></footer>
+  </article>
+  {% empty %}
+  <div class="deal-empty"><h3>{% if discount_saved %}No unlocked deals here yet{% elif discount_query or discount_category != 'all' or discount_type != 'all' %}No matching deals{% else %}New discounts are on the way{% endif %}</h3><p>{% if discount_saved %}Deals you unlock with Points will appear here, including past offers.{% elif discount_query or discount_category != 'all' or discount_type != 'all' %}Try another search or category.{% else %}Check back soon for offers from more brands.{% endif %}</p></div>
+  {% endfor %}
+</div>
+{% if discount_pages > 1 %}<nav class="deal-pagination" aria-label="Discount pages">{% if discount_previous %}<a href="{{ discount_previous }}" data-discount-filter>Previous</a>{% endif %}<span>Page {{ discount_page }} of {{ discount_pages }}</span>{% if discount_next %}<a href="{{ discount_next }}" data-discount-filter>Next</a>{% endif %}</nav>{% endif %}

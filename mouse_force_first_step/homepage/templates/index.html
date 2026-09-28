@@ -212,7 +212,42 @@
 </section>
 {% endif %}
 
-<section class="card-section">
+<section class="homepage-rewards-hero" aria-labelledby="homepage-rewards-hero-title">
+  <div class="homepage-rewards-hero-inner">
+    <div class="homepage-rewards-hero-copy">
+      <h1 id="homepage-rewards-hero-title">Save more. Earn more. Get rewarded.</h1>
+      <p>Discover better deals, collect MouseForce Points and unlock rewards, discounts and special offers — all in one place.</p>
+      <div class="homepage-rewards-hero-actions">
+        <a class="homepage-rewards-hero-button homepage-rewards-hero-button--primary" href="#reward-options">Explore Rewards</a>
+        <a class="homepage-rewards-hero-button homepage-rewards-hero-button--secondary" href="#how-points-work">How Points Work</a>
+      </div>
+    </div>
+    <div class="homepage-rewards-hero-visual" aria-hidden="true">
+      <div class="homepage-rewards-visual-card homepage-rewards-visual-card--back"></div>
+      <div class="homepage-rewards-visual-card homepage-rewards-visual-card--front">
+        <span class="homepage-rewards-visual-mark"></span>
+        <span class="homepage-rewards-visual-line homepage-rewards-visual-line--long"></span>
+        <span class="homepage-rewards-visual-line"></span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="homepage-offers-intro" aria-labelledby="homepage-offers-intro-title">
+  <div class="homepage-offers-intro-inner">
+    <div class="homepage-offers-intro-copy">
+      <h2 id="homepage-offers-intro-title">More than standard offers</h2>
+      <p>MouseForce is working to build strong relationships with trusted brands and partners so our customers can access useful short-term, long-term and limited offers.</p>
+      <p>We also understand that not every customer is looking for the same thing. If you have a specific request, MouseForce can research available options and help find an offer that better matches what you need.</p>
+    </div>
+    <div class="homepage-offers-example">
+      <h3>Example request</h3>
+      <p>A customer travelling to Dubai needed a hotel in a specific area at a better price. MouseForce reviewed the request, searched suitable options and returned an offer matching the requested location and budget.</p>
+    </div>
+  </div>
+</section>
+
+<section class="card-section" id="reward-options">
   <div class="custom-card">
     <div class="card-top-border"></div>
     <div class="card-content">
@@ -256,7 +291,7 @@
   <img class="homepage-feature-image" src="{% static 'images/discount_cards.png' %}" alt="Discount cards and rewards">
 </section>
 
-<section class="how-it-works-section">
+<section class="how-it-works-section" id="how-points-work">
   <div class="how-it-works-inner">
     <div class="how-it-works-visual">
       <img id="how-it-works-image" src="{% static 'images/points.png' %}" alt="Earn points and build a daily streak">
@@ -287,6 +322,39 @@
         </button>
       </div>
     </div>
+  </div>
+</section>
+
+<section class="customer-journey-section" aria-label="Getting started with MouseForce">
+  <div class="customer-journey-inner">
+    <ol class="customer-journey-flow">
+      <li class="customer-journey-step">
+        <span class="customer-journey-number">Step 1</span>
+        <strong>LOGIN</strong>
+        <p>Click Login</p>
+      </li>
+      <li class="customer-journey-step">
+        <span class="customer-journey-number">Step 2</span>
+        <strong>CHOOSE YOUR ACCOUNT</strong>
+        <p>Select 'Login to collect points'</p>
+      </li>
+      <li class="customer-journey-step">
+        <span class="customer-journey-number">Step 3</span>
+        <strong>REGISTER</strong>
+        <p>Create your MouseForce account</p>
+      </li>
+      <li class="customer-journey-step">
+        <span class="customer-journey-number">Step 4</span>
+        <strong>START EXPLORING</strong>
+        <p>Collect Points and unlock more value</p>
+      </li>
+      <li class="customer-journey-step">
+        <span class="customer-journey-number">Step 5</span>
+        <strong>ENJOY MOUSEFORCE</strong>
+        <p>Discover savings, rewards, entertainment and helpful support.</p>
+      </li>
+    </ol>
+    <p class="customer-journey-message">More useful features are coming to MouseForce — with new ways to save, enjoy entertainment, discover offers and get support when you need it.</p>
   </div>
 </section>
 

@@ -154,8 +154,8 @@ body {
 
   /* 🧩 Spațiu pentru footer */
   /* main {
-    padding-bottom: 120px; 
-    min-height: 100vh; 
+    padding-bottom: 120px;
+    min-height: 100vh;
     background-color: rgb(9, 35, 19);
   } */
 
@@ -713,7 +713,7 @@ label[for="profilePicInput"] {
   }
 
 
-  
+
 }
 
 
@@ -726,4 +726,3 @@ label[for="profilePicInput"] {
 #mobile-menu.show {
   transform: translateX(0%);
 }
-

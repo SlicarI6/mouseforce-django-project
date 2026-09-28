@@ -160,7 +160,7 @@
       const scope = createScope(document.getElementById('customer-page-top'), document.getElementById('customer-page-main'));
       active = scope;
       if (page === 'dashboard') window.CustomerDashboard(scope, dashboardDraft);
-      if (page === 'discounts') faq(scope, 'discounts');
+      if (page === 'discounts') { faq(scope, 'discounts'); window.CustomerDiscounts(scope); }
       if (page === 'how_points_work') faq(scope, 'points');
       if (page === 'rewards') rewards(scope);
       if (['reward_confirm', 'redemption_result', 'redemption_history', 'reward_requests', 'reward_request_new', 'reward_request_detail'].includes(page)) window.CustomerRewardActions(scope);

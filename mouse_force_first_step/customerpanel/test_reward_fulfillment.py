@@ -1,3 +1,4 @@
+from .section_test_support import seed_paid_access
 """Stage 2D.4: isolated fulfillment, transport, staff and PostgreSQL races."""
 from concurrent.futures import ThreadPoolExecutor
 from datetime import timedelta
@@ -18,7 +19,7 @@ from .models import CustomerPoints, Reward, RewardFulfillment, Redemption, Redem
 from .points import claim_daily_points, claim_streak_bonus
 from .reward_confirmation import create_reward_confirmation, ConfirmationError, TOKEN_SALT
 from .reward_redemption import redeem_reward, FulfillmentAllocation
-from .reward_fulfillment import FulfillmentForm, FulfillmentInputError, process_fulfillment
+from .reward_fulfillment import FulfillmentForm, FulfillmentInputError, process_fulfillment, SHOPPING_VOUCHER_REWARD_ID
 from .reward_admin_forms import RewardAdminForm
 from . import test_reward_allocation as digital
 from .test_reward_models import make_reward
@@ -282,6 +283,7 @@ class FulfillmentServiceTests(FulfillmentFixtures, TestCase):
 class FulfillmentRequestTests(FulfillmentFixtures, TestCase):
     def setUp(self):
         super().setUp()
+        seed_paid_access(self.user, self.other)
         self.client.force_login(self.user)
 
     def confirm(self, client=None, reward=None):
@@ -310,6 +312,30 @@ class FulfillmentRequestTests(FulfillmentFixtures, TestCase):
         response = self.post(quote, data={'recipient_name': 'Test', 'contact_email': 'test@example.test', 'request_details': 'Afternoon please'})
         self.assertEqual(response.status_code, 200)
         self.assertContains(self.client.get(response.json()['redirect_url']), 'Awaiting manual processing.')
+
+    def test_shopping_voucher_optional_preference_initial_and_submitted_values(self):
+        reward = make_reward(id=SHOPPING_VOUCHER_REWARD_ID, title='£5 Shopping Voucher',
+            is_active=True, fulfillment_type='manual', points_required=10, max_redemptions_per_customer=None)
+        default = 'Any £5 shopping voucher available is fine. For example: Amazon, Tesco, Argos.'
+        page = self.confirm(reward=reward)
+        field = page.context['fulfillment_form']['request_details']
+        self.assertEqual(field.label, 'Voucher preference (optional)')
+        self.assertFalse(field.field.required)
+        self.assertEqual(field.value(), default)
+        self.assertNotIn('placeholder', field.field.widget.attrs)
+        self.assertInHTML(str(field), page.content.decode())
+        self.assertNotContains(page, 'Provide only the information requested in the reward instructions.')
+        for value in (default, '', 'Amazon please'):
+            with self.subTest(value=value):
+                quote = self.confirm(reward=reward).context['confirmation']
+                response = self.post(quote, data={'request_details': value})
+                self.assertEqual(response.status_code, 200)
+                record_id = response.json()['redirect_url'].strip('/').split('/')[-1]
+                self.assertEqual(RewardFulfillment.objects.get(redemption_id=record_id).request_details, value)
+        other = make_reward(title=reward.title, fulfillment_type='manual')
+        other_field = FulfillmentForm(other)['request_details']
+        self.assertEqual(other_field.label, 'Details for this reward')
+        self.assertIsNone(other_field.value())
 
     def test_invalid_fields_have_safe_errors_and_no_charge(self):
         response = self.post(data={'contact_email': 'PRIVATE-INVALID-EMAIL'})

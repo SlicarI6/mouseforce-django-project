@@ -60,8 +60,13 @@
           {{ fulfillment_form.non_field_errors }}
           {% for field in fulfillment_form %}
           <div class="reward-fulfillment-field">
+            {% if field.name == 'request_details' and reward.category == 'food-drink' and reward.fulfillment_type == 'manual' %}
+            <label for="{{ field.id_for_label }}" data-fulfillment-placeholder="Please include the meal you want, the restaurant or delivery service, the exact restaurant branch or link, and the full delivery address.">What would you like to order?</label>{{ field }}
+            <p class="reward-action-small" id="{{ field.auto_id }}_helptext">Your request will be reviewed before the order is arranged.</p>
+            {% else %}
             {{ field.label_tag }}{{ field }}
             {% if field.help_text %}<p class="reward-action-small" id="{{ field.auto_id }}_helptext">{{ field.help_text }}</p>{% endif %}
+            {% endif %}
             <div class="reward-action-error" id="{{ field.auto_id }}_error" data-field-error="{{ field.name }}" role="status">{% for message in field.errors %}<p>{{ message }}</p>{% endfor %}</div>
           </div>
           {% endfor %}

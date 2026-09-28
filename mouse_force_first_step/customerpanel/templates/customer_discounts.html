@@ -1,4 +1,5 @@
 {% extends 'customer_base.html' %}
+{% load static %}
 
 {% block title %}Discounts | MouseForce{% endblock %}
 
@@ -745,10 +746,22 @@
     #discounts-unlock .mf-voucher-decoration { animation: none; opacity: 1; transform: none; }
   }
 </style>
+<link rel="stylesheet" href="{% static 'css/customer_discounts.css' %}" data-customer-page-style>
 {% endblock %}
 
 {% block customer_page_content %}
-<h1>Discounts</h1>
+<div id="customer-discounts" data-discounts-page data-catalogue-url="{% url 'customer_discounts' %}">
+<header class="deal-catalogue-heading"><h1>Discounts</h1><p>Find deals from brands you like.</p></header>
+<form class="deal-search" method="get" action="{% url 'customer_discounts' %}" data-discount-search>
+  <label class="deal-visually-hidden" for="deal-search-input">Search brand, offer, category or country</label>
+  <div class="deal-search-field"><input id="deal-search-input" type="search" name="q" value="{{ discount_query }}" maxlength="100" placeholder="Search brand, offer, category or country..." autocomplete="off"><button type="submit">Search</button></div>
+  <input type="hidden" name="category" value="{{ discount_category }}">
+  <input type="hidden" name="access" value="{% if discount_saved %}unlocked{% endif %}">
+  <div class="deal-filter-row"><label for="deal-type-select">Deal type <select id="deal-type-select" name="type">{% for key, label in discount_types %}<option value="{{ key }}" {% if discount_type == key %}selected{% endif %}>{{ label }}</option>{% endfor %}</select></label><a data-discount-mode href="{% url 'customer_discounts' %}{% if not discount_saved %}?access=unlocked{% endif %}">{% if discount_saved %}Browse current deals{% else %}Your unlocked deals{% endif %}</a></div>
+</form>
+<p class="deal-message" data-discounts-status role="status" aria-live="polite"></p>
+<div data-discount-results>{% include 'includes/customer_discount_results.html' %}</div>
+<div class="discounts-legacy">
 <div class="mf-discounts-illustration" role="img"
      aria-label="Two overlapping MouseForce gift cards with reward coins and gold sparkles.">
   <div class="mf-discounts-stage" aria-hidden="true">
@@ -955,4 +968,6 @@
   </div>
   <h2 id="discounts-unlock-title">Unlock Your Exclusive Discount</h2>
 </section>
+</div>
+</div>
 {% endblock %}

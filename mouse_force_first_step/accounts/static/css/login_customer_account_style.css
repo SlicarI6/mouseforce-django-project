@@ -64,3 +64,52 @@ body {
     color: #333;
     font-weight: 500;
 }
+
+@media (max-width: 600px) {
+  body {
+    padding: 10px;
+    background-color: #111; /* puțin mai închis pentru contrast */
+  }
+
+  .login-card {
+    max-width: 95%;
+    margin: 60px auto 20px auto;
+    border-radius: 8px;
+    box-shadow: 0 0 20px rgba(0,0,0,0.3);
+  }
+
+  .next-btn,
+  .btn {
+    width: 100%;
+    font-size: 16px;
+    padding: 10px;
+  }
+
+  .form-control {
+    font-size: 16px;
+    padding: 10px;
+  }
+
+  .login-option-bar {
+    width: 95%;
+    font-size: 16px;
+    justify-content: center;
+    padding: 16px;
+  }
+
+  .login-option-text {
+    font-size: 16px;
+  }
+
+  .card-title {
+    font-size: 22px;
+    text-align: center;
+  }
+
+  .signup-text {
+    display: block;
+    text-align: center;
+    font-size: 14px;
+    margin-top: 10px;
+  }
+}

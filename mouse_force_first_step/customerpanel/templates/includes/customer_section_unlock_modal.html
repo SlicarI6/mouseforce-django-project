@@ -1,0 +1,21 @@
+<dialog id="customer-section-dialog" class="customer-section-dialog" aria-labelledby="section-unlock-title" aria-describedby="section-unlock-description">
+  <form id="customer-section-unlock-form" method="post">
+    {% csrf_token %}
+    <p class="section-unlock-eyebrow">Yours to explore</p>
+    <h2 id="section-unlock-title">Unlock this section?</h2>
+    <p id="section-unlock-description"></p>
+    <div class="section-unlock-summary" data-unlock-summary hidden>
+      <dl>
+        <div><dt>Current balance</dt><dd data-unlock-balance></dd></div>
+        <div><dt>Unlock cost</dt><dd>10 Points</dd></div>
+        <div class="section-unlock-after"><dt>Balance after unlock</dt><dd data-unlock-after></dd></div>
+      </dl>
+    </div>
+    <p class="section-unlock-message" data-unlock-message role="status" aria-live="polite"></p>
+    <div class="section-unlock-actions">
+      <button type="button" class="section-unlock-cancel" data-unlock-cancel autofocus>Cancel</button>
+      <button type="submit" class="section-unlock-confirm" data-unlock-confirm disabled>Unlock for 10 Points</button>
+    </div>
+  </form>
+</dialog>
+<div id="customer-section-notice" class="customer-section-notice" role="status" aria-live="polite" hidden></div>

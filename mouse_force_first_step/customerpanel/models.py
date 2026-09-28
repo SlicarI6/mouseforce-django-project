@@ -358,6 +358,37 @@ class CustomerPoints(models.Model):
         ]
 
 
+class CustomerSectionUnlock(models.Model):
+    """Permanent section access and its immutable, one-time Points receipt."""
+
+    class Section(models.TextChoices):
+        DISCOUNTS = 'discounts', 'Discounts'
+        REWARDS = 'rewards', 'Rewards'
+        OFFERS = 'offers', 'Offers'
+        NEWS = 'news', 'News'
+        WEATHER = 'weather', 'Weather'
+
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.PROTECT,
+                             related_name='section_unlocks', editable=False)
+    section = models.CharField(max_length=16, choices=Section.choices, editable=False)
+    points_spent = models.PositiveSmallIntegerField(default=10, editable=False)
+    balance_after = models.PositiveBigIntegerField(editable=False)
+    source = models.CharField(max_length=16, choices=[('points', 'Points')], default='points', editable=False)
+    unlocked_at = models.DateTimeField(default=timezone.now, editable=False)
+
+    class Meta:
+        ordering = ['-unlocked_at', 'id']
+        constraints = [
+            models.UniqueConstraint(fields=['user', 'section'], name='section_unlock_once'),
+            models.CheckConstraint(condition=models.Q(section__in=['discounts', 'rewards', 'offers', 'news', 'weather']), name='section_unlock_valid_section'),
+            models.CheckConstraint(condition=models.Q(points_spent=10, source='points'), name='section_unlock_paid_ten'),
+        ]
+
+    def __str__(self):
+        return f'{self.get_section_display()} unlock {self.pk}'
+
+
 class Feedback(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     rating = models.IntegerField(choices=[(i, str(i)) for i in range(1, 6)], null=True, blank=True)
@@ -389,3 +420,7 @@ class Notification(models.Model):
 
     def __str__(self):
         return f"Notificare pentru {self.user.username} - {'citită' if self.is_read else 'necitită'}"
+
+
+# Kept in a small dedicated module; these are customerpanel models.
+from .discount_models import Discount, CustomerDiscountAccess, DiscountVote

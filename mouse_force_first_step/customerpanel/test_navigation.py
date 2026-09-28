@@ -1,3 +1,4 @@
+from .section_test_support import stub_unlocked_navigation
 from django.contrib.auth import get_user_model
 from django.contrib.auth.models import AnonymousUser
 from django.contrib.sessions.backends.signed_cookies import SessionStore
@@ -10,6 +11,7 @@ from .views import customer_offers, customer_session
 
 class CustomerShellTests(SimpleTestCase):
     def setUp(self):
+        stub_unlocked_navigation(self)
         self.request = RequestFactory().get(reverse('customer_offers'))
         self.request.user = get_user_model()(pk=1, username='customer', role='customer', is_active=True)
         self.request.session = SessionStore(session_key='private-session-cookie')

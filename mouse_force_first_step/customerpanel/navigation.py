@@ -5,6 +5,7 @@ from functools import wraps
 from django.http import JsonResponse
 from django.utils.cache import add_never_cache_headers, patch_vary_headers
 from django.utils.crypto import salted_hmac
+from .section_access import PAGE_SECTIONS, get_section_state, locked_response
 
 
 def customer_session_token(request):
@@ -29,7 +30,14 @@ def customer_shell(page):
                                     status=403 if request.user.is_authenticated else 401)
             request.customer_shell_page = page
             request.customer_shell_session = customer_session_token(request) if eligible else ''
-            response = view(request, *args, **kwargs)
+            if eligible:
+                request.customer_section_access = get_section_state(request.user)
+                request.customer_section_access['session'] = request.customer_shell_session
+            section = PAGE_SECTIONS.get(page)
+            if eligible and section and section not in request.customer_section_access['unlocked']:
+                response = locked_response(request, section)
+            else:
+                response = view(request, *args, **kwargs)
             add_never_cache_headers(response)
             patch_vary_headers(response, ['Cookie'])
             return response

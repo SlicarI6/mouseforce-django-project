@@ -5,6 +5,7 @@
 
 {% block extra_head %}
 <link rel="stylesheet" href="{% static 'css/style_customerpanel_css.css' %}">
+<link rel="stylesheet" href="{% static 'css/customer_section_unlocks.css' %}">
 <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
 <style>
   #notificationDropdown {
@@ -86,7 +87,9 @@
     letter-spacing: 0.04em;
     pointer-events: none;
   }
-  .customer-secondary-nav a {
+  .customer-secondary-nav a,
+  .customer-secondary-nav .customer-buy-points,
+  .customer-secondary-nav .customer-secondary-label {
     display: flex;
     align-items: center;
     min-height: 38px;
@@ -101,18 +104,84 @@
     cursor: default;
     transition: background-color 140ms ease, color 140ms ease;
   }
+  .customer-secondary-nav .customer-secondary-label {
+    color: #61756f;
+    font-weight: 500;
+  }
   .customer-secondary-nav a:hover,
-  .customer-secondary-nav a:focus-visible {
+  .customer-secondary-nav a:focus-visible,
+  .customer-secondary-nav .customer-buy-points:hover,
+  .customer-secondary-nav .customer-buy-points:focus-visible {
     background: #e4f3ef;
     color: #14554c;
   }
-  .customer-secondary-nav a:active { background: #d8ede7; }
-  .customer-secondary-nav a:focus-visible {
+  .customer-secondary-nav a:active,
+  .customer-secondary-nav .customer-buy-points:active { background: #d8ede7; }
+  .customer-secondary-nav a:focus-visible,
+  .customer-secondary-nav .customer-buy-points:focus-visible {
     outline: 2px solid #08776b;
     outline-offset: 2px;
   }
   @media (prefers-reduced-motion: reduce) {
-    .customer-secondary-nav a { transition: none; }
+    .customer-secondary-nav a,
+    .customer-secondary-nav .customer-buy-points { transition: none; }
+  }
+  .customer-secondary-nav .customer-buy-points {
+    margin: 0;
+    border: 0;
+    background: transparent;
+    font-family: inherit;
+    cursor: pointer;
+  }
+  #customer-buy-points-dialog {
+    box-sizing: border-box;
+    width: min(400px, calc(100vw - 32px));
+    max-height: calc(100dvh - 32px);
+    margin: auto;
+    padding: 28px;
+    overflow-y: auto;
+    border: 1px solid #c6e2dc;
+    border-radius: 20px;
+    background: #f9fdfb;
+    color: #173e3b;
+    box-shadow: 0 20px 60px rgba(11, 55, 50, 0.20);
+    font-family: inherit;
+    text-align: left;
+  }
+  #customer-buy-points-dialog::backdrop {
+    background: rgba(12, 39, 38, 0.42);
+    backdrop-filter: blur(3px);
+  }
+  #customer-buy-points-dialog h2 {
+    margin: 0 0 12px;
+    font-size: 22px;
+    font-weight: 700;
+    line-height: 1.3;
+  }
+  #customer-buy-points-dialog p {
+    margin: 0;
+    color: #476560;
+    font-size: 15px;
+    line-height: 1.6;
+  }
+  #customer-buy-points-dialog button {
+    display: block;
+    min-height: 44px;
+    margin: 24px 0 0 auto;
+    padding: 10px 22px;
+    border: 1px solid #08776b;
+    border-radius: 10px;
+    background: #08776b;
+    color: #fff;
+    font: inherit;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+  }
+  #customer-buy-points-dialog button:hover { background: #14554c; }
+  #customer-buy-points-dialog button:focus-visible {
+    outline: 2px solid #08776b;
+    outline-offset: 3px;
   }
 </style>
 
@@ -428,19 +497,30 @@
  data-rewards="{% url 'customer_rewards' %}"
  data-redemptions="{% url 'customer_redemption_result' '00000000-0000-0000-0000-000000000000' %}"
  data-news="{% url 'customer_news' %}" data-weather="{% url 'customer_weather' %}"
+ data-section-access-url="{% url 'customer_section_access' %}"
+ data-unlock-url="{% url 'customer_section_unlock' 'SECTION' %}"
  data-session-url="{% url 'customer_session' %}" data-logout-url="{% url 'logout' %}"
  data-three-url="https://cdnjs.cloudflare.com/ajax/libs/three.js/r134/three.min.js"
  data-vanta-url="https://cdn.jsdelivr.net/npm/vanta@latest/dist/vanta.clouds.min.js"></template>
 <nav class="customer-secondary-nav" aria-label="Customer dashboard navigation">
   <ul>
-    <li><a href="{% url 'customer_discounts' %}"{% if customer_active_page == 'discounts' %} aria-current="page"{% endif %}>Discounts</a></li>
+    <li><a href="{% url 'customer_discounts' %}"{% if customer_active_page == 'discounts' %} aria-current="page"{% endif %}>Discounts{% if request.customer_section_access and 'discounts' not in request.customer_section_access.unlocked %}<span class="customer-section-lock" aria-label="Locked: 10 Points once" title="Unlock once for 10 Points"><span aria-hidden="true">&#128274;</span><span>10 Points</span></span>{% endif %}</a></li>
     <li><a href="{% url 'customer_how_points_work' %}"{% if customer_active_page == 'how_points_work' %} aria-current="page"{% endif %}>How Points Work</a></li>
-    <li><a href="{% url 'customer_rewards' %}"{% if customer_active_page == 'rewards' %} aria-current="page"{% endif %}>Rewards</a></li>
-    <li class="customer-secondary-offers"><a href="{% url 'customer_offers' %}"{% if customer_active_page == 'offers' %} aria-current="page"{% endif %}>Offers</a><span class="customer-secondary-new" aria-hidden="true">NEW</span></li>
-    <li><a href="{% url 'customer_news' %}"{% if customer_active_page == 'news' %} aria-current="page"{% endif %}>News</a></li>
-    <li><a href="{% url 'customer_weather' %}"{% if customer_active_page == 'weather' %} aria-current="page"{% endif %}>Weather</a></li>
+    <li><a href="{% url 'customer_rewards' %}"{% if customer_active_page == 'rewards' %} aria-current="page"{% endif %}>Rewards{% if request.customer_section_access and 'rewards' not in request.customer_section_access.unlocked %}<span class="customer-section-lock" aria-label="Locked: 10 Points once" title="Unlock once for 10 Points"><span aria-hidden="true">&#128274;</span><span>10 Points</span></span>{% endif %}</a></li>
+    <li class="customer-secondary-offers"><a href="{% url 'customer_offers' %}"{% if customer_active_page == 'offers' %} aria-current="page"{% endif %}>Offers{% if request.customer_section_access and 'offers' not in request.customer_section_access.unlocked %}<span class="customer-section-lock" aria-label="Locked: 10 Points once" title="Unlock once for 10 Points"><span aria-hidden="true">&#128274;</span><span>10 Points</span></span>{% endif %}</a><span class="customer-secondary-new" aria-hidden="true">NEW</span></li>
+    <li><a href="{% url 'customer_news' %}"{% if customer_active_page == 'news' %} aria-current="page"{% endif %}>News{% if request.customer_section_access and 'news' not in request.customer_section_access.unlocked %}<span class="customer-section-lock" aria-label="Locked: 10 Points once" title="Unlock once for 10 Points"><span aria-hidden="true">&#128274;</span><span>10 Points</span></span>{% endif %}</a></li>
+    <li><a href="{% url 'customer_weather' %}"{% if customer_active_page == 'weather' %} aria-current="page"{% endif %}>Weather{% if request.customer_section_access and 'weather' not in request.customer_section_access.unlocked %}<span class="customer-section-lock" aria-label="Locked: 10 Points once" title="Unlock once for 10 Points"><span aria-hidden="true">&#128274;</span><span>10 Points</span></span>{% endif %}</a></li>
+    <li><button type="button" id="customer-buy-points" class="customer-buy-points" aria-haspopup="dialog" aria-controls="customer-buy-points-dialog">Buy Points</button></li>
+    <li><span class="customer-secondary-label">Top Picks 2026</span></li>
   </ul>
 </nav>
+<dialog id="customer-buy-points-dialog" aria-labelledby="customer-buy-points-title" aria-describedby="customer-buy-points-description">
+  <h2 id="customer-buy-points-title">Buy Points is currently unavailable.</h2>
+  <p id="customer-buy-points-description">This feature will be available soon.</p>
+  <button type="button" autofocus>Close</button>
+</dialog>
+{{ request.customer_section_access|json_script:"customer-section-state" }}
+{% include 'includes/customer_section_unlock_modal.html' %}
 <aside id="customer-music-control" data-expanded="true" aria-label="Music player"
        data-track-url="{% url 'customer_music_track' %}">
   <button type="button" class="customer-music-toggle" aria-label="Hide music controls"
@@ -479,6 +559,20 @@
 {% endblock %}
 
 {% block extra_js %}
+<script id="customer-buy-points-script">
+(() => {
+  const trigger = document.getElementById('customer-buy-points');
+  const dialog = document.getElementById('customer-buy-points-dialog');
+  trigger.addEventListener('click', () => {
+    if (!dialog.open) dialog.showModal();
+  });
+  dialog.querySelector('button').addEventListener('click', () => dialog.close());
+  dialog.addEventListener('close', () => trigger.focus({preventScroll: true}));
+  window.addEventListener('customer:navigated', () => {
+    if (dialog.open) dialog.close();
+  });
+})();
+</script>
 <script id="customer-music-script">
 (() => {
   const control = document.getElementById('customer-music-control');
@@ -911,6 +1005,8 @@ document.addEventListener("click", function (e) {
 <script src="{% static 'js/customer_dashboard_assistant.js' %}" defer></script>
 <script src="{% static 'js/customer_dashboard.js' %}" defer></script>
 <script src="{% static 'js/customer_reward_actions.js' %}" defer></script>
+<script src="{% static 'js/customer_discounts.js' %}" defer></script>
 <script src="{% static 'js/customer_page_lifecycle.js' %}" defer></script>
+<script src="{% static 'js/customer_section_unlocks.js' %}" defer></script>
 <script src="{% static 'js/customer_navigation.js' %}" defer></script>
 {% endblock %}

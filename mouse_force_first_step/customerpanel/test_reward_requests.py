@@ -1,3 +1,4 @@
+from .section_test_support import seed_paid_access
 """Request submission/review never spend; only explicit bound acceptance does."""
 from concurrent.futures import ThreadPoolExecutor
 from datetime import timedelta
@@ -207,6 +208,7 @@ class RequestServiceTests(RequestFixtures, TestCase):
 class RequestPageTests(RequestFixtures, TestCase):
     def setUp(self):
         super().setUp()
+        seed_paid_access(self.user, self.other)
         self.client.force_login(self.user)
 
     def new(self, client=None):

@@ -12,6 +12,10 @@
     const error = root.querySelector('[data-reward-error]');
     const review = root.querySelector('[data-reward-review]');
     const privateBox = root.querySelector('[data-reward-private]');
+    root.querySelectorAll('[data-fulfillment-placeholder]').forEach(label => {
+      const input = scope.document.getElementById(label.htmlFor);
+      if (input?.tagName === 'TEXTAREA') input.placeholder = label.dataset.fulfillmentPlaceholder;
+    });
     let pending = false;
     let needsReview = false;
 

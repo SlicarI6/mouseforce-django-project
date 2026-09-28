@@ -1,4 +1,6 @@
+from .section_test_support import stub_unlocked_navigation
 from urllib.parse import parse_qs, urlsplit
+from unittest.mock import patch
 
 from django.contrib.auth import get_user_model
 from django.contrib.auth.models import AnonymousUser
@@ -12,6 +14,7 @@ from .views import customer_discounts, customer_how_points_work, customer_offers
 
 class CustomerInformationPageTests(SimpleTestCase):
     def setUp(self):
+        stub_unlocked_navigation(self)
         self.url = reverse('customer_how_points_work')
         self.request = RequestFactory().get(self.url)
         self.request.resolver_match = resolve(self.url)
@@ -73,6 +76,7 @@ class CustomerInformationPageTests(SimpleTestCase):
 
 class CustomerDiscountsPageTests(SimpleTestCase):
     def setUp(self):
+        stub_unlocked_navigation(self)
         self.url = reverse('customer_discounts')
         self.request = RequestFactory().get(self.url)
         self.request.resolver_match = resolve(self.url)
@@ -85,7 +89,8 @@ class CustomerDiscountsPageTests(SimpleTestCase):
         self.assertIs(resolve(self.url).func, customer_discounts)
 
     def test_active_customer_renders_illustration_without_database_access(self):
-        with self.assertTemplateUsed('customer_discounts.html'):
+        # Catalogue queries are covered by the PostgreSQL Discounts tests.
+        with patch('mouse_force_first_step.customerpanel.discounts.catalogue', return_value={}), self.assertTemplateUsed('customer_discounts.html'):
             response = customer_discounts(self.request)
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, '<h1>Discounts</h1>', html=True)
@@ -117,6 +122,7 @@ class CustomerDiscountsPageTests(SimpleTestCase):
 
 class CustomerOffersPageTests(SimpleTestCase):
     def setUp(self):
+        stub_unlocked_navigation(self)
         self.url = reverse('customer_offers')
         self.request = RequestFactory().get(self.url)
         self.request.resolver_match = resolve(self.url)
@@ -177,6 +183,6 @@ class CustomerOffersPageTests(SimpleTestCase):
 
     def test_existing_information_pages_link_to_offers(self):
         for view in (customer_discounts, customer_how_points_work):
-            with self.subTest(view=view.__name__):
+            with self.subTest(view=view.__name__), patch('mouse_force_first_step.customerpanel.discounts.catalogue', return_value={}):
                 response = view(self.request)
                 self.assertContains(response, f'<a href="{self.url}">Offers</a>', html=True)

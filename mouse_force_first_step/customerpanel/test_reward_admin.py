@@ -197,6 +197,8 @@ class RewardsAdminTests(TestCase):
         self.assertContains(response, 'Create a new reward to change fulfillment type')
 
     def test_activation_requires_inventory_and_unpublished_rewards_stay_hidden(self):
+        from .section_test_support import seed_paid_access
+        seed_paid_access(self.customer)
         reward = make_reward(title='Unpublished voucher')
         response = self.client.post(admin_url(Reward, 'change', reward), reward_data(reward, is_active='on'))
         self.assertContains(response, 'import available private inventory')

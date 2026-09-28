@@ -51,10 +51,10 @@ EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
 
-EMAIL_HOST_USER = os.environ.get('EMAIL_HOST_USER')
-EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_HOST_PASSWORD')
+EMAIL_HOST_USER = config("EMAIL_HOST_USER")
+EMAIL_HOST_PASSWORD = config("EMAIL_HOST_PASSWORD")
 
-DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
+DEFAULT_FROM_EMAIL = config("DEFAULT_FROM_EMAIL")
 
 
 # pentru  Cloudinary
@@ -118,11 +118,7 @@ STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 AUTH_USER_MODEL = 'accounts.CustomUser'
 
 # Combine both static folders (frontend and mycookiesprivacy)
-STATICFILES_DIRS = [
-    os.path.join(BASE_DIR, 'mouse_force_first_step', 'homepage', 'static'),
-    os.path.join(BASE_DIR, 'mouse_force_first_step', 'mycookieprivacy', 'static'),
-    os.path.join(BASE_DIR, 'mouse_force_first_step', 'simpleuseragency', 'static'),
-]
+STATICFILES_DIRS = []
 
 AUTHENTICATION_BACKENDS = [
     'mouse_force_first_step.accounts.auth_backends.EmailOrUsernameBackend',  # custom login email/username
@@ -193,14 +189,10 @@ CORS_ALLOWED_ORIGINS = [
 
 CORS_ALLOW_ALL_ORIGINS = True  # Enable temporarily for debugging (remove later)
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'mouseforce_db_camping',
-        'USER': 'mouseforce_db_camping_user',
-        'PASSWORD': '8GQ04AA7sxdk1Xb6ZwJ3zewVWnULpdsW',
-        'HOST': 'dpg-cv1mmm3tq21c73d85ha0-a.oregon-postgres.render.com',
-        'PORT': '5432',
-    }
+    'default': dj_database_url.parse(
+        config('DATABASE_URL'),
+        ssl_require=True,
+    )
 }
 
 # DATABASES = {

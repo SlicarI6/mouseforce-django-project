@@ -40,6 +40,10 @@ from .reward_fulfillment import FULFILLMENT_FIELDS, FulfillmentForm, Fulfillment
 from types import SimpleNamespace
 from .reward_private_access import PrivateBenefitUnavailable, get_private_reward_benefit
 from .models import Redemption, RewardFulfillment, RewardRequest
+from .section_access import section_required
+from .section_views import customer_section_access, customer_section_unlock
+from .discount_views import (customer_discounts, customer_discount_detail, customer_discount_confirmation,
+    customer_discount_unlock, customer_discount_vote)
 
 
 def _points_claim_response(request, claim):
@@ -103,16 +107,6 @@ def customer_how_points_work(request):
         raise PermissionDenied
     return render(request, 'customer_how_points_work.html', {
         'customer_active_page': 'how_points_work',
-    })
-
-
-@login_required(login_url='login_account_customer')
-@customer_shell('discounts')
-def customer_discounts(request):
-    if not request.user.is_active or request.user.role != 'customer':
-        raise PermissionDenied
-    return render(request, 'customer_discounts.html', {
-        'customer_active_page': 'discounts',
     })
 
 
@@ -401,6 +395,7 @@ def customer_redemption_history(request):
 @require_POST
 @csrf_protect
 @sensitive_variables()
+@section_required('rewards')
 def customer_redemption_reveal(request, redemption_id):
     if not active_customer(request):
         return JsonResponse({'error': 'Please sign in with an active customer account.'}, status=403)

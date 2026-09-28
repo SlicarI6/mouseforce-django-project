@@ -52,6 +52,7 @@ body {
     max-height: 400px;
 }
 
+
   .bar-content input {
     width: 100%;
     padding: 10px;
@@ -152,11 +153,11 @@ body {
 
 
   /* 🧩 Spațiu pentru footer */
-  main {
-    padding-bottom: 120px; /* sau cât e nevoie ca bara să aibă loc fără să acopere footerul */
-    min-height: 100vh; /* opțional: ca să umple ecranul */
-    background-color: rgb(143, 143, 32);
-  }
+  /* main {
+    padding-bottom: 120px;
+    min-height: 100vh;
+    background-color: rgb(9, 35, 19);
+  } */
 
 
 
@@ -321,4 +322,407 @@ button#stopRecord:hover {
   margin-top: 10px;
   width: 100%;
   border-radius: 8px;
+}
+
+
+.animate-upload {
+  animation: pulseUpload 1s infinite;
+}
+
+@keyframes pulseUpload {
+  0% { box-shadow: 0 0 0 0 rgba(72, 187, 120, 0.5); }
+  70% { box-shadow: 0 0 0 8px rgba(72, 187, 120, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(72, 187, 120, 0); }
+}
+
+.group:hover label {
+  opacity: 1 !important;
+}
+
+label[for="profilePicInput"] {
+  opacity: 1 !important;
+}
+
+.pen-label {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  transform: translate(25%, 25%);
+  background: white;
+  border: 1px solid #ccc;
+  border-radius: 9999px;
+  padding: 4px;
+  cursor: pointer;
+  z-index: 10;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+}
+
+.pen-label img {
+  width: 16px;
+  height: 16px;
+  display: block;
+}
+
+
+.dashboard {
+    min-height: 90vh;
+    padding: 100px 20px;
+    background: url("/static/images/11983.png") no-repeat center center;
+    background-size: cover;
+    color: #fff;
+    text-align: center;
+    position: relative;
+    z-index: 1;
+}
+
+
+.dashboard h2 {
+    font-size: 28px;
+    font-weight: 700;
+    color: #fff;
+}
+
+.dashboard p {
+    font-size: 17px;
+    font-weight: 600;
+    color: #fff;
+    margin-top: 10px;
+}
+
+
+
+.earth-label {
+  text-align: center;
+}
+
+.earth-label img {
+  display: block;
+  margin: 0 auto;
+}
+
+
+
+.card-section {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 40px;
+  padding: 0 20px;
+  margin-top: 40px;
+}
+
+.custom-card {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  width: 280px;
+  min-height: 420px;
+  background-color: rgba(255, 255, 255, 0.75);
+  border-radius: 12px;
+  box-shadow: 0 8px 12px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+  padding: 20px;
+  position: relative;
+  text-align: left;
+}
+
+.card-top-border {
+  height: 8px;
+  background-color: #003366;
+  width: 100%;
+  position: absolute;
+  top: 0;
+  left: 0;
+  border-top-left-radius: 8px;
+  border-top-right-radius: 8px;
+}
+
+.card-content {
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
+  padding-top: 16px;
+}
+.card-content h5 {
+  margin-bottom: 12px;
+  font-size: 1.2rem;
+  color: #003366;
+}
+
+
+.card-content p {
+  flex-grow: 1;
+  color: #000000;
+  font-size: 20px;
+  margin-bottom: 20px;
+}
+
+.card-content a {
+  margin-top: auto;
+  align-self: flex-start;
+  font-weight: bold;
+  text-decoration: underline;
+  color: #003366;
+}
+
+
+.extra-description {
+    margin-top: 80px;                /* mai mult spațiu deasupra */
+    max-width: 1000px;
+    margin-left: auto;
+    margin-right: auto;
+    font-size: 40px;                 /* text mai mare */
+    font-weight: 600;
+    color: #f1f1f1;
+    line-height: 1.8;                /* spațiu între rânduri */
+    padding: 40px 30px;
+    border-radius: 14px;
+    text-align: center;
+    word-break: break-word;         /* forțează împărțirea corectă pe linii */
+}
+
+.extra-paragraph {
+  font-size: 40px !important;
+  font-weight: 600 !important;
+}
+
+.fade-transition {
+  height: 100px;
+  background: linear-gradient(to bottom, rgb(0 23 47), rgb(169 240 255));
+  margin-top: -1px; /* elimină spațiul vizibil */
+}
+
+
+
+
+
+
+.tabs {
+  display: flex;
+  justify-content: center;
+  gap: 40px;
+  margin: 30px auto;
+  font-weight: 600;
+  border-bottom: 1px solid #ccc;
+  width: max-content;
+}
+
+.tabs div {
+  padding: 10px 20px;
+  cursor: pointer;
+}
+
+.tabs .active {
+  color: #0052cc;
+  border-bottom: 3px solid #0052cc;
+}
+
+.tab-content {
+  display: none;
+  padding: 20px;
+}
+
+.tab-content.active {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 30px;
+}
+
+.service-cards {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 32px;
+  margin-top: 20px;
+  padding: 20px;
+}
+
+.service-card {
+  background: white;
+  border-radius: 20px;
+  width: 410px;
+  min-height: 520px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.card-image {
+  height: 180px;
+  background-size: cover;
+  background-repeat: no-repeat;
+  background-position: center;
+  margin-bottom: 24px; /* ✅ Spațiu între imagine și titlu */
+}
+
+.field-service-bg {
+  background-image: url("/static/images/ai_photo.png");
+}
+.ai-support-bg {
+  background-image: url("/static/images/woc_in.png");
+}
+.crm-tools-bg {
+  background-image: url("/static/images/img_boxes.png");
+}
+
+.card-body {
+  padding: 20px !important;
+  text-align: left;
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
+}
+
+.card-body h3 {
+  font-size: 18px;
+  margin: 0 0 16px 0; /* ✅ eliminăm margin-top, păstrăm jos */
+  color: #002366;
+}
+
+.card-body p {
+  font-size: 15px;
+  line-height: 1.6;
+  color: #444;
+  margin-bottom: 24px;
+}
+
+.card-body a {
+  font-weight: 600;
+  color: #0066ff;
+  text-decoration: none;
+  margin-top: auto;
+}
+
+.content_discover_cards {
+  margin-top: 0; /* nu mai este nevoie, controlăm cu padding și margin */
+}
+
+@media (max-width: 768px) {
+    /* 🔹 Header */
+    .header-container {
+        flex-direction: column;
+        align-items: center;
+        padding: 10px;
+    }
+    .header-container nav {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 10px;
+    }
+    .header-container .search-bar {
+        width: 90%;
+        margin: 10px 0;
+    }
+
+    /* 🔹 Sub-header */
+    .sub-header {
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 8px;
+        padding: 10px;
+    }
+
+    /* 🔹 Banner */
+    .top-banner {
+        padding: 30px 10px;
+        text-align: center;
+    }
+    .top-banner h2 {
+        font-size: 24px;
+    }
+    .top-banner p {
+        font-size: 16px;
+    }
+
+    /* 🔹 Card Section */
+    .card-section {
+        flex-direction: column;
+        align-items: center;
+        gap: 20px;
+        padding: 10px;
+    }
+    .custom-card {
+        width: 90%;
+        min-height: auto;
+        padding: 15px;
+        height: 380px;
+    }
+    .card-content p {
+        font-size: 18px;
+    }
+
+    /* 🔹 Wide Card Section */
+    .wide-card {
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+        padding: 10px;
+    }
+    .wide-image-link img {
+        width: 100%;
+        height: auto;
+    }
+    .wide-card-content {
+        padding: 10px;
+    }
+    .wide-card-content h2 {
+        font-size: 20px;
+    }
+    .wide-card-content p {
+        font-size: 16px;
+    }
+
+    /* 🔹 Blue Heading */
+    .blue-heading h2 {
+        font-size: 18px;
+        padding: 10px;
+    }
+
+    /* 🔹 Map with cards */
+    .map-with-cards {
+        flex-direction: column;
+        align-items: center;
+        gap: 20px;
+    }
+    .map-image img {
+        width: 100%;
+        height: auto;
+    }
+    .cards-right .wide-card {
+        width: 90%;
+    }
+
+    /* 🔹 Footer */
+    .custom-footer .row {
+        flex-direction: column;
+        align-items: center;
+        gap: 20px;
+    }
+    .custom-footer .col-md-3 {
+        text-align: center;
+    }
+     #chat-toggle-btn {
+    position: fixed !important;
+    bottom: 95px !important; /* să nu acopere feedback-ul */
+    left: 20px !important;   /* colțul stânga-jos */
+    right: auto !important;
+    z-index: 9999 !important;
+  }
+
+
+
+}
+
+
+/* Stil slide-in mobil */
+#mobile-menu {
+  transition: transform 0.3s ease-in-out;
+  transform: translateX(100%);
+}
+
+#mobile-menu.show {
+  transform: translateX(0%);
 }

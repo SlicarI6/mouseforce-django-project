@@ -273,6 +273,8 @@ class RewardsSchemaTests(TestCase):
         self.assertEqual(reward.stock_remaining, 4)
 
     def test_unpublished_catalogue_contains_no_private_inventory(self):
+        from .section_test_support import seed_paid_access
+        seed_paid_access(self.user)
         code = make_code(self.reward)
         request = RequestFactory().get('/customer/rewards/')
         request.user = self.user

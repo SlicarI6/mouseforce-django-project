@@ -162,3 +162,17 @@ body {
     transform: translateX(22px);
   }
   
+
+  @media (max-width: 768px) {
+    form {
+        display: flex;
+        flex-direction: column;
+        gap: 15px;
+    }
+
+    .reject-btn,
+    .confirm-btn {
+        width: 100%;
+        margin-right: 0;
+    }
+}

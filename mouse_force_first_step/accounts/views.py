@@ -96,14 +96,14 @@ def customer_account_signup(request):
 
         # Verificări email folosit deja
         if CustomUser.objects.filter(email=email, role='customer').exists(): 
-            messages.error(request, "❌ This email is already registered as a Customer IT Innovation.")
+            messages.error(request, "❌ This email is already registered for a MouseForce Points account. Please sign in using this email address.")
             return render(request, 'registration/customer_account_signup.html', {
                 'form': CustomUserCreationForm(),
                 'show_customer_actions': True
             })
 
         if CustomUser.objects.filter(email=email, role='simple').exists():
-            messages.error(request, "❌ This email is used for Skilled Worker Finder. Please use another email.")
+            messages.error(request, "❌ This email is already linked to another MouseForce account. Please use a different email address or sign in to your existing account.")
             return render(request, 'registration/customer_account_signup.html', {
                 'form': CustomUserCreationForm()
             })

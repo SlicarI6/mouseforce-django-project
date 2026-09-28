@@ -6,10 +6,16 @@ from .views import ask_openai
 
 
 urlpatterns = [
+    path('section-access/', views.customer_section_access, name='customer_section_access'),
+    path('sections/<slug:section>/unlock/', views.customer_section_unlock, name='customer_section_unlock'),
     path('session/', views.customer_session, name='customer_session'),
     path('dashboard/', customer_dashboard, name='customer_dashboard'),
     path('how-points-work/', views.customer_how_points_work, name='customer_how_points_work'),
     path('discounts/', views.customer_discounts, name='customer_discounts'),
+    path('discounts/<uuid:discount_id>/', views.customer_discount_detail, name='customer_discount_detail'),
+    path('discounts/<uuid:discount_id>/confirmation/', views.customer_discount_confirmation, name='customer_discount_confirmation'),
+    path('discounts/<uuid:discount_id>/unlock/', views.customer_discount_unlock, name='customer_discount_unlock'),
+    path('discounts/<uuid:discount_id>/vote/', views.customer_discount_vote, name='customer_discount_vote'),
     path('rewards/', views.customer_rewards, name='customer_rewards'),
     path('rewards/requests/', views.customer_reward_requests, name='customer_reward_requests'),
     path('rewards/requests/new/', views.customer_reward_request_new, name='customer_reward_request_new'),

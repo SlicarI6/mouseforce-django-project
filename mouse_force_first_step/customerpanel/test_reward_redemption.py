@@ -275,6 +275,8 @@ class RewardConfirmationTests(ConfirmationFixtures, TestCase):
         self.assert_no_spending()
 
     def test_existing_customer_reward_routes_remain_read_only(self):
+        from .section_test_support import seed_paid_access
+        seed_paid_access(self.user)
         self.client.force_login(self.user)
         for url in (reverse('customer_rewards'), reverse('customer_reward_detail', args=[self.reward.pk])):
             self.assertEqual(self.client.post(url, {'token': self.quote().token}).status_code, 405)

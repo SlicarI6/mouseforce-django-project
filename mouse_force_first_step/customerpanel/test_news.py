@@ -1,3 +1,4 @@
+from .section_test_support import stub_unlocked_navigation
 import re
 import time
 from concurrent.futures import ThreadPoolExecutor
@@ -30,6 +31,7 @@ class CustomerNewsTests(SimpleTestCase):
     test_key = 'test-gnews-secret-do-not-display'
 
     def setUp(self):
+        stub_unlocked_navigation(self)
         for category in news.NEWS_CATEGORIES:
             cache.delete(news.news_cache_key(category))
             self.addCleanup(cache.delete, news.news_cache_key(category))

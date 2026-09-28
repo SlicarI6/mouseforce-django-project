@@ -77,6 +77,11 @@ window.CustomerDashboard = function (scope, draft) {
   scope.on(bonusButton, 'click', () => {
     if (!bonusButton.disabled) scope.track(claim(controls.dataset.bonusUrl));
   });
+  scope.on(window, 'customer:points-state', event => {
+    if (!event.detail || typeof event.detail.total_points !== 'number') return;
+    state = event.detail;
+    render();
+  });
   render();
 
   })();

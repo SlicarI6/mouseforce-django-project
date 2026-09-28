@@ -253,6 +253,8 @@ class DigitalAllocationTests(DigitalFixtures, TestCase):
         self.assert_unspent()
 
     def test_catalogue_detail_and_web_actions_never_reveal_or_redeem(self):
+        from .section_test_support import seed_paid_access
+        seed_paid_access(self.user)
         secrets = []
         rewards = [self.reward, make_reward(is_active=True, fulfillment_type='external')]
         for reward in rewards:

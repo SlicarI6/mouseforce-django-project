@@ -7,11 +7,13 @@
   if (!config || !top || !main || !window.CustomerPages) return;
   const pageNames = ['dashboard', 'discounts', 'how_points_work', 'rewards', 'offers', 'news', 'weather'];
   const routes = new Map(pageNames.map(name => [new URL(config.dataset[name], location.href).pathname, name]));
+  const discountsPath = new URL(config.dataset.discounts, location.href).pathname;
   const rewardsPath = new URL(config.dataset.rewards, location.href).pathname;
   const redemptionsPath = new URL(config.dataset.redemptions, location.href).pathname.replace(/[^/]+\/$/, '');
   const uuidPath = '[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}';
   function pageFor(pathname) {
     if (routes.has(pathname)) return routes.get(pathname);
+    if (pathname.startsWith(discountsPath) && new RegExp(`^${uuidPath}/$`).test(pathname.slice(discountsPath.length))) return 'discounts';
     if (pathname === redemptionsPath) return 'redemption_history';
     const suffix = pathname.startsWith(rewardsPath) ? pathname.slice(rewardsPath.length) : '';
     if (suffix === 'requests/') return 'reward_requests';
@@ -22,6 +24,11 @@
     if (new RegExp(`^${uuidPath}/confirm/$`).test(suffix)) return 'reward_confirm';
     const result = pathname.startsWith(redemptionsPath) ? pathname.slice(redemptionsPath.length) : '';
     return new RegExp(`^${uuidPath}/$`).test(result) ? 'redemption_result' : null;
+  }
+  function sectionFor(pathname) {
+    const page = pageFor(pathname);
+    if (['discounts', 'rewards', 'offers', 'news', 'weather'].includes(page)) return page;
+    return page?.startsWith('reward_') || page?.startsWith('redemption_') ? 'rewards' : null;
   }
   const session = top.dataset.session;
   const pages = window.CustomerPages;
@@ -138,8 +145,15 @@
     controller?.abort();
     const request = new AbortController();
     controller = request;
-    const timeout = setTimeout(() => request.abort(), 25000);
+    let timeout = null; // Time spent reviewing a purchase is not a navigation timeout.
     const oldEntry = entry;
+    function restoreLockedHistory() {
+      if (targetEntry && targetEntry.index !== oldEntry.index) {
+        restoring = true;
+        history.go(oldEntry.index - targetEntry.index);
+        targetEntry = null;
+      }
+    }
     let styles = [];
     errorBox.hidden = true;
     main.setAttribute('aria-busy', 'true');
@@ -149,11 +163,28 @@
     try {
       await waitFor(initial, request.signal);
       await waitFor(pages.beforeLeave(), request.signal);
+      await waitFor(window.CustomerSectionAccess.settle(), request.signal);
       if (operation !== generation || stopped) return;
-      const response = await fetch(url.href, {
+      const section = sectionFor(url.pathname);
+      if (section && !window.CustomerSectionAccess.unlocked(section)) {
+        restoreLockedHistory();
+        if (!await waitFor(window.CustomerSectionAccess.ensure(section), request.signal)) return;
+      }
+      if (operation !== generation || stopped) return;
+      timeout = setTimeout(() => request.abort(), 25000);
+      const loadPage = () => fetch(url.href, {
         credentials: 'same-origin', cache: 'no-store', signal: request.signal,
         headers: {'X-Customer-Navigation': '1', 'Accept': 'text/html'},
       });
+      let response = await loadPage();
+      // Access denial is not an expired session; keep the shell/audio alive.
+      if (section && response.status === 403 && response.headers.get('X-Customer-Section-Locked') === section) {
+        clearTimeout(timeout);
+        restoreLockedHistory();
+        if (!await waitFor(window.CustomerSectionAccess.ensure(section, true), request.signal)) return;
+        timeout = setTimeout(() => request.abort(), 25000);
+        response = await loadPage();
+      }
       const finalURL = new URL(response.url);
       if (response.status === 401 || response.status === 403 || (response.redirected && !supported(finalURL))) {
         return leaveSession(url.href);
@@ -183,11 +214,12 @@
       top.dataset.page = nextTop.dataset.page;
       document.title = doc.title;
       document.querySelectorAll('.customer-secondary-nav a[href]').forEach(link => {
-        const activePath = ['reward_detail', 'reward_confirm', 'redemption_result', 'redemption_history', 'reward_requests', 'reward_request_new', 'reward_request_detail'].includes(nextTop.dataset.page) ? rewardsPath : url.pathname;
+        const activePath = ['reward_detail', 'reward_confirm', 'redemption_result', 'redemption_history', 'reward_requests', 'reward_request_new', 'reward_request_detail'].includes(nextTop.dataset.page) ? rewardsPath : nextTop.dataset.page === 'discounts' ? discountsPath : url.pathname;
         if (new URL(link.href).pathname === activePath) link.setAttribute('aria-current', 'page');
         else link.removeAttribute('aria-current');
       });
       pages.mount(nextTop.dataset.page);
+      window.CustomerSectionAccess.adopt(doc);
       main.inert = false;
       top.inert = false;
       if (targetEntry) entry = targetEntry;
@@ -229,7 +261,15 @@
 
   // Page actions may navigate to a server-returned GET result. The same route
   // whitelist applies; this API cannot submit purchases or reveal requests.
-  window.CustomerNavigation = Object.freeze({navigate});
+  function updateDiscountQuery(destination, replace = false) {
+    const url = new URL(destination, location.href);
+    if (stopped || url.origin !== location.origin || url.pathname !== discountsPath || location.pathname !== discountsPath) return;
+    remember();
+    if (!replace) entry = {index: entry.index + 1, key: crypto.randomUUID()};
+    history[replace ? 'replaceState' : 'pushState']({customerShell: entry}, '', url.href);
+    currentURL = url.href;
+  }
+  window.CustomerNavigation = Object.freeze({navigate, updateDiscountQuery, endSession: () => leaveSession(location.href)});
 
   document.addEventListener('click', event => {
     if (stopped || event.defaultPrevented || event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;

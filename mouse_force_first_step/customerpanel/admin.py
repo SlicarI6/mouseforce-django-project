@@ -11,7 +11,7 @@ from django.utils import timezone
 from django.utils.decorators import method_decorator
 from django.views.decorators.debug import sensitive_post_parameters, sensitive_variables
 
-from .models import Feedback, Reward, RewardCode, Redemption, RewardFulfillment, RewardRequest, RedemptionEvent
+from .models import Feedback, Reward, RewardCode, Redemption, RewardFulfillment, RewardRequest, RedemptionEvent, CustomerSectionUnlock
 from .reward_admin_forms import RewardAdminForm, RewardCodeAdminForm, PrivateInventoryImportForm
 from .reward_inventory import import_private_inventory, lock_staff_users
 from .reward_fulfillment import process_fulfillment
@@ -20,6 +20,26 @@ from .reward_refunds import RefundForm, refund_confirmation, refund_redemption
 from django.utils.html import format_html
 
 admin.site.register(Feedback)
+
+
+@admin.register(CustomerSectionUnlock)
+class CustomerSectionUnlockAdmin(admin.ModelAdmin):
+    list_display = ('user', 'section', 'points_spent', 'balance_after', 'source', 'unlocked_at')
+    list_filter = ('section', 'source')
+    search_fields = ('user__username', 'user__email')
+    list_select_related = ('user',)
+    date_hierarchy = 'unlocked_at'
+    readonly_fields = ('id', 'user', 'section', 'points_spent', 'balance_after', 'source', 'unlocked_at')
+    actions = None
+
+    def has_add_permission(self, request):
+        return False
+
+    def has_change_permission(self, request, obj=None):
+        return False
+
+    def has_delete_permission(self, request, obj=None):
+        return False
 
 
 class StockFilter(admin.SimpleListFilter):
@@ -368,3 +388,6 @@ class RedemptionEventAdmin(ReadOnlyRewardRecordAdmin):
     list_select_related = ('redemption', 'actor')
     date_hierarchy = 'created_at'
 
+
+
+from . import discount_admin  # Register the Discounts catalogue and read-only records.

@@ -1,0 +1,85 @@
+ debug.log                                          |   22 [32m+[m
+ .../static/css/login_customer_account_style.css    |   49 [32m+[m
+ .../static/css/login_simple_user_style.css         |   63 [32m+[m[31m-[m
+ .../accounts/static/images/signupbackground.png    |  Bin [31m0[m -> [32m83335[m bytes
+ .../accounts/static/images/singup_agency.png       |  Bin [31m0[m -> [32m1497063[m bytes
+ mouse_force_first_step/accounts/views.py           |    4 [32m+[m[31m-[m
+ mouse_force_first_step/customerpanel/admin.py      |   25 [32m+[m[31m-[m
+ .../browser_tests/customer_discounts.cjs           |  305 [32m++[m
+ .../browser_tests/customer_section_unlocks.cjs     |  211 [32m++[m
+ .../customerpanel/browser_tests/server.py          |   55 [32m+[m[31m-[m
+ .../customerpanel/discount_admin.py                |   95 [32m+[m
+ .../customerpanel/discount_models.py               |  140 [32m+[m
+ .../customerpanel/discount_views.py                |  134 [32m+[m
+ mouse_force_first_step/customerpanel/discounts.py  |  222 [32m++[m
+ .../migrations/0009_customer_section_unlock.py     |   60 [32m+[m
+ .../customerpanel/migrations/0010_discounts.py     |  140 [32m+[m
+ mouse_force_first_step/customerpanel/models.py     |   37 [32m+[m[31m-[m
+ mouse_force_first_step/customerpanel/navigation.py |   10 [32m+[m[31m-[m
+ .../customerpanel/reward_fulfillment.py            |    9 [32m+[m
+ .../customerpanel/section_access.py                |  138 [32m+[m
+ .../customerpanel/section_test_support.py          |   19 [32m+[m
+ .../customerpanel/section_views.py                 |  101 [32m+[m
+ .../static/css/customer_discounts.css              |  130 [32m+[m
+ .../static/css/customer_section_unlocks.css        |   28 [32m+[m
+ .../static/css/style_customerpanel_css.css         |  414 [32m++[m[31m-[m
+ .../customerpanel/static/images/mouseforce.png     |  Bin [31m1536386[m -> [32m0[m bytes
+ .../customerpanel/static/js/customer_dashboard.js  |    7 [32m+[m[31m-[m
+ .../customerpanel/static/js/customer_discounts.js  |  203 [32m++[m
+ .../customerpanel/static/js/customer_navigation.js |   48 [32m+[m[31m-[m
+ .../static/js/customer_page_lifecycle.js           |    2 [32m+[m[31m-[m
+ .../static/js/customer_reward_actions.js           |    8 [32m+[m[31m-[m
+ .../static/js/customer_section_unlocks.js          |  207 [32m++[m
+ .../customerpanel/templates/customer_base.html     |  116 [32m+[m[31m-[m
+ .../templates/customer_discount_detail.html        |   59 [32m+[m
+ .../templates/customer_discounts.html              |   17 [32m+[m[31m-[m
+ .../templates/customer_reward_confirm.html         |    5 [32m+[m
+ .../templates/customer_section_locked.html         |   25 [32m+[m
+ .../includes/customer_discount_results.html        |   26 [32m+[m
+ .../templates/includes/customer_discount_vote.html |    5 [32m+[m
+ .../includes/customer_section_unlock_modal.html    |   21 [32m+[m
+ .../customerpanel/test_customer_pages.py           |   10 [32m+[m[31m-[m
+ .../customerpanel/test_discounts.py                |  504 [32m++++[m
+ .../customerpanel/test_navigation.py               |    2 [32m+[m
+ mouse_force_first_step/customerpanel/test_news.py  |    2 [32m+[m
+ .../customerpanel/test_reward_admin.py             |    2 [32m+[m
+ .../customerpanel/test_reward_allocation.py        |    2 [32m+[m
+ .../customerpanel/test_reward_customer_actions.py  |    2 [32m+[m
+ .../customerpanel/test_reward_fulfillment.py       |   28 [32m+[m[31m-[m
+ .../customerpanel/test_reward_models.py            |    2 [32m+[m
+ .../customerpanel/test_reward_redemption.py        |    2 [32m+[m
+ .../customerpanel/test_reward_refunds.py           |    2 [32m+[m
+ .../customerpanel/test_reward_requests.py          |    2 [32m+[m
+ .../customerpanel/test_rewards.py                  |    2 [32m+[m
+ .../customerpanel/test_section_access.py           |  400 [32m+++[m
+ .../customerpanel/test_weather.py                  |    2 [32m+[m
+ mouse_force_first_step/customerpanel/urls.py       |   64 [32m+[m[31m-[m
+ mouse_force_first_step/customerpanel/views.py      |  541 [32m++[m[31m--[m
+ .../homepage/static/css/main_page_style.css        | 2991 [32m++++++++++++[m[31m--------[m
+ .../homepage/static/images/a_s_s_image.png         |  Bin [31m0[m -> [32m1976291[m bytes
+ .../homepage/static/images/bascket_image.png       |  Bin [31m0[m -> [32m1198077[m bytes
+ .../homepage/static/images/book_voucher.png        |  Bin [31m0[m -> [32m2091475[m bytes
+ .../homepage/static/images/customer.png            |  Bin [31m0[m -> [32m4906[m bytes
+ .../homepage/static/images/drona_img.png           |  Bin [31m0[m -> [32m1226896[m bytes
+ .../images/{feedback.png => feedback_homepage.png} |  Bin
+ .../homepage/static/images/glasses_voucher.png     |  Bin [31m0[m -> [32m1781793[m bytes
+ .../homepage/static/images/headphones_voucher .png |  Bin [31m0[m -> [32m1807408[m bytes
+ .../homepage/static/images/laptop_voucher.png      |  Bin [31m0[m -> [32m1508911[m bytes
+ .../homepage/static/images/partneship.webp         |  Bin [31m0[m -> [32m16782[m bytes
+ .../homepage/static/images/unlock_game.png         |  Bin [31m0[m -> [32m2013129[m bytes
+ .../homepage/templates/index.html                  |   74 [32m+[m[31m-[m
+ .../static/css/privacy_policy_styles.css           |   16 [32m+[m[31m-[m
+ project_name/settings.py                           |   24 [32m+[m[31m-[m
+ staticfiles/css/customer_discounts.css             |  130 [32m+[m
+ staticfiles/css/customer_section_unlocks.css       |   28 [32m+[m
+ staticfiles/css/main_page_style.css                | 1428 [32m++++++[m[31m----[m
+ staticfiles/css/style_customerpanel_css.css        |    7 [32m+[m[31m-[m
+ staticfiles/images/feedback_homepage.png           |  Bin [31m0[m -> [32m1434[m bytes
+ staticfiles/js/customer_dashboard.js               |    7 [32m+[m[31m-[m
+ staticfiles/js/customer_discounts.js               |  203 [32m++[m
+ staticfiles/js/customer_navigation.js              |   48 [32m+[m[31m-[m
+ staticfiles/js/customer_page_lifecycle.js          |    2 [32m+[m[31m-[m
+ staticfiles/js/customer_reward_actions.js          |    8 [32m+[m[31m-[m
+ staticfiles/js/customer_section_unlocks.js         |  207 [32m++[m
+ text.txt                                           |    3 [32m+[m
+ 84 files changed, 7875 insertions(+), 2030 deletions(-)

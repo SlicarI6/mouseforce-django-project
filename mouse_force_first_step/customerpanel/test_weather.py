@@ -1,3 +1,4 @@
+from .section_test_support import stub_unlocked_navigation
 import re
 import time
 from copy import deepcopy
@@ -27,6 +28,7 @@ from .views import customer_weather
 })
 class CustomerWeatherTests(SimpleTestCase):
     def setUp(self):
+        stub_unlocked_navigation(self)
         cache.clear()
         self.addCleanup(cache.clear)
         self.url = reverse('customer_weather')
