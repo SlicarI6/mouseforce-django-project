@@ -238,7 +238,7 @@
 </div>
 <script>
   function clearChat() {
-  sessionStorage.removeItem("chat_content");
+  sessionStorage.removeItem("mouseforce:simple-assistant:{{ request.user.pk }}");
   chatBody.innerHTML = "";
   toggleChatClose();
 }
@@ -261,7 +261,7 @@ function toggleChatOpen() {
 
   setTimeout(() => {
     chatBox.classList.add("visible");
-    const saved = sessionStorage.getItem("chat_content");
+    const saved = sessionStorage.getItem("mouseforce:simple-assistant:{{ request.user.pk }}");
     if (saved) {
       chatBody.innerHTML = saved;
     } else {
@@ -461,7 +461,7 @@ function handleTechnicalSupport() {
 }
 
 function restartConversation() {
-  sessionStorage.removeItem("chat_content"); // 🧹 Șterge salvarea
+  sessionStorage.removeItem("mouseforce:simple-assistant:{{ request.user.pk }}"); // 🧹 Șterge salvarea
   chatBody.innerHTML = "";
   startIntroConversation();
 }
@@ -538,7 +538,7 @@ function getCookie(name) {
 
 chatToggleBtn.addEventListener("click", toggleChatOpen);
 chatCloseBtn.addEventListener("click", () => {
-  sessionStorage.setItem("chat_content", chatBody.innerHTML);
+  sessionStorage.setItem("mouseforce:simple-assistant:{{ request.user.pk }}", chatBody.innerHTML);
   toggleChatClose();
 });
 </script>

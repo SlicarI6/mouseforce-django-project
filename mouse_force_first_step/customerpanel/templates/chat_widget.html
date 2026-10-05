@@ -192,10 +192,22 @@
     margin-top: 4px;
   }
 
+  #chat-box .chat-bubble { white-space: pre-wrap; overflow-wrap: anywhere; min-width: 0; }
+  #chat-box .chat-sources { margin-top: 8px; display: flex; flex-direction: column; gap: 6px; }
+  #chat-box .chat-sources a { color: #164b79; text-decoration: underline; font-size: 12px; }
+  #chat-box .chat-status { padding: 8px 12px; color: #536577; font-size: 13px; }
+  #chat-box .chat-error { color: #9f2929; }
+  #chat-box .chat-session-actions { display: flex; justify-content: flex-end; gap: 8px; padding: 4px 12px; }
+  #chat-box .chat-session-actions button { border: 0; background: transparent; color: #164b79; cursor: pointer; }
+  #chat-box button:focus-visible, #chat-box input:focus-visible { outline: 2px solid #078e9e; outline-offset: 2px; }
+  #chat-box button:disabled { opacity: .55; cursor: default; }
+  #chat-footer input { min-width: 0; }
+
 @media (max-width: 768px) {
   #chat-box.visible {
     width: 100vw;
     height: 100vh;
+    height: 100dvh;
     bottom: 0;
     right: 0;
     left: 0;
@@ -216,24 +228,23 @@
 
 </style>
 <!-- Butoane -->
-<button id="chat-toggle-btn">💬</button>
-<button id="chat-close-btn">↧</button>
+<button id="chat-toggle-btn" type="button" aria-label="Open Message Us" aria-controls="chat-box" aria-expanded="false">💬</button>
+<button id="chat-close-btn" type="button" aria-label="Minimize Message Us">↧</button>
 
 <!-- Chat Box -->
-<div id="chat-box" data-static-images="{% static 'images/' %}">
+<div id="chat-box" data-static-images="{% static 'images/' %}"
+     data-ai-url="{% url 'ask_openai' %}" data-privacy-url="{% url 'privacy_policy' %}"
+     data-contact-url="{% url 'contact' %}" data-session="{{ request.customer_shell_session }}">
   <div id="chat-header">
     Message Us
-    <button onclick="clearChat()">🗑️</button>
+    <span><button type="button" data-chat-minimize aria-label="Minimize Message Us">−</button>
+    <button type="button" onclick="clearChat()" aria-label="Clear conversation and close">🗑️</button></span>
   </div>
   <div id="chat-loader-bar"></div>
-  <div id="chat-body"></div>
+  <div id="chat-body" role="log" aria-live="polite" aria-label="Message Us conversation"></div>
   <div id="chat-footer">
-    <input type="text" id="chat-input" placeholder="Type a message..." />
-    <button onclick="sendChat()">Send</button>
+    {% csrf_token %}
+    <input type="text" id="chat-input" placeholder="Type a message..." aria-label="Your message" maxlength="2000" disabled />
+    <button type="button" onclick="sendChat()" disabled>Send</button>
   </div>
-</div>
-<!-- Chat input pt OpenAI -->
-<div id="openai-chat-container" style="display: none; padding: 12px;">
-  <input type="text" id="user-question" placeholder="Ask something..." style="width: 70%; padding: 8px; border-radius: 6px; border: 1px solid #ccc;" />
-  <button onclick="sendQuestion()" style="padding: 8px 12px; background: #0a2b5c; color: white; border: none; border-radius: 6px; cursor: pointer;">Send</button>
 </div>

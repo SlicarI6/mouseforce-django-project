@@ -9,19 +9,31 @@ active_users_in_chat = set()
 
 class ChatConsumer(AsyncWebsocketConsumer):
     async def connect(self):
-        print("🟢 WebSocket CONNECT received")
+        self.joined = False
         self.room_name = self.scope['url_route']['kwargs']['room_name']
         self.room_group_name = f'chat_{self.room_name}'
-
+        if not self.authorized():
+            await self.close(code=4403)
+            return
         await self.channel_layer.group_add(self.room_group_name, self.channel_name)
         await self.accept()
+        self.joined = True
         active_users_in_chat.add(self.scope["user"].username)
 
+    def authorized(self):
+        user = self.scope.get('user')
+        return bool(user and user.is_authenticated and user.is_active
+                    and (user.is_staff or user.username == self.room_name))
+
     async def disconnect(self, close_code):
-        await self.channel_layer.group_discard(self.room_group_name, self.channel_name)
-        active_users_in_chat.discard(self.scope["user"].username)
+        if self.joined:
+            await self.channel_layer.group_discard(self.room_group_name, self.channel_name)
+            active_users_in_chat.discard(self.scope["user"].username)
 
     async def receive(self, text_data):
+        if not self.joined or not self.authorized():
+            await self.close(code=4403)
+            return
         data = json.loads(text_data)
         message = data['message']
         sender = self.scope['user']

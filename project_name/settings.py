@@ -43,6 +43,9 @@ ALLOWED_HOSTS = ['127.0.0.1', 'localhost', 'mouseforce.onrender.com']
 ASGI_APPLICATION = 'project_name.asgi.application'
 
 OPENAI_API_KEY = config("OPENAI_API_KEY")
+CUSTOMER_ASSISTANT_MODEL = config("CUSTOMER_ASSISTANT_MODEL", default="gpt-6-luna")
+# Dedicated key prefix/short TTLs in the existing Redis service; no chat text is stored.
+CUSTOMER_ASSISTANT_REDIS_URL = config("REDIS_URL")
 
 
 # Email backend development
@@ -267,7 +270,6 @@ cloudinary.config(
 
 print("🟢 File Storage:", DEFAULT_FILE_STORAGE)
 
-print("🔗 Redis:", config("REDIS_URL"))
 
 """
 Django settings for project_name project.

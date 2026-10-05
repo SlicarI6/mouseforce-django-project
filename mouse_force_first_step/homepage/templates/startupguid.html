@@ -4,7 +4,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>Startup Guide — Mouseforce</title>
+  <title>How to Ask MouseForce — MouseForce</title>
 
   <style>
     :root{
@@ -13,188 +13,416 @@
       --card:#111823;
       --soft:#0f1620;
       --line:#1f2b3a;
+      --line-bright:#274357;
       --text:#e9f0f7;
       --muted:#9fb0c2;
       --brand:#27b0ff;
       --brand2:#5ee3ff;
       --accent:#69d3ff;
-      --ok:#39d98a;
-      --warn:#ffd166;
     }
+
     *{box-sizing:border-box}
-    html,body{margin:0;background:linear-gradient(180deg,var(--bg),var(--bg-2));color:var(--text);
-      font:16px/1.6 system-ui,-apple-system,Segoe UI,Roboto,Arial}
-    .wrap{max-width:1080px;margin:40px auto;padding:24px}
 
-    /* brand bar */
-    .brand{display:flex;align-items:center;gap:12px;margin-bottom:18px}
-    .brand a{display:inline-flex;align-items:center;gap:10px;color:var(--text);text-decoration:none}
-    .brand img{height:46px;border-radius:10%;border-bottom-left-radius:100px;border-bottom-right-radius:100px}
-    .badge{padding:6px 10px;border-radius:999px;background:rgba(94,227,255,.12);
-      border:1px solid rgba(94,227,255,.35);color:#cfefff;font-size:12px;letter-spacing:.3px}
+    html,body{
+      margin:0;
+      min-width:0;
+      background:linear-gradient(180deg,var(--bg),var(--bg-2));
+      color:var(--text);
+      font:16px/1.6 system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;
+    }
 
-    /* hero */
-    .hero{background:linear-gradient(180deg,var(--card),var(--soft));border:1px solid var(--line);
-      border-radius:16px;padding:26px 24px;position:relative;overflow:hidden}
-    .hero h1{margin:6px 0 8px;font-size:34px;line-height:1.2}
-    .lead{color:var(--muted);margin:0 0 18px}
-    .cta{display:flex;gap:12px;flex-wrap:wrap}
-    .btn{display:inline-block;padding:12px 16px;border-radius:10px;text-decoration:none;font-weight:700}
-    .btn-primary{color:#00233a;background:linear-gradient(90deg,var(--brand),var(--brand2))}
-    .btn-ghost{border:1px solid #274357;color:#cfe3f7}
-    .note{margin-top:10px;color:var(--muted);font-size:14px}
+    body{overflow-x:hidden}
 
-    /* sections */
+    .wrap{
+      width:min(100%,1080px);
+      margin:40px auto;
+      padding:24px;
+    }
+
+    .brand{
+      display:flex;
+      align-items:center;
+      gap:12px;
+      margin-bottom:18px;
+    }
+
+    .brand a{
+      display:inline-flex;
+      align-items:center;
+      gap:10px;
+      color:var(--text);
+      text-decoration:none;
+    }
+
+    .brand a:hover strong{text-decoration:underline}
+
+    .brand img{
+      width:auto;
+      height:46px;
+      border-radius:10% 10% 100px 100px;
+    }
+
+    .badge{
+      padding:6px 10px;
+      border:1px solid rgba(94,227,255,.35);
+      border-radius:999px;
+      background:rgba(94,227,255,.12);
+      color:#cfefff;
+      font-size:12px;
+      font-weight:700;
+      letter-spacing:.3px;
+    }
+
+    .hero{
+      position:relative;
+      overflow:hidden;
+      padding:28px 26px;
+      border:1px solid var(--line);
+      border-radius:16px;
+      background:linear-gradient(180deg,var(--card),var(--soft));
+      box-shadow:0 14px 32px rgba(0,0,0,.16);
+    }
+
+    .hero::after{
+      content:'';
+      position:absolute;
+      top:-90px;
+      right:-80px;
+      width:240px;
+      height:240px;
+      border-radius:50%;
+      background:radial-gradient(circle,rgba(39,176,255,.12),transparent 68%);
+      pointer-events:none;
+    }
+
+    .hero h1{
+      position:relative;
+      z-index:1;
+      margin:4px 0 9px;
+      font-size:clamp(29px,4.5vw,38px);
+      line-height:1.2;
+      letter-spacing:-.02em;
+    }
+
+    .lead{
+      position:relative;
+      z-index:1;
+      max-width:72ch;
+      margin:0 0 19px;
+      color:var(--muted);
+    }
+
+    .cta{
+      position:relative;
+      z-index:1;
+      display:flex;
+      gap:12px;
+      flex-wrap:wrap;
+    }
+
+    .btn{
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      min-height:45px;
+      padding:11px 17px;
+      border-radius:10px;
+      font-weight:700;
+      text-decoration:none;
+      transition:transform .18s ease,filter .18s ease,box-shadow .18s ease;
+    }
+
+    .btn-primary{
+      background:linear-gradient(90deg,var(--brand),var(--brand2));
+      color:#00233a;
+      box-shadow:0 8px 20px rgba(39,176,255,.15);
+    }
+
+    .btn:hover{
+      filter:brightness(1.06);
+      transform:translateY(-1px);
+      box-shadow:0 10px 24px rgba(39,176,255,.2);
+    }
+
+    .btn:focus-visible{
+      outline:3px solid rgba(94,227,255,.45);
+      outline-offset:3px;
+    }
+
     section{margin-top:26px}
-    h2{margin:0 0 10px;font-size:22px}
-    h3{margin:0 0 8px;font-size:18px}
+    h2{margin:0 0 11px;font-size:22px;line-height:1.35}
+    h3{margin:0 0 8px;font-size:18px;line-height:1.35}
+
     .grid{display:grid;gap:16px}
-    .grid.two{grid-template-columns:1fr 1fr}
-    .grid.three{grid-template-columns:repeat(3,1fr)}
-    .card{background:linear-gradient(180deg,var(--card),var(--soft));border:1px solid var(--line);
-      border-radius:14px;padding:18px}
-    .card p{margin:0}
-    .list{margin:8px 0 0 18px}
-    .chip{display:inline-block;padding:6px 10px;border:1px solid #274357;border-radius:999px;margin:6px 6px 0 0;color:#cfe3f7}
-    .tip{font-size:14px;color:var(--muted)}
-    .ok{color:var(--ok)} .warn{color:var(--warn)}
+    .grid.two{grid-template-columns:repeat(2,minmax(0,1fr))}
+    .grid.three{grid-template-columns:repeat(3,minmax(0,1fr))}
 
-    /* process boxes */
-    .step{display:flex;align-items:center;gap:12px;background:rgba(39,176,255,.06);border:1px solid #213041;
-      border-radius:12px;padding:12px 14px}
-    .step .num{width:28px;height:28px;border-radius:50%;display:inline-grid;place-items:center;
-      background:linear-gradient(90deg,var(--brand),var(--brand2));color:#00233a;font-weight:800}
+    .card{
+      min-width:0;
+      padding:19px;
+      border:1px solid var(--line);
+      border-radius:14px;
+      background:linear-gradient(180deg,var(--card),var(--soft));
+      box-shadow:0 9px 24px rgba(0,0,0,.1);
+    }
 
-    /* footer */
+    .card p{margin:0;color:var(--muted)}
+
+    .request-list{
+      display:grid;
+      gap:9px;
+      margin:14px 0 0;
+      padding:0;
+      list-style:none;
+    }
+
+    .request-list li{
+      position:relative;
+      padding:10px 12px 10px 34px;
+      border:1px solid #213041;
+      border-radius:10px;
+      background:#0a121a;
+      color:#cfe3f7;
+    }
+
+    .request-list li::before{
+      content:'›';
+      position:absolute;
+      top:8px;
+      left:14px;
+      color:var(--accent);
+      font-size:20px;
+      font-weight:800;
+      line-height:1;
+    }
+
+    .details-list{
+      display:grid;
+      grid-template-columns:repeat(2,minmax(0,1fr));
+      gap:8px 22px;
+      margin:4px 0 0;
+      padding:0;
+      list-style:none;
+    }
+
+    .details-list li{
+      position:relative;
+      padding-left:17px;
+      color:#cfe3f7;
+    }
+
+    .details-list li::before{
+      content:'';
+      position:absolute;
+      top:.65em;
+      left:0;
+      width:6px;
+      height:6px;
+      border-radius:50%;
+      background:var(--brand2);
+      box-shadow:0 0 10px rgba(94,227,255,.45);
+    }
+
+    .note{
+      margin-top:15px;
+      padding-top:13px;
+      border-top:1px solid var(--line);
+      color:var(--muted);
+      font-size:14px;
+    }
+
+    .step{
+      display:flex;
+      align-items:flex-start;
+      gap:13px;
+      padding:16px;
+      border:1px solid #213041;
+      border-radius:12px;
+      background:rgba(39,176,255,.055);
+    }
+
+    .step .num{
+      display:inline-grid;
+      flex:0 0 31px;
+      width:31px;
+      height:31px;
+      place-items:center;
+      border-radius:50%;
+      background:linear-gradient(90deg,var(--brand),var(--brand2));
+      color:#00233a;
+      font-weight:800;
+    }
+
+    .step p{margin:4px 0 0;color:var(--muted)}
+
+    .example-card{
+      position:relative;
+      overflow:hidden;
+      padding-top:22px;
+    }
+
+    .example-card::before{
+      content:'';
+      position:absolute;
+      inset:0 0 auto;
+      height:3px;
+      background:linear-gradient(90deg,var(--brand),var(--brand2));
+    }
+
+    .example-card q{
+      display:block;
+      color:#b8c8d8;
+      font-style:normal;
+      quotes:'“' '”';
+    }
+
+    .example-card q::before{content:open-quote;color:var(--accent)}
+    .example-card q::after{content:close-quote;color:var(--accent)}
+
+    .final-card{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:28px;
+      border-color:var(--line-bright);
+      background:
+        linear-gradient(110deg,rgba(39,176,255,.08),transparent 55%),
+        linear-gradient(180deg,var(--card),var(--soft));
+    }
+
+    .final-card h2{margin:0 0 7px}
     .footer{margin-top:28px;color:var(--muted);font-size:14px}
 
-    /* code-like block (for examples) */
-    pre{margin:10px 0;background:#0a121a;border:1px solid #213041;border-radius:10px;padding:12px;overflow:auto}
-    code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}
-
-    /* responsive */
     @media (max-width:1024px){
-      .grid.three{grid-template-columns:1fr 1fr}
+      .grid.three{grid-template-columns:repeat(2,minmax(0,1fr))}
     }
-    @media (max-width:880px){
+
+    @media (max-width:760px){
       .grid.two{grid-template-columns:1fr}
+      .final-card{align-items:flex-start;flex-direction:column;gap:18px}
     }
+
     @media (max-width:640px){
-      .wrap{padding:16px;margin:24px auto}
-      .hero h1{font-size:28px}
+      .wrap{margin:24px auto;padding:16px}
+      .hero{padding:24px 20px}
+      .grid.three{grid-template-columns:1fr}
+      .details-list{grid-template-columns:1fr}
+      .final-card .btn{width:100%}
+    }
+
+    @media (max-width:420px){
+      .brand{align-items:flex-start;flex-direction:column;gap:8px}
+      .card{padding:17px}
+    }
+
+    @media (prefers-reduced-motion:reduce){
+      .btn{transition:none}
     }
   </style>
 </head>
 <body>
-  <div class="wrap">
-    <!-- Logo → back to homepage -->
+  <main class="wrap">
     <div class="brand">
-      <a href="{% url 'homepage' %}" aria-label="Back to homepage">
-        <img src="{% static 'images/mouseforce.png' %}" alt="Mouseforce logo">
-        <strong>Mouseforce</strong>
+      <a href="{% url 'homepage' %}" aria-label="Back to the MouseForce homepage">
+        <img src="{% static 'images/mouseforce.png' %}" alt="MouseForce logo">
+        <strong>MouseForce</strong>
       </a>
-      <span class="badge">Startup Guide</span>
+      <span class="badge">How to Ask MouseForce</span>
     </div>
 
-    <!-- HERO -->
-    <div class="hero">
-      <h1>Start simple. We’ll help you finish strong.</h1>
-      <p class="lead">
-        Before we build anything together, it helps if you clearly imagine your idea:
-        what you need, why you need it, and how fast you want it. We’re friendly,
-        patient, and happy to guide you — because we love helping people.
-      </p>
+    <header class="hero">
+      <h1>Ask better. Get better answers.</h1>
+      <p class="lead">MouseForce can help research offers, places, experiences, tools and practical options. The more useful detail you give us, the easier it is to narrow things down.</p>
       <div class="cta">
-        <a class="btn btn-primary" href="{% url 'contact' %}">Contact us</a>
-        <a class="btn btn-ghost" href="{% url 'homepage' %}">Explore the website</a>
-        <a class="btn btn-ghost" href="{% url 'about' %}">See what we build</a>
+        <a class="btn btn-primary" href="{% url 'contact' %}">Contact MouseForce</a>
       </div>
-      <p class="note">Have an account already? Open the homepage and use the Login button.</p>
-    </div>
+    </header>
 
-    <!-- 1) Understand your need -->
-    <section>
-      <h2>1) Understand your need</h2>
-      <div class="grid two">
-        <div class="card">
-          <h3>Questions to clarify</h3>
-          <ul class="list">
-            <li>What do you want to achieve — in one sentence?</li>
-            <li>Who benefits from it (you, your team, your customers)?</li>
-            <li>Is this a one-time tool or something you’ll use weekly?</li>
-            <li>Do you prefer a quick prototype or a solid long-term solution?</li>
-            <li>Free or paid? (see options below)</li>
-          </ul>
-          <p class="tip">Clear answers help us choose the fastest, most affordable path for you.</p>
-        </div>
-        <div class="card">
-          <h3>Typical ideas we turn into reality</h3>
-          <span class="chip">Game scripts (economy, AI helpers)</span>
-          <span class="chip">Scraping & automations</span>
-          <span class="chip">Job-finding bots</span>
-          <span class="chip">Test scripting (Playwright)</span>
-          <span class="chip">Small/medium turnkey projects</span>
-          <pre><code># tiny example
-goal = "Track marketplace prices daily"
-path = "scraper + db + csv export"
-result = "daily email with best deals"</code></pre>
-        </div>
-      </div>
-    </section>
-
-    <!-- 2) Free vs Paid -->
-    <section>
-      <h2>2) Free vs paid — pick what suits you</h2>
-      <div class="grid two">
-        <div class="card">
-          <h3 class="ok">Free (when it fits)</h3>
-          <ul class="list">
-            <li>Very small tasks or guidance (“how to…”)</li>
-            <li>Short reviews / quick fixes if trivial</li>
-            <li>Pointing you to templates or ready snippets</li>
-          </ul>
-          <p class="tip">We volunteer when it’s quick and clearly helpful.</p>
-        </div>
-        <div class="card">
-          <h3 class="warn">Paid (recommended for results)</h3>
-          <ul class="list">
-            <li>Real deliverables (scripts, bots, dashboards)</li>
-            <li>Anti-bot/proxy rotation, reliability, monitoring</li>
-            <li>Milestones, documentation, optional maintenance</li>
-          </ul>
-          <p class="tip">You get focused time, higher quality and ongoing support.</p>
-        </div>
-      </div>
-    </section>
-
-    <!-- 3) Simple process -->
-    <section>
-      <h2>3) Simple process</h2>
-      <div class="grid two">
-        <div class="step"><span class="num">1</span><div><strong>Quick chat.</strong> Tell us your goal and constraints.</div></div>
-        <div class="step"><span class="num">2</span><div><strong>Proposal.</strong> We suggest the most effective path (free or paid).</div></div>
-        <div class="step"><span class="num">3</span><div><strong>Build.</strong> We implement in small, clear iterations.</div></div>
-        <div class="step"><span class="num">4</span><div><strong>Finish.</strong> Delivery + handover, and IT help until it works for you.</div></div>
-      </div>
-    </section>
-
-    <!-- 4) Ready -->
-    <section>
-      <h2>Ready when you are</h2>
+    <section aria-labelledby="tell-us-heading">
+      <h2 id="tell-us-heading">1. Tell us what you need</h2>
       <div class="card">
-        <p>
-          Whether you just need a friendly hint or a complete solution,
-          we’re here to help from start to finish. Tell us your idea and we’ll
-          turn it into something useful — quickly and respectfully.
-        </p>
-        <div class="cta" style="margin-top:10px">
-          <a class="btn btn-primary" href="{% url 'contact' %}">Let’s talk</a>
-          <a class="btn btn-ghost" href="{% url 'homepage' %}">Browse more</a>
-        </div>
+        <h3>Explain the goal in one clear sentence.</h3>
+        <ul class="request-list">
+          <li>Find me a busy London nightclub for Saturday.</li>
+          <li>Find a hotel in Dubai near a specific area.</li>
+          <li>Find a current UK discount for cinema tickets.</li>
+          <li>Help me understand whether a repetitive browser task can be automated.</li>
+        </ul>
       </div>
     </section>
 
-    <div class="footer">© {% now "Y" %} Mouseforce — Friendly, understanding, ready to help.</div>
-  </div>
+    <section aria-labelledby="details-heading">
+      <h2 id="details-heading">2. Add the details that matter</h2>
+      <div class="card">
+        <ul class="details-list">
+          <li>Location</li>
+          <li>Date or time</li>
+          <li>Budget</li>
+          <li>Age range if relevant</li>
+          <li>Solo or group</li>
+          <li>Busy or quiet</li>
+          <li>Any important restrictions or preferences</li>
+        </ul>
+        <p class="note">You do not need to write perfectly. Clear details are more useful than long messages.</p>
+      </div>
+    </section>
+
+    <section aria-label="How MouseForce handles your request">
+      <div class="grid two">
+        <article class="step">
+          <span class="num">3</span>
+          <div>
+            <h2>We narrow down the options</h2>
+            <p>MouseForce can compare suitable options, check useful conditions and help reduce unnecessary searching.</p>
+          </div>
+        </article>
+        <article class="step">
+          <span class="num">4</span>
+          <div>
+            <h2>You decide</h2>
+            <p>We help organise the information and present useful options. The final choice is always yours.</p>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <section aria-labelledby="examples-heading">
+      <h2 id="examples-heading">Examples of useful requests</h2>
+      <div class="grid three">
+        <article class="card example-card">
+          <h3>Nightlife</h3>
+          <q>Find me a busy London club for Saturday, age 25–35, where solo entry is allowed.</q>
+        </article>
+        <article class="card example-card">
+          <h3>Dating &amp; Social</h3>
+          <q>Find a social event in London where it is normal to arrive alone.</q>
+        </article>
+        <article class="card example-card">
+          <h3>Travel</h3>
+          <q>Find a hotel in Dubai near this area for under £120 per night.</q>
+        </article>
+        <article class="card example-card">
+          <h3>Discounts</h3>
+          <q>Find a current cinema discount available in the UK.</q>
+        </article>
+        <article class="card example-card">
+          <h3>Automation</h3>
+          <q>I repeat the same browser task every day. Can this be made easier?</q>
+        </article>
+      </div>
+    </section>
+
+    <section aria-labelledby="specific-heading">
+      <div class="card final-card">
+        <div>
+          <h2 id="specific-heading">The more specific you are, the better we can help.</h2>
+          <p>A few useful details can save a lot of unnecessary searching.</p>
+        </div>
+        <a class="btn btn-primary" href="{% url 'contact' %}">Contact MouseForce</a>
+      </div>
+    </section>
+
+    <div class="footer">© {% now "Y" %} MouseForce</div>
+  </main>
 </body>
 </html>

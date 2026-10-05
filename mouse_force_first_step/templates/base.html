@@ -68,8 +68,8 @@
             <div class="col-md-3">
                 <h5>Knowledge</h5>
                 <ul class="list-unstyled">
-                    <li><a href="#">Startup Guide</a></li>
-                    <li><a href="#">Marketing Resources</a></li>
+                    <li><a href="{% url 'startupguid' %}">How to Ask MouseForce</a></li>
+                    <li><a href="{% url 'marketingresources' %}">Guides &amp; Resources</a></li>
                 </ul>
             </div>
 
@@ -254,7 +254,7 @@
     <div class="mega-project-subheadings">
       <div class="mega-sidebar">
         <ul>
-          <li data-section="ai">AI Marketplace</li>
+          <li data-section="ai">AI &amp; Automation</li>
           <li data-section="storage">Cloud Storage</li>
           <li data-section="marketing">Marketing Tools</li>
           <li data-section="shop">Online Shops</li>
@@ -499,160 +499,88 @@
                     }
                 } else if (text === "Free") {
                     content.innerHTML = `
-                        <div class="free-container">
-                        <div class="free-left">
-                        <h4>FREE START TOOLS</h4>
-
-                        <!-- Primul rând -->
-                        <div class="free-grid">
-                            <div class="free-item">
-                            <img src="/static/images/free.png" alt="Free Icon">
-                            <div>
-                                <strong>Starter Pack</strong>
-                                <p>Free plans</p>
+                        <div class="mega-grid mega-grid--services">
+                            <div class="mega-col services-mega-col">
+                                <h4>FREE ON MOUSEFORCE</h4>
+                                <a class="mega-item services-mega-item" href="#"><span class="mega-ico services-mega-icon"><img src="/static/images/appointment.png" alt=""></span><div><strong>Daily Check-in</strong><p>Collect Points every day.</p></div></a>
+                                <a class="mega-item services-mega-item" href="#"><span class="mega-ico services-mega-icon"><img src="/static/images/rat.png" alt=""></span><div><strong>Free Games</strong><p>Play, relax and come back anytime.</p></div></a>
+                                <a class="mega-item services-mega-item" href="#"><span class="mega-ico services-mega-icon"><img src="/static/images/management.png" alt=""></span><div><strong>Handy Tools</strong><p>Simple tools for everyday tasks.</p></div></a>
                             </div>
+                            <div class="mega-col services-mega-col">
+                                <h4>USEFUL EVERY DAY</h4>
+                                <a class="mega-item services-mega-item" href="#"><span class="mega-ico services-mega-icon"><img src="/static/images/information.png" alt=""></span><div><strong>News &amp; Updates</strong><p>Quick useful updates in one place.</p></div></a>
+                                <a class="mega-item services-mega-item" href="#"><span class="mega-ico services-mega-icon"><img src="/static/images/planet-earth.png" alt=""></span><div><strong>Weather</strong><p>Check conditions before you go.</p></div></a>
+                                <a class="mega-item services-mega-item" href="#"><span class="mega-ico services-mega-icon"><img src="/static/images/help.png" alt=""></span><div><strong>Tips &amp; Advice</strong><p>Useful ideas for saving time and money.</p></div></a>
                             </div>
-                            <div class="free-item">
-                            <img src="/static/images/open.png" alt="Open Icon">
-                            <div>
-                                <strong>Open to anything</strong>
-                                <p>No card needed. Explore freely anytime.</p>
-                            </div>
-                            </div>
-                        </div>
-
-                        <!-- Linia dintre rânduri -->
-                        <div class="free-divider"></div>
-
-                        <!-- Al doilea rând -->
-                        <div class="free-grid">
-                            <div class="free-item">
-                            <img src="/static/images/resilience.png" alt="Free Icon">
-                            <div>
-                                <strong>Completely Free</strong>
-                                <p>No card needed. Explore freely anytime.</p>
-                            </div>
-                            </div>
-                            <div class="free-item">
-                            <img src="/static/images/help.png" alt="Help Icon">
-                            <div>
-                                <strong>Completely Free</strong>
-                                <p>We are Considerate Volunteering</p>
-                            </div>
-                            </div>
-                        </div>
-                        </div>
-
-                        <div class="free-right">
-                            <img src="/static/images/Free-badge.png" alt="Free img">
-                        </div>
+                            <aside class="mega-aside mega-aside--services">
+                                <img src="/static/images/background_frontend.png" alt="MouseForce rewards and useful everyday offers">
+                                <div class="aside-card services-aside-card"><h3>Useful. Simple. Free.</h3><p>MouseForce gives you useful tools, entertainment and everyday information without making everything about spending money.</p></div>
+                            </aside>
                         </div>
                     `;
-                } else if (text === "WordPress") {
+                } else if (text === "Discover") {
                     content.innerHTML = `
-                        <div class="word-press-container">
-                            <div class="word-press-left">
-                                <div class="word-press-section">
-                                    <h4>WORDPRESS</h4>
-                                    <div class="word-press-grid">
-                                        <div class="word-press-item">
-                                            <img src="/static/images/pin.png" alt="Free Icon">
-                                            <div>
-                                                <strong>Location</strong>
-                                                <p>Location UK</p>
-                                            </div>
-                                        </div>
-                                        <div class="word-press-item">
-                                            <img src="/static/images/circle.png" alt="Circle">
-                                            <div>
-                                                <strong>Managed WordPress</strong>
-                                                <p>WordPress for any project.</p>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <div class="word-press-section">
-                                    <h4>WORDPRESS ECOMMERCE</h4>
-                                    <div class="word-press-grid">
-                                        <div class="word-press-item">
-                                            <img src="/static/images/social-proof.png" alt="social">
-                                            <div>
-                                                <strong>Social-Proof</strong>
-                                                <p>Mouseforce High Standards</p>
-                                            </div>
-                                        </div>
-                                        <div class="word-press-item">
-                                            <img src="/static/images/information.png" alt="info">
-                                            <div>
-                                                <strong>Info</strong>
-                                                <p>We work for you</p>
-                                            </div>
-                                        </div>
-                                        <div class="word-press-item">
-                                            <img src="/static/images/iso.png" alt="iso">
-                                            <div>
-                                                <strong>Effective</strong>
-                                                <p>A smooth operator</p>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
+                        <div class="mega-grid mega-grid--services">
+                            <div class="mega-col services-mega-col">
+                                <h4>DISCOVER</h4>
+                                <a class="mega-item services-mega-item" href="#"><span class="mega-ico services-mega-icon"><img src="/static/images/choices.png" alt=""></span><div><strong>Top Picks</strong><p>Places, offers and experiences worth checking.</p></div></a>
+                                <a class="mega-item services-mega-item" href="#"><span class="mega-ico services-mega-icon"><img src="/static/images/social-network.png" alt=""></span><div><strong>Nightlife</strong><p>Clubs, busy venues or quieter places.</p></div></a>
+                                <a class="mega-item services-mega-item" href="#"><span class="mega-ico services-mega-icon"><img src="/static/images/motivation.png" alt=""></span><div><strong>Dating &amp; Social</strong><p>Ideas for meeting people and going out.</p></div></a>
                             </div>
-
-                            <div class="word-press-right">
-                                <img src="/static/images/word-press-hst.png" alt="presswordhst">
+                            <div class="mega-col services-mega-col">
+                                <h4>FOR YOUR PLANS</h4>
+                                <a class="mega-item services-mega-item" href="#"><span class="mega-ico services-mega-icon"><img src="/static/images/customer.png" alt=""></span><div><strong>Food &amp; Drink</strong><p>Good-value places and current offers.</p></div></a>
+                                <a class="mega-item services-mega-item" href="#"><span class="mega-ico services-mega-icon"><img src="/static/images/planet-earth.png" alt=""></span><div><strong>Travel &amp; Stay</strong><p>Useful options for trips and accommodation.</p></div></a>
+                                <a class="mega-item services-mega-item" href="#"><span class="mega-ico services-mega-icon"><img src="/static/images/appointment.png" alt=""></span><div><strong>Entertainment</strong><p>Events, activities and things to do.</p></div></a>
                             </div>
+                            <aside class="mega-aside mega-aside--services">
+                                <img src="/static/images/mylocationpy.svg" alt="Discovering places and experiences">
+                                <div class="aside-card services-aside-card"><h3>Not sure where to start?</h3><p>Tell us what you want to do and we’ll help narrow down the options.</p></div>
+                            </aside>
                         </div>
                     `;
-                } else if (text === "Price") {
+                } else if (text === "Our Story") {
                     content.innerHTML = `
-                    <div class="price-container">
-                        <div class="price-left">
-                            <h4>PRICE</h4>
-                            <p>Our mouse doesn’t work for money – just feed him some cheese.</p>
-                            <img src="/static/images/rat.png" alt="mouse with cheese">
+                        <div class="mega-grid mega-grid--services">
+                            <div class="mega-col services-mega-col">
+                                <h4>WHY MOUSEFORCE</h4>
+                                <a class="mega-item services-mega-item" href="#"><span class="mega-ico services-mega-icon"><img src="/static/images/balance.png" alt=""></span><div><strong>Find the value</strong><p>Look for what is genuinely useful.</p></div></a>
+                                <a class="mega-item services-mega-item" href="#"><span class="mega-ico services-mega-icon"><img src="/static/images/choices.png" alt=""></span><div><strong>Skip the maze</strong><p>Make choices simpler and easier.</p></div></a>
+                                <a class="mega-item services-mega-item" href="#"><span class="mega-ico services-mega-icon"><img src="/static/images/planning.png" alt=""></span><div><strong>Keep improving</strong><p>Learn, test and find better ways.</p></div></a>
+                            </div>
+                            <div class="mega-col services-mega-col">
+                                <h4>OUR PRINCIPLES</h4>
+                                <a class="mega-item services-mega-item" href="#"><span class="mega-ico services-mega-icon"><img src="/static/images/help.png" alt=""></span><div><strong>Useful first</strong><p>Features should have a real purpose.</p></div></a>
+                                <a class="mega-item services-mega-item" href="#"><span class="mega-ico services-mega-icon"><img src="/static/images/management.png" alt=""></span><div><strong>Clear &amp; simple</strong><p>No unnecessary complexity.</p></div></a>
+                                <a class="mega-item services-mega-item" href="#"><span class="mega-ico services-mega-icon"><img src="/static/images/padlock.png" alt=""></span><div><strong>Trust matters</strong><p>Be transparent about offers, services and partnerships.</p></div></a>
+                            </div>
+                            <aside class="mega-aside mega-aside--services">
+                                <img src="/static/images/cheeseroun.png" alt="The MouseForce cheese metaphor">
+                                <div class="aside-card services-aside-card"><h3>Why the cheese?</h3><p>A mouse can spend all day running through a maze — or learn where the cheese is.</p><p>MouseForce started from a similar idea: help people spend less time searching and more time enjoying what they find.</p></div>
+                            </aside>
                         </div>
-                        <div class="price-right">
-                            <img src="/static/images/cheeseroun.png" alt="cheese">
-                        </div>
-                    </div>
                     `;
-                } else if (text === "Organisation") {
-    content.innerHTML = `
-    <div class="organisation-container">
-        <h4>ORGANISATION</h4>
-
-        <!-- Rând 1 -->
-        <div class="organisation-grid">
-            <div class="organisation-box">
-                <img src="/static/images/worry.png" alt="worrye">
-                <div>
-                    <strong>Structure</strong>
-                    <p>Competative Organisation</p>
-                </div>
-            </div>
-            <div class="organisation-box">
-                <img src="/static/images/stress.png" alt="stresse">
-                <div>
-                    <strong>Mouseforce Team</strong>
-                    <p>No Stress</p>
-                </div>
-            </div>
-        </div>
-
-        <!-- Rând 2 -->
-        <div class="organisation-grid single-center">
-            <div class="organisation-box">
-                <img src="/static/images/office.png" alt="office">
-                <div>
-                    <strong>Office</strong>
-                    <p>Office startUp!</p>
-                </div>
-            </div>
-        </div>
-    </div>
-    `;
+                } else if (text === "How We Work") {
+                    content.innerHTML = `
+                        <div class="mega-grid mega-grid--services">
+                            <div class="mega-col services-mega-col">
+                                <h4>HOW WE WORK</h4>
+                                <a class="mega-item services-mega-item" href="#"><span class="mega-ico services-mega-icon"><img src="/static/images/planning.png" alt=""></span><div><strong>Research &amp; Verify</strong><p>We check offers, options and useful information.</p></div></a>
+                                <a class="mega-item services-mega-item" href="#"><span class="mega-ico services-mega-icon"><img src="/static/images/customer-success.png" alt=""></span><div><strong>Customer Requests</strong><p>We focus on what people actually need.</p></div></a>
+                                <a class="mega-item services-mega-item" href="#"><span class="mega-ico services-mega-icon"><img src="/static/images/ai-model.png" alt=""></span><div><strong>Human + AI</strong><p>Smart tools help us work faster and provide useful support.</p></div></a>
+                            </div>
+                            <div class="mega-col services-mega-col">
+                                <h4>OUR STANDARDS</h4>
+                                <a class="mega-item services-mega-item" href="#"><span class="mega-ico services-mega-icon"><img src="/static/images/information.png" alt=""></span><div><strong>Clear Information</strong><p>No misleading claims or unnecessary complexity.</p></div></a>
+                                <a class="mega-item services-mega-item" href="#"><span class="mega-ico services-mega-icon"><img src="/static/images/padlock.png" alt=""></span><div><strong>Privacy &amp; Respect</strong><p>Personal information is requested only when needed.</p></div></a>
+                                <a class="mega-item services-mega-item" href="#"><span class="mega-ico services-mega-icon"><img src="/static/images/feedback_homepage.png" alt=""></span><div><strong>Keep Improving</strong><p>Feedback helps us make MouseForce better.</p></div></a>
+                            </div>
+                            <aside class="mega-aside mega-aside--services how-we-work-aside">
+                                <div class="how-we-work-visual"><img src="/static/images/office.png" alt="MouseForce building"></div>
+                                <div class="aside-card services-aside-card"><h3>Built step by step</h3><p>MouseForce is growing with one simple focus: useful features, clear information and practical help before unnecessary complexity.</p></div>
+                            </aside>
+                        </div>
+                    `;
 
 
 

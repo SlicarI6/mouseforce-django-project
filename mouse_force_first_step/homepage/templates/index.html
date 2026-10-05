@@ -84,23 +84,23 @@
     </div>
 
     <div class="accordion-item">
-      <button class="accordion-button menu-link-simple">WordPress</button>
+      <button class="accordion-button menu-link-simple">Discover</button>
       <div class="accordion-panel">
-        <div class="rich-panel-content" data-content-for="WordPress"></div>
+        <div class="rich-panel-content" data-content-for="Discover"></div>
       </div>
     </div>
 
     <div class="accordion-item">
-      <button class="accordion-button menu-link-simple">Price</button>
+      <button class="accordion-button menu-link-simple">Our Story</button>
       <div class="accordion-panel">
-        <div class="rich-panel-content" data-content-for="Price"></div>
+        <div class="rich-panel-content" data-content-for="Our Story"></div>
       </div>
     </div>
 
     <div class="accordion-item">
-      <button class="accordion-button menu-link-simple">Organisation</button>
+      <button class="accordion-button menu-link-simple">How We Work</button>
       <div class="accordion-panel">
-        <div class="rich-panel-content" data-content-for="Organisation"></div>
+        <div class="rich-panel-content" data-content-for="How We Work"></div>
       </div>
     </div>
 
@@ -117,9 +117,9 @@
   <a href="#" data-section="website">Website</a>
   <a href="#" data-section="mega-market">Mega-Market</a>
   <a href="#" data-section="free">Free</a>
-  <a href="#" data-section="wordpress">WordPress</a>
-  <a href="#" data-section="price">Price</a>
-  <a href="#" data-section="organisation">Organisation</a>
+  <a href="#" data-section="discover">Discover</a>
+  <a href="#" data-section="our-story">Our Story</a>
+  <a href="#" data-section="how-we-work">How We Work</a>
 
   <!-- Desktop mega menu (ascuns by default) -->
   <div id="infoDropdown" class="info-dropdown" style="display:none;">
@@ -545,8 +545,8 @@
       <div class="col-md-3">
         <h5>Knowledge</h5>
         <ul class="list-unstyled">
-          <li><a href="{% url 'startupguid' %}">Startup Guide</a></li>
-          <li><a href="{% url 'marketingresources' %}">Marketing Resources</a></li>
+          <li><a href="{% url 'startupguid' %}">How to Ask MouseForce</a></li>
+          <li><a href="{% url 'marketingresources' %}">Guides &amp; Resources</a></li>
         </ul>
       </div>
       <div class="col-md-3">
@@ -738,15 +738,155 @@ document.addEventListener('DOMContentLoaded', function () {
   /* ====== ACORDEON MOBIL ====== */
   const accordionButtons = document.querySelectorAll('.accordion-button');
 
+  const servicesMenuMarkup = `
+    <div class="mega-grid mega-grid--services">
+      <div class="mega-col services-mega-col">
+        <h4>SAVE MONEY</h4>
+        <a class="mega-item services-mega-item" href="#reward-options"><span class="mega-ico services-mega-icon"><img src="/static/images/balance.png" alt=""></span><div><strong>Rewards &amp; Vouchers</strong><p>Earn, unlock and save.</p></div></a>
+        <a class="mega-item services-mega-item" href="#reward-options"><span class="mega-ico services-mega-icon"><img src="/static/images/Free-badge.png" alt=""></span><div><strong>Discounts &amp; Deals</strong><p>Better prices and useful offers.</p></div></a>
+        <a class="mega-item services-mega-item" href="{% url 'contact' %}"><span class="mega-ico services-mega-icon"><img src="/static/images/pin.png" alt=""></span><div><strong>Find an Offer</strong><p>Tell us what you need.</p></div></a>
+      </div>
+      <div class="mega-col services-mega-col">
+        <h4>SAVE TIME</h4>
+        <a class="mega-item services-mega-item" href="#technical-services-panel"><span class="mega-ico services-mega-icon"><img src="/static/images/finger-snap.png" alt=""></span><div><strong>Automation</strong><p>Make repetitive tasks easier.</p></div></a>
+        <a class="mega-item services-mega-item" href="#technical-services-panel"><span class="mega-ico services-mega-icon"><img src="/static/images/management.png" alt=""></span><div><strong>Custom Scripts</strong><p>Automation built for your needs.</p></div></a>
+      </div>
+      <aside class="mega-aside mega-aside--services">
+        <img src="/static/images/itsuppor.png" alt="MouseForce automation and technology">
+        <div class="aside-card services-aside-card"><h3>Save money. Save time.</h3><p>Deals, rewards and practical automation — all in one place.</p><a href="#reward-options" class="aside-cta services-aside-cta">Explore MouseForce →</a></div>
+      </aside>
+    </div>`;
+
+  const websiteMenuMarkup = `
+    <div class="mega-grid mega-grid--website">
+      <div class="mega-col website-mega-col">
+        <h4>FIND BETTER OPTIONS</h4>
+        <a class="mega-item website-mega-item" href="#reward-options"><span class="mega-ico website-mega-icon"><img src="/static/images/Free-badge.png" alt=""></span><div><strong>Deals &amp; Discounts</strong><p>Useful offers across the UK and Europe.</p></div></a>
+        <a class="mega-item website-mega-item" href="{% url 'contact' %}"><span class="mega-ico website-mega-icon"><img src="/static/images/pin.png" alt=""></span><div><strong>Places &amp; Experiences</strong><p>Find places that match what you want.</p></div></a>
+        <a class="mega-item website-mega-item" href="{% url 'contact' %}"><span class="mega-ico website-mega-icon"><img src="/static/images/information.png" alt=""></span><div><strong>Personal Requests</strong><p>Tell us what you’re looking for.</p></div></a>
+      </div>
+      <div class="mega-col website-mega-col">
+        <h4>HELP ME CHOOSE</h4>
+        <a class="mega-item website-mega-item" href="{% url 'contact' %}"><span class="mega-ico website-mega-icon"><img src="/static/images/social-network.png" alt=""></span><div><strong>Nightlife &amp; Events</strong><p>Busy club, smaller crowd or something social?</p></div></a>
+        <a class="mega-item website-mega-item" href="{% url 'contact' %}"><span class="mega-ico website-mega-icon"><img src="/static/images/motivation.png" alt=""></span><div><strong>Dating &amp; Social</strong><p>Find places and ideas suited to meeting people.</p></div></a>
+        <a class="mega-item website-mega-item" href="{% url 'contact' %}"><span class="mega-ico website-mega-icon"><img src="/static/images/planet-earth.png" alt=""></span><div><strong>Travel &amp; Leisure</strong><p>Better-value places to stay, eat or enjoy.</p></div></a>
+        <p class="website-menu-support">We work to build useful relationships with brands and partners across the UK and Europe, while continuously searching for better-value options for our customers.</p>
+      </div>
+      <aside class="mega-aside mega-aside--website">
+        <img src="/static/images/agentlook.png" alt="Reviewing options for a customer request">
+        <div class="aside-card website-aside-card"><h3>Tell us what you need</h3><p>Looking for a busy London nightclub, somewhere quieter, a dating-friendly venue or simply a better deal? MouseForce helps research suitable options for you.</p><a href="{% url 'contact' %}" class="aside-cta website-aside-cta">Explore your options →</a></div>
+      </aside>
+    </div>`;
+
+  const megaMarketMenuMarkup = `
+    <div class="mega-grid mega-grid--services">
+      <div class="mega-col services-mega-col">
+        <h4>BUSINESS TOOLS</h4>
+        <a class="mega-item services-mega-item" href="#"><span class="mega-ico services-mega-icon"><img src="/static/images/ai-model.png" alt=""></span><div><strong>AI &amp; Automation</strong><p>Work faster with smart tools.</p></div></a>
+        <a class="mega-item services-mega-item" href="#"><span class="mega-ico services-mega-icon"><img src="/static/images/social-network.png" alt=""></span><div><strong>Cloud &amp; Collaboration</strong><p>Store, share and work together.</p></div></a>
+        <a class="mega-item services-mega-item" href="#"><span class="mega-ico services-mega-icon"><img src="/static/images/customer-success.png" alt=""></span><div><strong>CRM &amp; Customer Support</strong><p>Manage customers and conversations.</p></div></a>
+      </div>
+      <div class="mega-col services-mega-col">
+        <h4>GROWTH &amp; OPERATIONS</h4>
+        <a class="mega-item services-mega-item" href="#"><span class="mega-ico services-mega-icon"><img src="/static/images/planning.png" alt=""></span><div><strong>Analytics &amp; Insights</strong><p>Understand performance and trends.</p></div></a>
+        <a class="mega-item services-mega-item" href="#"><span class="mega-ico services-mega-icon"><img src="/static/images/padlock.png" alt=""></span><div><strong>Security &amp; Privacy</strong><p>Protect accounts and business data.</p></div></a>
+        <a class="mega-item services-mega-item" href="#"><span class="mega-ico services-mega-icon"><img src="/static/images/balance.png" alt=""></span><div><strong>Payments &amp; Invoicing</strong><p>Simple tools for getting paid.</p></div></a>
+      </div>
+      <aside class="mega-aside mega-aside--services">
+        <img src="/static/images/wall.png" alt="Modern business and technology operations">
+        <div class="aside-card services-aside-card"><h3>Work smarter with MouseForce</h3><p>Discover useful tools and services for modern businesses. After login, you can also use our AI-style assistant to ask questions about MouseForce services, available products and the tools we work with.</p></div>
+      </aside>
+    </div>`;
+
+  const freeMenuMarkup = `
+    <div class="mega-grid mega-grid--services">
+      <div class="mega-col services-mega-col">
+        <h4>FREE ON MOUSEFORCE</h4>
+        <a class="mega-item services-mega-item" href="#"><span class="mega-ico services-mega-icon"><img src="/static/images/appointment.png" alt=""></span><div><strong>Daily Check-in</strong><p>Collect Points every day.</p></div></a>
+        <a class="mega-item services-mega-item" href="#"><span class="mega-ico services-mega-icon"><img src="/static/images/rat.png" alt=""></span><div><strong>Free Games</strong><p>Play, relax and come back anytime.</p></div></a>
+        <a class="mega-item services-mega-item" href="#"><span class="mega-ico services-mega-icon"><img src="/static/images/management.png" alt=""></span><div><strong>Handy Tools</strong><p>Simple tools for everyday tasks.</p></div></a>
+      </div>
+      <div class="mega-col services-mega-col">
+        <h4>USEFUL EVERY DAY</h4>
+        <a class="mega-item services-mega-item" href="#"><span class="mega-ico services-mega-icon"><img src="/static/images/information.png" alt=""></span><div><strong>News &amp; Updates</strong><p>Quick useful updates in one place.</p></div></a>
+        <a class="mega-item services-mega-item" href="#"><span class="mega-ico services-mega-icon"><img src="/static/images/planet-earth.png" alt=""></span><div><strong>Weather</strong><p>Check conditions before you go.</p></div></a>
+        <a class="mega-item services-mega-item" href="#"><span class="mega-ico services-mega-icon"><img src="/static/images/help.png" alt=""></span><div><strong>Tips &amp; Advice</strong><p>Useful ideas for saving time and money.</p></div></a>
+      </div>
+      <aside class="mega-aside mega-aside--services">
+        <img src="/static/images/background_frontend.png" alt="MouseForce rewards and useful everyday offers">
+        <div class="aside-card services-aside-card"><h3>Useful. Simple. Free.</h3><p>MouseForce gives you useful tools, entertainment and everyday information without making everything about spending money.</p></div>
+      </aside>
+    </div>`;
+
+  const discoverMenuMarkup = `
+    <div class="mega-grid mega-grid--services">
+      <div class="mega-col services-mega-col">
+        <h4>DISCOVER</h4>
+        <a class="mega-item services-mega-item" href="#"><span class="mega-ico services-mega-icon"><img src="/static/images/choices.png" alt=""></span><div><strong>Top Picks</strong><p>Places, offers and experiences worth checking.</p></div></a>
+        <a class="mega-item services-mega-item" href="#"><span class="mega-ico services-mega-icon"><img src="/static/images/social-network.png" alt=""></span><div><strong>Nightlife</strong><p>Clubs, busy venues or quieter places.</p></div></a>
+        <a class="mega-item services-mega-item" href="#"><span class="mega-ico services-mega-icon"><img src="/static/images/motivation.png" alt=""></span><div><strong>Dating &amp; Social</strong><p>Ideas for meeting people and going out.</p></div></a>
+      </div>
+      <div class="mega-col services-mega-col">
+        <h4>FOR YOUR PLANS</h4>
+        <a class="mega-item services-mega-item" href="#"><span class="mega-ico services-mega-icon"><img src="/static/images/customer.png" alt=""></span><div><strong>Food &amp; Drink</strong><p>Good-value places and current offers.</p></div></a>
+        <a class="mega-item services-mega-item" href="#"><span class="mega-ico services-mega-icon"><img src="/static/images/planet-earth.png" alt=""></span><div><strong>Travel &amp; Stay</strong><p>Useful options for trips and accommodation.</p></div></a>
+        <a class="mega-item services-mega-item" href="#"><span class="mega-ico services-mega-icon"><img src="/static/images/appointment.png" alt=""></span><div><strong>Entertainment</strong><p>Events, activities and things to do.</p></div></a>
+      </div>
+      <aside class="mega-aside mega-aside--services">
+        <img src="/static/images/mylocationpy.svg" alt="Discovering places and experiences">
+        <div class="aside-card services-aside-card"><h3>Not sure where to start?</h3><p>Tell us what you want to do and we’ll help narrow down the options.</p></div>
+      </aside>
+    </div>`;
+
+  const ourStoryMenuMarkup = `
+    <div class="mega-grid mega-grid--services">
+      <div class="mega-col services-mega-col">
+        <h4>WHY MOUSEFORCE</h4>
+        <a class="mega-item services-mega-item" href="#"><span class="mega-ico services-mega-icon"><img src="/static/images/balance.png" alt=""></span><div><strong>Find the value</strong><p>Look for what is genuinely useful.</p></div></a>
+        <a class="mega-item services-mega-item" href="#"><span class="mega-ico services-mega-icon"><img src="/static/images/choices.png" alt=""></span><div><strong>Skip the maze</strong><p>Make choices simpler and easier.</p></div></a>
+        <a class="mega-item services-mega-item" href="#"><span class="mega-ico services-mega-icon"><img src="/static/images/planning.png" alt=""></span><div><strong>Keep improving</strong><p>Learn, test and find better ways.</p></div></a>
+      </div>
+      <div class="mega-col services-mega-col">
+        <h4>OUR PRINCIPLES</h4>
+        <a class="mega-item services-mega-item" href="#"><span class="mega-ico services-mega-icon"><img src="/static/images/help.png" alt=""></span><div><strong>Useful first</strong><p>Features should have a real purpose.</p></div></a>
+        <a class="mega-item services-mega-item" href="#"><span class="mega-ico services-mega-icon"><img src="/static/images/management.png" alt=""></span><div><strong>Clear &amp; simple</strong><p>No unnecessary complexity.</p></div></a>
+        <a class="mega-item services-mega-item" href="#"><span class="mega-ico services-mega-icon"><img src="/static/images/padlock.png" alt=""></span><div><strong>Trust matters</strong><p>Be transparent about offers, services and partnerships.</p></div></a>
+      </div>
+      <aside class="mega-aside mega-aside--services">
+        <img src="/static/images/cheeseroun.png" alt="The MouseForce cheese metaphor">
+        <div class="aside-card services-aside-card"><h3>Why the cheese?</h3><p>A mouse can spend all day running through a maze — or learn where the cheese is.</p><p>MouseForce started from a similar idea: help people spend less time searching and more time enjoying what they find.</p></div>
+      </aside>
+    </div>`;
+
+  const howWeWorkMenuMarkup = `
+    <div class="mega-grid mega-grid--services">
+      <div class="mega-col services-mega-col">
+        <h4>HOW WE WORK</h4>
+        <a class="mega-item services-mega-item" href="#"><span class="mega-ico services-mega-icon"><img src="/static/images/planning.png" alt=""></span><div><strong>Research &amp; Verify</strong><p>We check offers, options and useful information.</p></div></a>
+        <a class="mega-item services-mega-item" href="#"><span class="mega-ico services-mega-icon"><img src="/static/images/customer-success.png" alt=""></span><div><strong>Customer Requests</strong><p>We focus on what people actually need.</p></div></a>
+        <a class="mega-item services-mega-item" href="#"><span class="mega-ico services-mega-icon"><img src="/static/images/ai-model.png" alt=""></span><div><strong>Human + AI</strong><p>Smart tools help us work faster and provide useful support.</p></div></a>
+      </div>
+      <div class="mega-col services-mega-col">
+        <h4>OUR STANDARDS</h4>
+        <a class="mega-item services-mega-item" href="#"><span class="mega-ico services-mega-icon"><img src="/static/images/information.png" alt=""></span><div><strong>Clear Information</strong><p>No misleading claims or unnecessary complexity.</p></div></a>
+        <a class="mega-item services-mega-item" href="#"><span class="mega-ico services-mega-icon"><img src="/static/images/padlock.png" alt=""></span><div><strong>Privacy &amp; Respect</strong><p>Personal information is requested only when needed.</p></div></a>
+        <a class="mega-item services-mega-item" href="#"><span class="mega-ico services-mega-icon"><img src="/static/images/feedback_homepage.png" alt=""></span><div><strong>Keep Improving</strong><p>Feedback helps us make MouseForce better.</p></div></a>
+      </div>
+      <aside class="mega-aside mega-aside--services how-we-work-aside">
+        <div class="how-we-work-visual"><img src="/static/images/office.png" alt="MouseForce building"></div>
+        <div class="aside-card services-aside-card"><h3>Built step by step</h3><p>MouseForce is growing with one simple focus: useful features, clear information and practical help before unnecessary complexity.</p></div>
+      </aside>
+    </div>`;
+
   function getMobilePanel(categoryName){
     const contentMap = {
-      "Services": `<h4>ROOT SERVER</h4><div class="service-row"><div class="service-box"><img src="/static/images/running.png" alt=""><div><strong>Need someone fast? We’ve got you.</strong><p>Fully virtualised private servers.</p><ul><li>Immediate availability</li><li>Quick response</li><li>Skilled workers available on short notice.</li><li>Urgent staff support, anytime.</li></ul></div></div><div class="service-box"><img src="/static/images/laptop.png" alt=""><div><strong>Dedicated Servers</strong><p>Get enterprise hardware with unlimited traffic.</p></div></div></div>`,
-      "Website": `<h4>LAUNCH YOUR WEBSITE</h4><div class="website-subheader-row"><div class="website-subheader-box"><img src="/static/images/website-builder.png" alt=""><div><strong>Website Builder</strong><p>We create your own website easily.</p></div></div><div class="website-subheader-box"><img src="/static/images/web-design.png" alt=""><div><strong>Website Design Service</strong><p>Get your website built by experts.</p></div></div><div class="website-subheader-box"><img src="/static/images/data-migration.png" alt=""><div><strong>Migration Service</strong><p>Trust your move to the experts.</p></div></div></div>`,
-      "Mega-Market": `<h4>Mega-Market</h4><ul class="vertical-timeline"><li><span class="dot"></span><p>AI Marketplace</p></li><li><span class="dot"></span><p>Cloud Storage</p></li><li><span class="dot"></span><p>Marketing Tools</p></li><li><span class="dot"></span><p>Online Shops</p></li></ul>`,
-      "Free": `<div class="free-grid"><div class="free-item"><img src="/static/images/free.png"><div><strong>Starter Pack</strong><p>Free plans</p></div></div><div class="free-item"><img src="/static/images/open.png"><div><strong>Open to anything</strong><p>No card needed.</p></div></div></div>`,
-      "WordPress": `<h4>WORDPRESS</h4><div class="word-press-grid"><div class="word-press-item"><img src="/static/images/pin.png"><div><strong>Location</strong><p>Location UK</p></div></div><div class="word-press-item"><img src="/static/images/circle.png"><div><strong>Managed WordPress</strong><p>For any project.</p></div></div></div>`,
-      "Price": `<h4>PRICE</h4><p>Our mouse doesn’t work for money – just feed him some cheese.</p>`,
-      "Organisation": `<h4>ORGANISATION</h4><div class="organisation-grid"><div class="organisation-box"><img src="/static/images/worry.png"><div><strong>Structure</strong><p>Competitive Organisation</p></div></div></div>`
+      "Services": servicesMenuMarkup,
+      "Website": websiteMenuMarkup,
+      "Mega-Market": megaMarketMenuMarkup,
+      "Free": freeMenuMarkup,
+      "Discover": discoverMenuMarkup,
+      "Our Story": ourStoryMenuMarkup,
+      "How We Work": howWeWorkMenuMarkup
     };
     return contentMap[categoryName] || `<p>Content for ${categoryName} not found.</p>`;
   }
@@ -786,118 +926,13 @@ document.addEventListener('DOMContentLoaded', function () {
 
   function getDesktopPanel(key){
     const T = {
-      'services': `
-        <div class="mega-grid">
-          <div class="mega-col">
-            <h4>SHARED HOSTING</h4>
-            <a class="mega-item" href="#"><span class="mega-ico">🖥️</span><div><strong>Web Hosting</strong><p>Fast, scalable hosting for any website.</p></div></a>
-            <a class="mega-item" href="#"><span class="mega-ico">🧩</span><div><strong>ASP.NET Hosting</strong><p>Windows® Server 2022.</p></div></a>
-            <a class="mega-item" href="#"><span class="mega-ico">🚀</span><div><strong>Deploy Now</strong><p>Deploy from GitHub.</p></div></a>
-            <h4>DEDICATED / VPS</h4>
-            <a class="mega-item" href="#"><span class="mega-ico">⚙️</span><div><strong>VPS Hosting</strong><p>KVM + SSD storage.</p></div></a>
-          </div>
-          <div class="mega-col">
-            <h4>OTHER SOLUTIONS</h4>
-            <a class="mega-item" href="#"><span class="mega-ico">⚡</span><div><strong>Jamstack Hosting</strong><p>Leaner, faster sites.</p></div></a>
-            <a class="mega-item" href="#"><span class="mega-ico">🧱</span><div><strong>Joomla! Hosting</strong><p>Optimised with extensions.</p></div></a>
-            <div class="mega-note"><h5>Useful Tools</h5><a href="#" class="mega-link">PHP Extended Support →</a></div>
-          </div>
-          <aside class="mega-aside">
-            <img src="/static/images/itsuppor.png" alt="Rack">
-            <div class="aside-card"><h3>Hosting Options Compared</h3><p>Compare shared vs. dedicated hosting.</p><a href="#" class="aside-cta">View comparison</a></div>
-          </aside>
-        </div>`,
-      'website': `
-        <div class="mega-grid">
-          <div class="mega-col">
-            <h4>LAUNCH YOUR WEBSITE</h4>
-            <a class="mega-item" href="#"><span class="mega-ico">🖼️</span><div><strong>Website Builder</strong><p>Create your site easily.</p></div></a>
-            <a class="mega-item" href="#"><span class="mega-ico">🎨</span><div><strong>Website Design Service</strong><p>Built by experts.</p></div></a>
-            <a class="mega-item" href="#"><span class="mega-ico">☁️</span><div><strong>Migration Service</strong><p>Handled by pros.</p></div></a>
-            <h4>ONLINE MARKETING</h4>
-            <a class="mega-item" href="#"><span class="mega-ico">📈</span><div><strong>SEO Tool</strong><p>Improve ranking.</p></div></a>
-            <a class="mega-item" href="#"><span class="mega-ico">✉️</span><div><strong>Email Marketing</strong><p>Ready-made campaigns.</p></div></a>
-          </div>
-          <div class="mega-col">
-            <h4>GOOGLE ADS</h4>
-            <a class="mega-item" href="#"><span class="mega-ico">🔎</span><div><strong>Ads Management</strong><p>Connect with Google.</p></div></a>
-            <div class="mega-note"><h5>Need help choosing?</h5><a href="#" class="mega-link">Talk to an expert →</a></div>
-          </div>
-          <aside class="mega-aside">
-            <img src="/static/images/agentlook.png" alt="Preview">
-            <div class="aside-card"><h3>Build & Launch Faster</h3><p>Templates, migration and growth tools.</p><a href="#" class="aside-cta">Start for free</a></div>
-          </aside>
-        </div>`,
-      'mega-market': `
-        <div class="mega-grid">
-          <div class="mega-col">
-            <h4>AI & TOOLS</h4>
-            <a class="mega-item" href="#"><span class="mega-ico">🧠</span><div><strong>AI Model Hub</strong><p>LLMs & image models.</p></div></a>
-            <a class="mega-item" href="#"><span class="mega-ico">📦</span><div><strong>Cloud Storage</strong><p>Simple & secure.</p></div></a>
-            <a class="mega-item" href="#"><span class="mega-ico">📣</span><div><strong>Marketing</strong><p>Campaign kits.</p></div></a>
-          </div>
-          <div class="mega-col">
-            <h4>MANAGEMENT</h4>
-            <a class="mega-item" href="#"><span class="mega-ico">🧭</span><div><strong>Management Service</strong><p>Operate with clarity.</p></div></a>
-            <a class="mega-item" href="#"><span class="mega-ico">🔐</span><div><strong>Secure</strong><p>Everything you need.</p></div></a>
-          </div>
-          <aside class="mega-aside">
-            <img src="/static/images/wall.png" alt="Market">
-            <div class="aside-card"><h3>It’s ready</h3><p>Spin up tools and scale comfortably.</p><a href="#" class="aside-cta">Explore marketplace</a></div>
-          </aside>
-        </div>`,
-      'free': `
-        <div class="mega-grid">
-          <div class="mega-col">
-            <h4>FREE START TOOLS</h4>
-            <a class="mega-item" href="#"><span class="mega-ico">🎁</span><div><strong>Starter Pack</strong><p>Free plans.</p></div></a>
-            <a class="mega-item" href="#"><span class="mega-ico">🟩</span><div><strong>Open to anything</strong><p>No card needed.</p></div></a>
-            <a class="mega-item" href="#"><span class="mega-ico">🤝</span><div><strong>Volunteering</strong><p>We help communities.</p></div></a>
-          </div>
-          <aside class="mega-aside">
-            <img src="/static/images/Free-badge.png" alt="Free">
-            <div class="aside-card"><h3>Completely Free</h3><p>Explore at your own pace.</p></div>
-          </aside>
-        </div>`,
-      'wordpress': `
-        <div class="mega-grid">
-          <div class="mega-col">
-            <h4>WORDPRESS</h4>
-            <a class="mega-item" href="#"><span class="mega-ico">📍</span><div><strong>Location</strong><p>Location UK</p></div></a>
-            <a class="mega-item" href="#"><span class="mega-ico">🟠</span><div><strong>Managed WordPress</strong><p>For any project.</p></div></a>
-            <h4>ECOMMERCE</h4>
-            <a class="mega-item" href="#"><span class="mega-ico">⭐</span><div><strong>Social-Proof</strong><p>Mouseforce High Standards</p></div></a>
-            <a class="mega-item" href="#"><span class="mega-ico">ℹ️</span><div><strong>Info</strong><p>We work for you</p></div></a>
-          </div>
-          <aside class="mega-aside">
-            <img src="/static/images/word-press-hst.png" alt="WP">
-            <div class="aside-card"><h3>WordPress Hosting</h3><p>Optimised stack and updates.</p></div>
-          </aside>
-        </div>`,
-      'price': `
-        <div class="mega-grid">
-          <div class="mega-col">
-            <h4>PRICE</h4>
-            <a class="mega-item" href="#"><span class="mega-ico">🧀</span><div><strong>Cheese Model</strong><p>Feed the mouse, not the meter.</p></div></a>
-          </div>
-          <aside class="mega-aside">
-            <img src="/static/images/cheeseroun.png" alt="Cheese">
-            <div class="aside-card"><h3>Simple Pricing</h3><p>Transparent and fun.</p></div>
-          </aside>
-        </div>`,
-      'organisation': `
-        <div class="mega-grid">
-          <div class="mega-col">
-            <h4>ORGANISATION</h4>
-            <a class="mega-item" href="#"><span class="mega-ico">🏗️</span><div><strong>Structure</strong><p>Competitive organisation.</p></div></a>
-            <a class="mega-item" href="#"><span class="mega-ico">🧘</span><div><strong>Mouseforce Team</strong><p>No stress.</p></div></a>
-            <a class="mega-item" href="#"><span class="mega-ico">🏢</span><div><strong>Office</strong><p>Startup office!</p></div></a>
-          </div>
-          <aside class="mega-aside">
-            <img src="/static/images/office.png" alt="Office">
-            <div class="aside-card"><h3>We’re hiring</h3><p>Join the team and build with us.</p></div>
-          </aside>
-        </div>`
+      'services': servicesMenuMarkup,
+      'website': websiteMenuMarkup,
+      'mega-market': megaMarketMenuMarkup,
+      'free': freeMenuMarkup,
+      'discover': discoverMenuMarkup,
+      'our-story': ourStoryMenuMarkup,
+      'how-we-work': howWeWorkMenuMarkup
     };
     return T[key] || '';
   }

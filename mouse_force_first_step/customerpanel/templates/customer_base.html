@@ -8,6 +8,329 @@
 <link rel="stylesheet" href="{% static 'css/customer_section_unlocks.css' %}">
 <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
 <style>
+  .customer-support-trigger {
+    margin: 0;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    font: inherit;
+    text-align: inherit;
+    cursor: pointer;
+  }
+  .customer-support-trigger:focus-visible {
+    outline: 2px solid #08776b;
+    outline-offset: 4px;
+    border-radius: 3px;
+  }
+  #customer-support-panel {
+    box-sizing: border-box;
+    position: fixed;
+    inset: 0;
+    width: min(660px, calc(100vw - 32px));
+    max-height: calc(100dvh - 32px);
+    margin: auto;
+    padding: clamp(18px, 3vw, 26px);
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    border: 1px solid #c6e2dc;
+    border-radius: 20px;
+    background: #f8fcfb;
+    color: #143d3b;
+    box-shadow: 0 18px 56px rgba(20, 61, 59, 0.18);
+    font-family: inherit;
+    line-height: 1.5;
+    text-align: left;
+  }
+  #customer-support-panel::backdrop { background: rgba(12, 39, 38, 0.24); }
+  #customer-support-panel .customer-support-topline,
+  #customer-support-panel .customer-support-actions {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+  }
+  #customer-support-panel h2 {
+    margin: 0;
+    color: #143d3b;
+    font-size: clamp(22px, 4vw, 26px);
+    font-weight: 700;
+    letter-spacing: -0.02em;
+  }
+  #customer-support-panel .customer-support-close {
+    min-height: 44px;
+    padding: 8px 0 8px 12px;
+    border: 0;
+    border-radius: 6px;
+    background: transparent;
+    color: #315f59;
+    font: inherit;
+    font-size: 13px;
+    cursor: pointer;
+  }
+  #customer-support-panel .customer-support-close:hover { color: #08776b; text-decoration: underline; }
+  #customer-support-panel .customer-support-preview {
+    margin: 2px 0 20px;
+    color: #526d65;
+    font-size: 13px;
+  }
+  #customer-support-panel h3 { margin: 0 0 12px; color: #143d3b; font-size: 16px; font-weight: 700; }
+  #customer-support-panel .customer-support-faq-list {
+    overflow: hidden;
+    border: 1px solid #dce9e4;
+    border-radius: 14px;
+    background: #fff;
+  }
+  #customer-support-panel .customer-support-faq-item + .customer-support-faq-item { border-top: 1px solid #e6eeea; }
+  #customer-support-panel .customer-support-faq-question {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    min-height: 46px;
+    padding: 12px 16px;
+    color: #28464b;
+    font-size: 14px;
+    font-weight: 600;
+    list-style: none;
+    cursor: pointer;
+  }
+  #customer-support-panel .customer-support-faq-question::-webkit-details-marker { display: none; }
+  #customer-support-panel .customer-support-faq-question:hover { background: #f2faf7; }
+  #customer-support-panel .customer-support-faq-icon { flex: 0 0 18px; color: #08776b; font-size: 20px; font-weight: 400; text-align: center; }
+  #customer-support-panel .customer-support-faq-minus { display: none; }
+  #customer-support-panel .customer-support-faq-item[open] .customer-support-faq-plus { display: none; }
+  #customer-support-panel .customer-support-faq-item[open] .customer-support-faq-minus { display: inline; }
+  #customer-support-panel .customer-support-faq-answer { margin: 0; padding: 0 16px 14px; color: #526d65; font-size: 13px; line-height: 1.65; }
+  #customer-support-panel .customer-support-card {
+    margin-top: 20px;
+    padding: clamp(16px, 3vw, 20px);
+    border: 1px solid #dce9e4;
+    border-radius: 16px;
+    background: #fff;
+  }
+  #customer-support-panel .customer-support-fields { display: grid; grid-template-columns: 1.2fr 1fr; gap: 14px; }
+  #customer-support-panel .customer-support-field { min-width: 0; }
+  #customer-support-panel .customer-support-field--message { margin-top: 14px; }
+  #customer-support-panel .customer-support-label { display: block; margin-bottom: 6px; color: #28464b; font-size: 13px; font-weight: 600; }
+  #customer-support-panel .customer-support-control {
+    box-sizing: border-box;
+    width: 100%;
+    min-height: 44px;
+    padding: 10px 12px;
+    border: 1px solid #d7e2e3;
+    border-radius: 8px;
+    background: #fbfdfd;
+    color: #17343a;
+    font: inherit;
+    font-size: 14px;
+  }
+  #customer-support-panel textarea.customer-support-control { display: block; min-height: 96px; resize: vertical; }
+  #customer-support-panel .customer-support-control::placeholder { color: #65767a; }
+  #customer-support-panel .customer-support-control:focus {
+    border-color: #087f7a;
+    background: #fff;
+    box-shadow: 0 0 0 3px rgba(82, 211, 197, 0.2);
+    outline: none;
+  }
+  #customer-support-panel :focus-visible { outline: 2px solid #08776b; outline-offset: 3px; }
+  #customer-support-panel .customer-support-faq-question:focus-visible { outline-offset: -3px; }
+  #customer-support-panel .customer-support-actions { flex-wrap: wrap; margin-top: 16px; }
+  #customer-support-panel .customer-support-attachment,
+  #customer-support-panel .customer-support-send {
+    min-height: 44px;
+    padding: 10px 14px;
+    border: 1px solid #d7e2e3;
+    border-radius: 8px;
+    font: inherit;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: not-allowed;
+  }
+  #customer-support-panel .customer-support-attachment { border-style: dashed; background: #f8fbfa; color: #526d65; }
+  #customer-support-panel .customer-support-optional { font-size: 12px; font-weight: 400; }
+  #customer-support-panel .customer-support-send { border-color: #dce9e4; background: #e7f1ee; color: #526d65; }
+  #customer-support-panel .customer-support-note { margin: 14px 0 0; color: #65767a; font-size: 12px; line-height: 1.65; }
+  @media (max-width: 480px) {
+    #customer-support-panel .customer-support-fields { grid-template-columns: 1fr; }
+    #customer-support-panel .customer-support-actions { align-items: stretch; flex-direction: column; gap: 10px; }
+    #customer-support-panel .customer-support-control { font-size: 16px; }
+  }
+</style>
+<style>
+  .customer-system-trigger {
+    margin: 0;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    font: inherit;
+    text-align: inherit;
+    cursor: pointer;
+  }
+  .customer-system-trigger:focus-visible {
+    outline: 2px solid #08776b;
+    outline-offset: 4px;
+    border-radius: 3px;
+  }
+  #customer-system-panel {
+    box-sizing: border-box;
+    position: fixed;
+    inset: 0;
+    width: min(560px, calc(100vw - 32px));
+    max-height: calc(100dvh - 32px);
+    margin: auto;
+    padding: clamp(20px, 4vw, 28px);
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    border: 1px solid #c6e2dc;
+    border-radius: 20px;
+    background: #f8fcfb;
+    color: #143d3b;
+    box-shadow: 0 18px 56px rgba(20, 61, 59, 0.18);
+    font-family: inherit;
+    line-height: 1.5;
+    text-align: left;
+  }
+  #customer-system-panel::backdrop { background: rgba(12, 39, 38, 0.24); }
+  #customer-system-panel .customer-system-topline,
+  #customer-system-panel .customer-system-level-heading,
+  #customer-system-panel .customer-system-progress-labels {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+  }
+  #customer-system-panel .customer-system-eyebrow {
+    color: #08776b;
+    font-size: 13px;
+    font-weight: 600;
+  }
+  #customer-system-panel .customer-system-close {
+    min-height: 44px;
+    padding: 8px 0 8px 12px;
+    border: 0;
+    border-radius: 6px;
+    background: transparent;
+    color: #315f59;
+    font: inherit;
+    font-size: 13px;
+    cursor: pointer;
+  }
+  #customer-system-panel .customer-system-close:hover { color: #08776b; text-decoration: underline; }
+  #customer-system-panel h2 {
+    margin: 4px 0 6px;
+    color: #143d3b;
+    font-size: clamp(20px, 4vw, 24px);
+    font-weight: 700;
+    line-height: 1.3;
+    letter-spacing: -0.02em;
+  }
+  #customer-system-panel .customer-system-preview {
+    margin: 0 0 20px;
+    color: #526d65;
+    font-size: 13px;
+  }
+  #customer-system-panel .customer-system-preferences,
+  #customer-system-panel .customer-system-level {
+    border: 1px solid #dce9e4;
+    border-radius: 16px;
+    background: #fff;
+  }
+  #customer-system-panel .customer-system-preference {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+    min-height: 76px;
+    margin: 0;
+    padding: 16px 18px;
+    cursor: pointer;
+  }
+  #customer-system-panel .customer-system-preference + .customer-system-preference {
+    border-top: 1px solid #e6eeea;
+  }
+  #customer-system-panel .customer-system-preference-copy { min-width: 0; }
+  #customer-system-panel .customer-system-preference-name {
+    display: block;
+    color: #143d3b;
+    font-size: 14px;
+    font-weight: 600;
+  }
+  #customer-system-panel .customer-system-preference-description {
+    display: block;
+    margin-top: 3px;
+    color: #526d65;
+    font-size: 12px;
+    line-height: 1.5;
+  }
+  #customer-system-panel .customer-system-switch {
+    appearance: none;
+    -webkit-appearance: none;
+    box-sizing: border-box;
+    position: relative;
+    flex: 0 0 44px;
+    width: 44px;
+    height: 26px;
+    margin: 0;
+    border: 1px solid #889991;
+    border-radius: 999px;
+    background: #e5eae7;
+    cursor: pointer;
+    transition: background-color 150ms ease, border-color 150ms ease;
+  }
+  #customer-system-panel .customer-system-switch::before {
+    content: '';
+    position: absolute;
+    top: 3px;
+    left: 3px;
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    background: #fff;
+    box-shadow: 0 1px 3px rgba(32, 55, 43, 0.24);
+    transition: transform 150ms ease;
+  }
+  #customer-system-panel .customer-system-switch:checked { background: #edc25b; border-color: #94732a; }
+  #customer-system-panel .customer-system-switch:checked::before { transform: translateX(18px); }
+  #customer-system-panel :focus-visible { outline: 2px solid #08776b; outline-offset: 4px; }
+  #customer-system-panel .customer-system-level { margin-top: 16px; padding: 18px; }
+  #customer-system-panel h3 { margin: 0; color: #315f59; font-size: 13px; font-weight: 600; }
+  #customer-system-panel .customer-system-level-name { margin: 3px 0 0; color: #143d3b; font-size: 20px; font-weight: 700; }
+  #customer-system-panel .customer-system-example {
+    padding: 3px 8px;
+    border-radius: 999px;
+    background: #edf5f1;
+    color: #526d65;
+    font-size: 11px;
+  }
+  #customer-system-panel .customer-system-progress-labels {
+    flex-wrap: wrap;
+    gap: 4px 12px;
+    margin: 18px 0 8px;
+    color: #526d65;
+    font-size: 12px;
+  }
+  #customer-system-panel .customer-system-xp { color: #143d3b; font-weight: 600; }
+  #customer-system-panel .customer-system-progress {
+    appearance: none;
+    -webkit-appearance: none;
+    display: block;
+    width: 100%;
+    height: 8px;
+    overflow: hidden;
+    border: 0;
+    border-radius: 999px;
+    background: #e7efeb;
+  }
+  #customer-system-panel .customer-system-progress::-webkit-progress-bar { background: #e7efeb; border-radius: 999px; }
+  #customer-system-panel .customer-system-progress::-webkit-progress-value { background: #188574; border-radius: 999px; }
+  #customer-system-panel .customer-system-progress::-moz-progress-bar { background: #188574; border-radius: 999px; }
+  #customer-system-panel .customer-system-level-note { margin: 12px 0 0; color: #526d65; font-size: 12px; line-height: 1.65; }
+  @media (prefers-reduced-motion: reduce) {
+    #customer-system-panel .customer-system-switch,
+    #customer-system-panel .customer-system-switch::before { transition: none; }
+  }
+</style>
+<style>
   #notificationDropdown {
     top: calc(100% + 8px);
     right: 16px;
@@ -366,7 +689,7 @@
     <!-- Meniu + Clopoțel + Avatar -->
     <div class="flex items-center space-x-6">
       <div class="hidden sm:flex space-x-4 text-sm font-medium">
-        <a href="#" class="text-black hover:underline">System</a>
+        <button type="button" class="customer-system-trigger text-black hover:underline" popovertarget="customer-system-panel" aria-haspopup="dialog">System</button>
 
         {% if user.is_superuser %}
           <a href="{% url 'chat_user_list' %}" class="text-black hover:underline">👥 Admin Chat Panel</a>
@@ -374,7 +697,7 @@
           <a href="{% url 'user_chat_redirect' %}">💬 ChatMe</a>
         {% endif %}
 
-        <a href="#" class="text-black hover:underline">Support</a>
+        <button type="button" class="customer-support-trigger text-black hover:underline" popovertarget="customer-support-panel" aria-haspopup="dialog">Support</button>
       </div>
 
       <!-- Clopoțel -->
@@ -473,8 +796,8 @@
     </div>
 
     <ul class="flex flex-col gap-4 text-lg font-semibold">
-      <li><a href="#" class="menu-link-simple block">System</a></li>
-      <li><a href="#" class="menu-link-simple block">Support</a></li>
+      <li><button type="button" class="customer-system-trigger menu-link-simple block" popovertarget="customer-system-panel" aria-haspopup="dialog">System</button></li>
+      <li><button type="button" class="customer-support-trigger menu-link-simple block" popovertarget="customer-support-panel" aria-haspopup="dialog">Support</button></li>
       <li><a href="{% url 'user_chat_redirect' %}" class="menu-link-simple block">ChatMe</a></li>
       <li>
         <form method="POST" action="{% url 'logout' %}">
@@ -486,6 +809,126 @@
   </div>
 </div>
 
+<!-- Frontend preview: native FAQ rows; no submitting form, uploads, or storage. -->
+<section id="customer-support-panel" popover="auto" role="dialog" aria-labelledby="customer-support-title" aria-describedby="customer-support-preview">
+  <div class="customer-support-topline">
+    <h2 id="customer-support-title">Support</h2>
+    <button type="button" class="customer-support-close" popovertarget="customer-support-panel" popovertargetaction="hide" autofocus>Close</button>
+  </div>
+  <p id="customer-support-preview" class="customer-support-preview">Preview only &mdash; messages and attachments aren&rsquo;t sent or saved.</p>
+
+  <section class="customer-support-faq" aria-labelledby="customer-support-faq-title">
+    <h3 id="customer-support-faq-title">Popular help questions</h3>
+    <div class="customer-support-faq-list">
+      <details class="customer-support-faq-item" data-support-topic="points">
+        <summary class="customer-support-faq-question">
+          <span>Why didn&rsquo;t I receive my points?</span>
+          <span class="customer-support-faq-icon" aria-hidden="true"><span class="customer-support-faq-plus">+</span><span class="customer-support-faq-minus">&minus;</span></span>
+        </summary>
+        <p class="customer-support-faq-answer">Check your points balance and recent activity. When contacting support, include when you expected to receive your points.</p>
+      </details>
+      <details class="customer-support-faq-item" data-support-topic="rewards">
+        <summary class="customer-support-faq-question">
+          <span>Where is my reward?</span>
+          <span class="customer-support-faq-icon" aria-hidden="true"><span class="customer-support-faq-plus">+</span><span class="customer-support-faq-minus">&minus;</span></span>
+        </summary>
+        <p class="customer-support-faq-answer">Check Redemption History for your reward&rsquo;s status. Include the redemption reference when contacting support.</p>
+      </details>
+      <details class="customer-support-faq-item" data-support-topic="streak">
+        <summary class="customer-support-faq-question">
+          <span>How does the streak work?</span>
+          <span class="customer-support-faq-icon" aria-hidden="true"><span class="customer-support-faq-plus">+</span><span class="customer-support-faq-minus">&minus;</span></span>
+        </summary>
+        <p class="customer-support-faq-answer">Claim your daily points on consecutive days to build your streak. How Points Work explains the streak milestones.</p>
+      </details>
+      <details class="customer-support-faq-item" data-support-topic="deals">
+        <summary class="customer-support-faq-question">
+          <span>I can&rsquo;t access a deal</span>
+          <span class="customer-support-faq-icon" aria-hidden="true"><span class="customer-support-faq-plus">+</span><span class="customer-support-faq-minus">&minus;</span></span>
+        </summary>
+        <p class="customer-support-faq-answer">Check whether the section or deal needs to be unlocked. Tell us which deal you&rsquo;re trying to access if you need help.</p>
+      </details>
+    </div>
+  </section>
+
+  <section class="customer-support-card" aria-labelledby="customer-support-form-title">
+    <h3 id="customer-support-form-title">Contact Support</h3>
+    <!-- Intentionally no form element: Enter cannot submit the preview. -->
+    <div class="customer-support-form" role="form" aria-labelledby="customer-support-form-title" aria-describedby="customer-support-preview customer-support-note">
+      <div class="customer-support-fields">
+        <div class="customer-support-field">
+          <label class="customer-support-label" for="customer-support-subject">Subject</label>
+          <input class="customer-support-control" id="customer-support-subject" name="subject" type="text" autocomplete="off" placeholder="What can we help with?">
+        </div>
+        <div class="customer-support-field">
+          <label class="customer-support-label" for="customer-support-category">Category</label>
+          <select class="customer-support-control" id="customer-support-category" name="category" autocomplete="off">
+            <option value="">Choose a category</option>
+            <option value="points_streak">Points &amp; Streak</option>
+            <option value="rewards">Rewards</option>
+            <option value="discounts_offers">Discounts &amp; Offers</option>
+            <option value="account_access">Account &amp; Access</option>
+            <option value="other">Something else</option>
+          </select>
+        </div>
+      </div>
+      <div class="customer-support-field customer-support-field--message">
+        <label class="customer-support-label" for="customer-support-message">Message</label>
+        <textarea class="customer-support-control" id="customer-support-message" name="message" rows="3" autocomplete="off" placeholder="Tell us a little more about your question..."></textarea>
+      </div>
+      <div class="customer-support-actions">
+        <div class="customer-support-upload">
+          <button class="customer-support-attachment" type="button" disabled aria-describedby="customer-support-preview">Attach screenshot <span class="customer-support-optional">(optional)</span></button>
+        </div>
+        <button class="customer-support-send" type="button" disabled aria-describedby="customer-support-preview">Send message</button>
+      </div>
+      <p id="customer-support-note" class="customer-support-note">Our support team will review your message and get back to you as soon as possible.</p>
+    </div>
+  </section>
+</section>
+
+<!-- Display-only controls: no form submission, storage, or account changes. -->
+<section id="customer-system-panel" popover="auto" role="dialog" aria-labelledby="customer-system-title" aria-describedby="customer-system-preview">
+  <div class="customer-system-topline">
+    <span class="customer-system-eyebrow">System</span>
+    <button type="button" class="customer-system-close" popovertarget="customer-system-panel" popovertargetaction="hide" autofocus>Close</button>
+  </div>
+  <h2 id="customer-system-title">Preferences &amp; Account Level</h2>
+  <p id="customer-system-preview" class="customer-system-preview">Preview only — preferences and example XP aren’t saved.</p>
+
+  <div class="customer-system-preferences" role="group" aria-label="Notification preferences">
+    <label class="customer-system-preference" for="customer-system-email">
+      <span class="customer-system-preference-copy">
+        <span id="customer-system-email-label" class="customer-system-preference-name">Email notifications</span>
+        <span id="customer-system-email-description" class="customer-system-preference-description">Great deals, rewards and important updates</span>
+      </span>
+      <input id="customer-system-email" class="customer-system-switch" type="checkbox" role="switch" name="email_notifications" aria-labelledby="customer-system-email-label" aria-describedby="customer-system-email-description" autocomplete="off" checked>
+    </label>
+    <label class="customer-system-preference" for="customer-system-in-app">
+      <span class="customer-system-preference-copy">
+        <span id="customer-system-in-app-label" class="customer-system-preference-name">In-app notifications</span>
+        <span id="customer-system-in-app-description" class="customer-system-preference-description">Updates shown in the notification bell</span>
+      </span>
+      <input id="customer-system-in-app" class="customer-system-switch" type="checkbox" role="switch" name="in_app_notifications" aria-labelledby="customer-system-in-app-label" aria-describedby="customer-system-in-app-description" autocomplete="off" checked>
+    </label>
+  </div>
+
+  <section class="customer-system-level" aria-labelledby="customer-system-level-title">
+    <div class="customer-system-level-heading">
+      <div>
+        <h3 id="customer-system-level-title">Account Level</h3>
+        <p class="customer-system-level-name">Very Beginner</p>
+      </div>
+      <span class="customer-system-example">Example</span>
+    </div>
+    <div class="customer-system-progress-labels">
+      <span class="customer-system-xp"><span class="customer-system-xp-current">120</span> / <span class="customer-system-xp-target">500</span> XP</span>
+      <span>Next: <span class="customer-system-next-level">Beginner</span></span>
+    </div>
+    <progress class="customer-system-progress" value="120" max="500" aria-label="Account level progress toward Beginner" aria-valuetext="120 of 500 XP">24%</progress>
+    <p class="customer-system-level-note">Your level grows mainly through active participation — staying active, using points, giving feedback, using ChatMe and exploring the site.</p>
+  </section>
+</section>
 
 
 {% endblock %}

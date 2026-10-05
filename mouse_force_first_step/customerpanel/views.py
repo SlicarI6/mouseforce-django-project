@@ -24,13 +24,13 @@ from django.views.decorators.cache import never_cache
 from django.views.decorators.debug import sensitive_post_parameters, sensitive_variables
 from django.utils.cache import add_never_cache_headers
 from django.urls import reverse
-import openai
 import os
 from django.conf import settings
 from .points import claim_daily_points, claim_streak_bonus, get_points_state
 from .news import NEWS_CATEGORIES, get_customer_news, normalise_news_category
 from .weather import get_customer_weather
 from .music import get_random_music_track
+from .assistant import ask_openai
 from .reward_catalogue import REWARD_CATEGORIES, published_rewards, present_reward
 from .reward_catalogue import FULFILLMENT_LABELS
 from .reward_confirmation import ConfirmationError, create_reward_confirmation, read_confirmation_token
@@ -635,39 +635,6 @@ def load_notifications(request):
 def mark_notifications_as_read(request):
     Notification.objects.filter(user=request.user, is_read=False).update(is_read=True)
     return JsonResponse({"status": "ok"})
-
-
-@csrf_exempt
-@login_required
-def ask_openai(request):
-    if request.method == "POST":
-        body = json.loads(request.body)
-        question = body.get("question", "")
-
-        client = openai.OpenAI(api_key=settings.OPENAI_API_KEY)
-        response = client.chat.completions.create(
-            model="gpt-4o",
-            temperature=0.8,
-            max_tokens=100,
-            messages=[
-                {
-                    "role": "system",
-                    "content": (
-                        "You are a helpful IT assistant. "
-                        "Reply like a real human, in short messages. "
-                        "Avoid repeating the same ideas. "
-                        "You work for a platform that offers:\n"
-                        "- automation scripts\n"
-                        "- website development\n"
-                        "- IT help and support\n"
-                        "Many services are free to grow our user base. Complex ones may be paid."
-                    )
-                },
-                {"role": "user", "content": question}
-            ]
-        )
-        answer = response.choices[0].message.content
-        return JsonResponse({"response": answer})
 
 
 @require_GET

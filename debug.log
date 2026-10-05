@@ -20,3 +20,40 @@
 [0928/060043.413:ERROR:net\base\network_change_notifier_win.cc:195] WSALookupServiceBegin failed with: -1
 [0928/060049.639:ERROR:net\base\network_change_notifier_win.cc:195] WSALookupServiceBegin failed with: -1
 [0928/060049.765:ERROR:net\base\network_change_notifier_win.cc:195] WSALookupServiceBegin failed with: -1
+[0928/223546.799:ERROR:net\base\network_change_notifier_win.cc:195] WSALookupServiceBegin failed with: -1
+[0928/223546.896:ERROR:net\base\network_change_notifier_win.cc:195] WSALookupServiceBegin failed with: -1
+[0928/223552.696:ERROR:net\base\network_change_notifier_win.cc:195] WSALookupServiceBegin failed with: -1
+[0928/223552.779:ERROR:net\base\network_change_notifier_win.cc:195] WSALookupServiceBegin failed with: -1
+[0928/223703.314:ERROR:net\base\network_change_notifier_win.cc:195] WSALookupServiceBegin failed with: -1
+[0928/223703.366:ERROR:net\base\network_change_notifier_win.cc:195] WSALookupServiceBegin failed with: -1
+[0928/223754.677:ERROR:net\base\network_change_notifier_win.cc:195] WSALookupServiceBegin failed with: -1
+[0928/223754.736:ERROR:net\base\network_change_notifier_win.cc:195] WSALookupServiceBegin failed with: -1
+[0928/223811.415:ERROR:net\base\network_change_notifier_win.cc:195] WSALookupServiceBegin failed with: -1
+[0928/223811.472:ERROR:net\base\network_change_notifier_win.cc:195] WSALookupServiceBegin failed with: -1
+[0928/223813.204:ERROR:cc\raster\one_copy_raster_buffer_provider.cc:282] Creation of StagingBuffer's SharedImage failed.
+[0928/223813.204:ERROR:cc\raster\one_copy_raster_buffer_provider.cc:282] Creation of StagingBuffer's SharedImage failed.
+[0928/223813.204:ERROR:cc\raster\one_copy_raster_buffer_provider.cc:282] Creation of StagingBuffer's SharedImage failed.
+[0928/223813.205:ERROR:cc\raster\one_copy_raster_buffer_provider.cc:282] Creation of StagingBuffer's SharedImage failed.
+[0928/223813.205:ERROR:cc\raster\one_copy_raster_buffer_provider.cc:282] Creation of StagingBuffer's SharedImage failed.
+[0928/223813.205:ERROR:cc\raster\one_copy_raster_buffer_provider.cc:282] Creation of StagingBuffer's SharedImage failed.
+[0928/223813.205:ERROR:cc\raster\one_copy_raster_buffer_provider.cc:282] Creation of StagingBuffer's SharedImage failed.
+[0928/223813.205:ERROR:cc\raster\one_copy_raster_buffer_provider.cc:282] Creation of StagingBuffer's SharedImage failed.
+[0928/223813.205:ERROR:cc\raster\one_copy_raster_buffer_provider.cc:282] Creation of StagingBuffer's SharedImage failed.
+[0928/223813.205:ERROR:cc\raster\one_copy_raster_buffer_provider.cc:282] Creation of StagingBuffer's SharedImage failed.
+[0928/223813.208:ERROR:cc\raster\one_copy_raster_buffer_provider.cc:282] Creation of StagingBuffer's SharedImage failed.
+[0928/223813.835:ERROR:net\base\network_change_notifier_win.cc:195] WSALookupServiceBegin failed with: -1
+[0928/223813.889:ERROR:net\base\network_change_notifier_win.cc:195] WSALookupServiceBegin failed with: -1
+[0928/223908.838:ERROR:net\base\network_change_notifier_win.cc:195] WSALookupServiceBegin failed with: -1
+[0928/223908.902:ERROR:net\base\network_change_notifier_win.cc:195] WSALookupServiceBegin failed with: -1
+[0928/223911.554:ERROR:net\base\network_change_notifier_win.cc:195] WSALookupServiceBegin failed with: -1
+[0928/223911.642:ERROR:net\base\network_change_notifier_win.cc:195] WSALookupServiceBegin failed with: -1
+[0928/224946.052:ERROR:net\base\network_change_notifier_win.cc:195] WSALookupServiceBegin failed with: -1
+[0928/224946.110:ERROR:net\base\network_change_notifier_win.cc:195] WSALookupServiceBegin failed with: -1
+[0928/224951.943:ERROR:net\base\network_change_notifier_win.cc:195] WSALookupServiceBegin failed with: -1
+[0928/224951.995:ERROR:net\base\network_change_notifier_win.cc:195] WSALookupServiceBegin failed with: -1
+[0928/225014.660:ERROR:net\base\network_change_notifier_win.cc:195] WSALookupServiceBegin failed with: -1
+[0928/225014.714:ERROR:net\base\network_change_notifier_win.cc:195] WSALookupServiceBegin failed with: -1
+[0928/225017.200:ERROR:net\base\network_change_notifier_win.cc:195] WSALookupServiceBegin failed with: -1
+[0928/225017.277:ERROR:net\base\network_change_notifier_win.cc:195] WSALookupServiceBegin failed with: -1
+[0928/225117.017:ERROR:net\base\network_change_notifier_win.cc:195] WSALookupServiceBegin failed with: -1
+[0928/225117.074:ERROR:net\base\network_change_notifier_win.cc:195] WSALookupServiceBegin failed with: -1

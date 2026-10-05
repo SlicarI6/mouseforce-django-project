@@ -90,6 +90,35 @@ def weather_fixture(city):
 views.get_customer_news = news_fixture
 views.get_customer_weather = weather_fixture
 
+# Opt-in only: all AI requests in browser verification stay in this isolated server.
+if os.environ.get('CUSTOMER_BROWSER_ASSISTANT_FIXTURE') == '1':
+    import fakeredis
+    from types import SimpleNamespace
+    from .. import assistant
+    assistant_redis = fakeredis.FakeRedis(decode_responses=True)
+    assistant.limiter_client = lambda: assistant_redis
+
+    class AssistantProviderFixture:
+        def __init__(self, **kwargs):
+            self.responses = self
+
+        def __enter__(self):
+            return self
+
+        def __exit__(self, *args):
+            pass
+
+        def create(self, **options):
+            question = options['input'][-1]['content']
+            searched = bool(options.get('tools'))
+            annotations = [SimpleNamespace(type='url_citation', url='https://example.com/official', title='Official test source')] if searched else []
+            output = [SimpleNamespace(type='message', content=[SimpleNamespace(annotations=annotations)])]
+            if searched:
+                output.insert(0, SimpleNamespace(type='web_search_call'))
+            return SimpleNamespace(status='completed', output_text='Test assistant reply: ' + question, output=output)
+
+    assistant.openai.OpenAI = AssistantProviderFixture
+
 
 @csrf_exempt
 def fixture(request):
